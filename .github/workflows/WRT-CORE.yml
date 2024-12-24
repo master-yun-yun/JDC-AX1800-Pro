@@ -235,6 +235,8 @@ jobs:
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
           fi
 
+         echo "WRT_KVER=${KVER:-none}" >> $GITHUB_ENV
+
       - name: Release Firmware
         uses: softprops/action-gh-release@v2
         with:
@@ -246,6 +248,8 @@ jobs:
             不要问，刷就完事了！
 
             全系带开源硬件加速，别问了！
+
+            内核版本：${{env.WRT_KVER}}
 
             WIFI名称：${{env.WRT_SSID}}
             WIFI密码：${{env.WRT_WORD}}
