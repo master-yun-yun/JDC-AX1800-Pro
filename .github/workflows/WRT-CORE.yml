@@ -180,20 +180,20 @@ jobs:
 
           make download -j$(nproc)
 
-      - name: Resolve File Ownership Conflicts
-        run: |
+      #- name: Resolve File Ownership Conflicts
+        #run: |
           # 解决文件所有权冲突的脚本
           # 移除或备份冲突的文件
-          conflict_files="/etc/config/openvpn /etc/easy-rsa/vars"
-          for file in $conflict_files; do
-            if [ -f "$file" ]; then
+          #conflict_files="/etc/config/openvpn /etc/easy-rsa/vars"
+          #for file in $conflict_files; do
+            #if [ -f "$file" ]; then
               # 选择备份或移除冲突文件
               # 备份文件
-              mv "$file" "${file}.bak"
+              #mv "$file" "${file}.bak"
               # 或者移除文件
               # rm -f "$file"
-            fi
-          done
+            #fi
+          #done
 
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
