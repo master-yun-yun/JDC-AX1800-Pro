@@ -234,8 +234,7 @@ jobs:
 
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
           fi
-
-         echo "WRT_KVER=${KVER:-none}" >> $GITHUB_ENV
+          echo "WRT_KVER=${KVER:-none}" >> $GITHUB_ENV
 
       - name: Release Firmware
         uses: softprops/action-gh-release@v2
