@@ -161,6 +161,12 @@ jobs:
           $GITHUB_WORKSPACE/Scripts/Packages.sh
           $GITHUB_WORKSPACE/Scripts/Handles.sh
 
+      - name: Force Install Plugins
+        run: |
+          cd ./wrt/
+          apk add luci-app-openvpn-server --force-overwrite
+          apk add luci-i18n-openvpn-server-zh-cn --force-overwrite
+
       - name: Custom Settings
         run: |
           cd ./wrt/
