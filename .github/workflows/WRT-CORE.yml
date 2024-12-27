@@ -164,10 +164,21 @@ jobs:
       - name: Force Install Plugins
         run: |
           cd ./wrt/
+
+          # 更新 feeds
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          ./scripts/feeds install luci-app-openvpn-server --force-overwrite
-          ./scripts/feeds install luci-i18n-openvpn-server-zh-cn --force-overwrite
+
+          # 强制安装插件（通过直接操作包目录）
+          rm -rf ./package/feeds/packages/luci-app-openvpn-server
+          rm -rf ./package/feeds/packages/luci-i18n-openvpn-server-zh-cn
+
+          git clone https://github.com/hyperlook/luci-app-openvpn-server.git ./package/feeds/packages/luci-app-openvpn-server
+          git clone https://github.com/hyperlook/luci-i18n-openvpn-server-zh-cn.git ./package/feeds/packages/luci-i18n-openvpn-server-zh-cn
+
+          # 重新安装插件
+          ./scripts/feeds install luci-app-openvpn-server
+          ./scripts/feeds install luci-i18n-openvpn-server-zh-cn
 
       - name: Custom Settings
         run: |
