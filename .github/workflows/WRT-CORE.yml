@@ -161,7 +161,7 @@ jobs:
           $GITHUB_WORKSPACE/Scripts/Packages.sh
           $GITHUB_WORKSPACE/Scripts/Handles.sh
 
-      - name: Force Install Plugins
+      - name: Force Install Plugins 强制安装luci-app-openvpn-server
         run: |
           cd ./wrt/
 
@@ -169,16 +169,12 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-          # 强制安装插件（通过直接操作包目录）
+          # 强制覆盖安装插件
           rm -rf ./package/feeds/packages/luci-app-openvpn-server
           rm -rf ./package/feeds/packages/luci-i18n-openvpn-server-zh-cn
 
-          git clone https://github.com/hyperlook/luci-app-openvpn-server.git ./package/feeds/packages/luci-app-openvpn-server
-          git clone https://github.com/hyperlook/luci-i18n-openvpn-server-zh-cn.git ./package/feeds/packages/luci-i18n-openvpn-server-zh-cn
-
-          # 重新安装插件
-          ./scripts/feeds install luci-app-openvpn-server
-          ./scripts/feeds install luci-i18n-openvpn-server-zh-cn
+          ./scripts/feeds install -f luci-app-openvpn-server
+          ./scripts/feeds install -f luci-i18n-openvpn-server-zh-cn
 
       - name: Custom Settings
         run: |
