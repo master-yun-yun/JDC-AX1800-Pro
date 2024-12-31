@@ -88,6 +88,10 @@ CONFIG_PACKAGE_luci-lua-runtime=y
 CONFIG_PACKAGE_luci-proto-bonding=y
 CONFIG_PACKAGE_luci-proto-relay=y
 #以下自行增加的插件及组件
+#zram-swap内存压缩
+CONFIG_PACKAGE_zram-swap=y
+CONFIG_PACKAGE_kmod-zram=y
+#依赖插件及组件
 CONFIG_PACKAGE_fuse-utils=y
 CONFIG_PACKAGE_fuse3-utils=y
 CONFIG_PACKAGE_libfuse1=y
@@ -132,7 +136,6 @@ CONFIG_PACKAGE_luci-theme-edge=y
 #CONFIG_PACKAGE_luci-app-filebrowser-go=y
 #多端网盘挂载alist
 CONFIG_PACKAGE_luci-app-alist=y
-#zram-swap内存压缩
-CONFIG_PACKAGE_zram-swap=y
-CONFIG_PACKAGE_kmod-zram=y
+#openvpn-server
+CONFIG_PACKAGE_luci-app-openvpn-server=y
 #以上为自行增加的插件及组件
