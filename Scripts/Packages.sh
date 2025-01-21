@@ -8,21 +8,25 @@ UPDATE_PACKAGE() {
 	local PKG_SPECIAL=$4
 	local REPO_NAME=$(echo $PKG_REPO | cut -d '/' -f 2)
 
-	rm -rf $(find ./ ../feeds/luci/ ../feeds/packages/ -maxdepth 3 -type d -iname "*$PKG_NAME*" -prune)
+	IFS=' ' read -ra KEYWORDS <<< "$PKG_NAMES"
+	for KEYWORD in "${KEYWORDS[@]}"; do
+		find ./ ../feeds/luci/ ../feeds/packages/ -maxdepth 3 -type d -iname "*$KEYWORD*" -exec rm -rf {} +
+	done
 
 	git clone --depth=1 --single-branch --branch $PKG_BRANCH "https://github.com/$PKG_REPO.git"
 
 	if [[ $PKG_SPECIAL == "pkg" ]]; then
-		cp -rf $(find ./$REPO_NAME/*/ -maxdepth 3 -type d -iname "*$PKG_NAME*" -prune) ./
-		rm -rf ./$REPO_NAME/
+		for KEYWORD in "${KEYWORDS[@]}"; do
+			find ./$REPO_NAME/*/ -maxdepth 3 -type d -iname "*$KEYWORD*" -prune -exec cp -rf {} ./ \;
+		done
+		rm -rf ./$REPO_NAME
 	elif [[ $PKG_SPECIAL == "name" ]]; then
-		mv -f $REPO_NAME $PKG_NAME
+		mv -f $REPO_NAME ${KEYWORDS[0]}
 	fi
 }
 
 #UPDATE_PACKAGE "包名" "项目地址" "项目分支" "pkg/name，可选，pkg为从大杂烩中单独提取包名插件；name为重命名为包名"
-UPDATE_PACKAGE "argon" "jerrykuku/luci-theme-argon" "master"
-UPDATE_PACKAGE "kucat" "sirpdboy/luci-theme-kucat" "js"
+UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-24.10"
 
 UPDATE_PACKAGE "homeproxy" "VIKINGYFY/homeproxy" "main"
 UPDATE_PACKAGE "mihomo" "morytyann/OpenWrt-mihomo" "main"
@@ -32,31 +36,12 @@ UPDATE_PACKAGE "ssr-plus" "fw876/helloworld" "master"
 
 UPDATE_PACKAGE "alist" "sbwml/luci-app-alist" "main"
 UPDATE_PACKAGE "mosdns" "sbwml/luci-app-mosdns" "v5"
-UPDATE_PACKAGE "vnt" "lazyoop/networking-artifact" "main" "pkg"
-UPDATE_PACKAGE "easytier" "lazyoop/networking-artifact" "main" "pkg"
+UPDATE_PACKAGE "wol" "VIKINGYFY/packages" "main" "pkg"
 
-UPDATE_PACKAGE "luci-app-advancedplus" "VIKINGYFY/packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-gecoosac" "lwb1978/openwrt-gecoosac" "main"
 UPDATE_PACKAGE "luci-app-tailscale" "asvow/luci-app-tailscale" "main"
-UPDATE_PACKAGE "luci-app-wolplus" "VIKINGYFY/packages" "main" "pkg"
 
-#以下自定义源
-#全能推送PushBot
-UPDATE_PACKAGE "luci-app-pushbot" "zzsj0928/luci-app-pushbot" "master"
-#关机poweroff
-UPDATE_PACKAGE "luci-app-poweroff" "DongyangHu/luci-app-poweroff" "main"
-#主题界面edge
-UPDATE_PACKAGE "luci-theme-edge" "ricemices/luci-theme-edge" "master"
-#分区扩容
-UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"
-#阿里云盘aliyundrive-webdav
-#UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "messense/aliyundrive-webdav" "main"
-#UPDATE_PACKAGE "aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main" "pkg"
-UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main"
-#服务器
-#UPDATE_PACKAGE "luci-app-openvpn-server" "hyperlook/luci-app-openvpn-server" "main"
-#UPDATE_PACKAGE "luci-app-openvpn-server" "ixiaan/luci-app-openvpn-server" "main"
-#以上自定义源
+UPDATE_PACKAGE "lazyoop" "lazyoop/networking-artifact" "main"
 
 if [[ $WRT_REPO != *"immortalwrt"* ]]; then
 	UPDATE_PACKAGE "qmi-wwan" "immortalwrt/wwan-packages" "master" "pkg"
@@ -99,3 +84,21 @@ UPDATE_VERSION() {
 #UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
 UPDATE_VERSION "sing-box"
 UPDATE_VERSION "tailscale"
+
+#以下自定义源
+#全能推送PushBot
+UPDATE_PACKAGE "luci-app-pushbot" "zzsj0928/luci-app-pushbot" "master"
+#关机poweroff
+UPDATE_PACKAGE "luci-app-poweroff" "DongyangHu/luci-app-poweroff" "main"
+#主题界面edge
+UPDATE_PACKAGE "luci-theme-edge" "ricemices/luci-theme-edge" "master"
+#分区扩容
+UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"
+#阿里云盘aliyundrive-webdav
+#UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "messense/aliyundrive-webdav" "main"
+#UPDATE_PACKAGE "aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main" "pkg"
+UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main"
+#服务器
+#UPDATE_PACKAGE "luci-app-openvpn-server" "hyperlook/luci-app-openvpn-server" "main"
+#UPDATE_PACKAGE "luci-app-openvpn-server" "ixiaan/luci-app-openvpn-server" "main"
+#以上自定义源
