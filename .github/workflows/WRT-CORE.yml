@@ -74,6 +74,14 @@ jobs:
           swap-storage: true
           tool-cache: true
 
+      - name: Add Swap  # 插入点（新增交换空间）
+        run: |
+          sudo dd if=/dev/zero of=/swapfile bs=1G count=4
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -183,12 +191,11 @@ jobs:
 
           make download -j$(nproc)
 
-      - name: Compile Firmware
+      - name: Compile Firmware  # 不修改名称
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-
-          make -j$(nproc) || make -j1 V=s
+          make -j2 V=s
 
       - name: Machine Information
         run: |
