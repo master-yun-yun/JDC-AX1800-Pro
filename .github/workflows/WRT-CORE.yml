@@ -63,6 +63,7 @@ jobs:
       - name: Checkout Projects
         uses: actions/checkout@main
 
+      # 第一阶段：磁盘空间管理
       - name: Free Disk Space
         uses: FirelightFlagboy/gh-runner-free-disk-space@main
         with:
@@ -74,13 +75,39 @@ jobs:
           swap-storage: true
           tool-cache: true
 
-      - name: Add Swap  # 插入点（新增交换空间）
+      - name: Check disk space before cleanup
+        run: df -h
+
+      - name: Remove Google Cloud components
+        run: |
+          if dpkg -l | grep -q 'google-cloud-cli-anthoscli'; then
+            echo "Removing google-cloud-cli-anthoscli..."
+            sudo apt-get remove --autoremove -y google-cloud-cli-anthoscli || echo "::warning::Failed to remove Anthos CLI"
+          fi
+
+      - name: Clean residual packages
+        run: |
+          pkgs=$(dpkg -l | awk '/^rc/ {print $2}')
+          if [ -n "$pkgs" ]; then
+            echo "Purging residual packages: $pkgs"
+            sudo dpkg --purge $pkgs
+          fi
+
+      - name: Final cleanup
+        run: |
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
+          df -h
+
+      # 第二阶段：环境准备
+      - name: Add Swap
         run: |
           sudo dd if=/dev/zero of=/swapfile bs=1G count=4
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
           free -h
+          sudo swapon --show
 
       - name: Initialization Environment
         env:
@@ -96,6 +123,7 @@ jobs:
           sudo -E systemctl daemon-reload
           sudo -E timedatectl set-timezone "Asia/Shanghai"
 
+      # 第三阶段：编译配置
       - name: Initialization Values
         run: |
           export WRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
@@ -111,19 +139,17 @@ jobs:
       - name: Clone Code
         run: |
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
-
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
 
-          # GitHub Action 移除国内下载源
+          # 移除国内镜像源
           PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
-          if [ -f "$PROJECT_MIRRORS_FILE" ]; then
-            sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
-          fi
+          [ -f "$PROJECT_MIRRORS_FILE" ] && sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
 
       - name: Check Scripts
         run: |
-          find ./ -maxdepth 3 -type f -iregex ".*\(txt\|sh\)$" -exec dos2unix {} \; -exec chmod +x {} \;
+          find ./ -maxdepth 3 -type f $ -iname "*.txt" -o -iname "*.sh" $ -exec dos2unix {} \; -exec chmod +x {} \;
 
+      # 第四阶段：缓存管理（续）
       - name: Check Caches
         id: check-cache
         if: env.WRT_TEST != 'true'
@@ -145,62 +171,55 @@ jobs:
             done
 
             mkdir -p ./wrt/tmp && echo "1" > ./wrt/tmp/.build
-
-            echo "toolchain skiped done!"
+            echo "Toolchain timestamp updated!"
           else
-            echo "caches missed!"
+            echo "No existing caches found!"
           fi
 
-          if ${{steps.check-cache.outputs.cache-hit != 'true'}}; then
+          if [[ "${{steps.check-cache.outputs.cache-hit}}" != 'true' ]]; then
+            echo "Cleaning old caches..."
             CACHE_LIST=$(gh cache list --key "$WRT_TARGET-$WRT_VER" | cut -f 1)
             for CACHE_KEY in $CACHE_LIST; do
-               gh cache delete $CACHE_KEY
+              gh cache delete $CACHE_KEY --confirm
             done
-
-            echo "caches cleanup done!"
           fi
 
+      # 第五阶段：编译准备
       - name: Update Feeds
         run: |
           cd ./wrt/
-
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: Custom Packages
         run: |
           cd ./wrt/package/
-
           $GITHUB_WORKSPACE/Scripts/Packages.sh
           $GITHUB_WORKSPACE/Scripts/Handles.sh
 
       - name: Custom Settings
         run: |
           cd ./wrt/
-
           cat $GITHUB_WORKSPACE/Config/$WRT_TARGET.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
-
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-
-          make defconfig -j$(nproc) && make clean
+          make defconfig -j$(nproc)
+          make clean
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-
           make download -j$(nproc)
 
-      - name: Compile Firmware  # 不修改名称
+      # 第六阶段：编译过程
+      - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-          make -j2 V=s
+          make -j2 V=s || { echo "::error::Compilation failed"; exit 1; }
 
       - name: Machine Information
         run: |
-          cd ./wrt/
-
           echo "======================="
           lscpu | grep -E "name|Core|Thread"
           echo "======================="
@@ -209,51 +228,58 @@ jobs:
           du -h --max-depth=1
           echo "======================="
 
+      # 第七阶段：成果处理
       - name: Package Firmware
         run: |
-          cd ./wrt/ && mkdir ./upload/
-
-          cp -f ./.config ./upload/Config_"$WRT_TARGET"_"$WRT_VER"_"$WRT_DATE".txt
+          cd ./wrt/
+          mkdir -p upload
+          cp -f .config "upload/Config_${WRT_TARGET}_${WRT_VER}_${WRT_DATE}.txt"
 
           if [[ $WRT_TEST != 'true' ]]; then
-            KVER=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)
+            KVER=$(find ./bin/targets/ -name "*.manifest" -exec grep -m1 -oP 'kernel - \K[\d.]+' {} \;)
+            
+            # 清理不需要的文件
+            find ./bin/targets/ $ -iname "*.buildinfo" -o -iname "*.json" -o -iname "*.manifest" $ -delete
+            
+            # 处理固件文件
+            while IFS= read -r -d '' FILE; do
+              FILENAME=$(basename "$FILE")
+              EXTENSION="${FILENAME#*.}"
+              NEW_NAME="${WRT_VER}_${WRT_DATE}.${EXTENSION}"
+              mv -f "$FILE" "upload/$NEW_NAME"
+            done < <(find ./bin/targets/ -type f -print0)
 
-            find ./bin/targets/ -iregex ".*\(buildinfo\|json\|manifest\|sha256sums\|packages\)$" -exec rm -rf {} +
-
-            for TYPE in $WRT_TYPE ; do
-              for FILE in $(find ./bin/targets/ -type f -iname "*$TYPE*.*") ; do
-                EXT=$(basename $FILE | cut -d '.' -f 2-)
-                NAME=$(basename $FILE | cut -d '.' -f 1 | grep -io "\($TYPE\).*")
-                NEW_FILE="$WRT_VER"_"$NAME"_"$WRT_DATE"."$EXT"
-                mv -f $FILE ./upload/$NEW_FILE
-              done
-            done
-
-            find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
+            echo "WRT_KVER=${KVER:-none}" >> $GITHUB_ENV
           fi
 
-          echo "WRT_KVER=${KVER:-none}" >> $GITHUB_ENV
-
+      # 最终阶段：发布清理
       - name: Release Firmware
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{env.WRT_TARGET}}_${{env.WRT_VER}}_${{env.WRT_DATE}}
-          files: ./wrt/upload/*.*
+          files: ./wrt/upload/*
           body: |
-            这是个平台固件包，内含多个设备！
-            请注意选择你需要的设备固件！
-            不要问，刷就完事了！
+            📦 固件编译报告
+            
+            ### 基本配置
+            - 编译时间：`${{env.WRT_DATE}}`
+            - 内核版本：`${{env.WRT_KVER}}`
+            - 目标平台：`${{env.WRT_TARGET}}`
+            
+            ### 网络配置
+            - WiFi SSID：`${{env.WRT_SSID}}`
+            - WiFi 密码：`${{env.WRT_WORD}}`
+            - 管理地址：`http://${{env.WRT_IP}}`
+            - 管理密码：`${{env.WRT_PW}}`
 
-            全系带开源硬件加速，别问了！
+            ### 源码信息
+            - 代码仓库：[${{env.WRT_REPO}}](${{env.WRT_REPO}})
+            - 代码分支：`${{env.WRT_BRANCH}}`
+            - 最后提交：`${{env.WRT_HASH}}`
 
-            内核版本：${{env.WRT_KVER}}
-
-            WIFI名称：${{env.WRT_SSID}}
-            WIFI密码：${{env.WRT_WORD}}
-
-            源码：${{env.WRT_REPO}}
-            分支：${{env.WRT_BRANCH}}
-            平台：${{env.WRT_TARGET}}
-            设备：${{env.WRT_TYPE}}
-            地址：${{env.WRT_IP}}
-            密码：${{env.WRT_PW}}
+      - name: Cleanup Swap
+        run: |
+          sudo swapoff /swapfile
+          sudo rm -f /swapfile
+          echo "Swap space removed successfully"
+          df -h
