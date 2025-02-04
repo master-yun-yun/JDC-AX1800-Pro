@@ -146,7 +146,7 @@ jobs:
           [ -f "$PROJECT_MIRRORS_FILE" ] && sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
 
 	  - name: Check Scripts
-		run: |
+	    run: |
 		  set -eo pipefail  # 启用错误检测
     
           if ! find_cmd=$(find ./ -maxdepth 3 -type f $ -iname "*.txt" -o -iname "*.sh" $ 2>&1); then
