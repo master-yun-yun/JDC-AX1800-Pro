@@ -153,12 +153,7 @@ jobs:
             -exec dos2unix {} \; \
             -exec chmod +x {} \;
           echo "已处理的文件列表："
-          find ./ -maxdepth 3 -type f $ -iname "*.txt" -o -iname "*.sh" $ -ls
-    
-	# 添加验证步骤
-    echo "已处理的文件列表："
-    find ./ -maxdepth 3 -type f $ -iname '*.txt' -o -iname '*.sh' $ -ls
-
+          find ./ -maxdepth 3 -type f $ -iname '*.txt' -o -iname '*.sh' $ -ls
 
       # 缓存管理
       - name: Check Caches
