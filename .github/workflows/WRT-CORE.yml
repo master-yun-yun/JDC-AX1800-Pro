@@ -63,7 +63,7 @@ jobs:
       - name: Checkout Projects
         uses: actions/checkout@main
 
-      # 第一阶段：磁盘空间管理
+      # 磁盘空间管理
       - name: Free Disk Space
         uses: FirelightFlagboy/gh-runner-free-disk-space@main
         with:
@@ -99,7 +99,7 @@ jobs:
           sudo rm -rf /var/lib/apt/lists/*
           df -h
 
-      # 第二阶段：环境准备
+      # 交换空间配置
       - name: Add Swap
         run: |
           sudo dd if=/dev/zero of=/swapfile bs=1G count=4
@@ -109,6 +109,7 @@ jobs:
           free -h
           sudo swapon --show
 
+      # 环境初始化
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -123,7 +124,7 @@ jobs:
           sudo -E systemctl daemon-reload
           sudo -E timedatectl set-timezone "Asia/Shanghai"
 
-      # 第三阶段：编译配置
+      # 编译配置
       - name: Initialization Values
         run: |
           export WRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d_%H.%M.%S")
@@ -145,26 +146,16 @@ jobs:
           PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
           [ -f "$PROJECT_MIRRORS_FILE" ] && sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
 
-	  - name: Check Scripts
-	    run: |
-		  set -eo pipefail  # 启用错误检测
-    
-          if ! find_cmd=$(find ./ -maxdepth 3 -type f $ -iname "*.txt" -o -iname "*.sh" $ 2>&1); then
-          echo "::error::文件查找失败: $find_cmd"
-          exit 1
-          fi
-    
-          echo "$find_cmd" | while read -r file; do
-          if [ ! -f "$file" ]; then
-          echo "::warning::无效文件路径: $file"
-          continue
-          fi
-          dos2unix "$file"
-          chmod +x "$file"
-          done
+      - name: Check Scripts (Fixed)
+        run: |
+          echo "==== 开始处理脚本文件 ===="
+          find ./ -maxdepth 3 -type f $ -iname "*.txt" -o -iname "*.sh" $ \
+            -exec dos2unix {} \; \
+            -exec chmod +x {} \;
+          echo "已处理的文件列表："
+          find ./ -maxdepth 3 -type f $ -iname "*.txt" -o -iname "*.sh" $ -ls
 
-
-      # 第四阶段：缓存管理（续）
+      # 缓存管理
       - name: Check Caches
         id: check-cache
         if: env.WRT_TEST != 'true'
@@ -181,120 +172,147 @@ jobs:
         if: env.WRT_TEST != 'true'
         run: |
           if [ -d "./wrt/staging_dir" ]; then
-            find "./wrt/staging_dir" -type d -name "stamp" -not -path "*target*" | while read -r DIR; do
-              find "$DIR" -type f -exec touch {} +
-            done
-
-            mkdir -p ./wrt/tmp && echo "1" > ./wrt/tmp/.build
-            echo "Toolchain timestamp updated!"
+            find "./wrt/staging_dir" -type d -name "stamp" -not -path "*target*" -exec touch {}/* \;
+            mkdir -p ./wrt/tmp
+            echo "1" > ./wrt/tmp/.build
+            echo "🔄 缓存时间戳已更新"
           else
-            echo "No existing caches found!"
+            echo "⚠️ 未找到现有缓存"
           fi
 
           if [[ "${{steps.check-cache.outputs.cache-hit}}" != 'true' ]]; then
-            echo "Cleaning old caches..."
-            CACHE_LIST=$(gh cache list --key "$WRT_TARGET-$WRT_VER" | cut -f 1)
-            for CACHE_KEY in $CACHE_LIST; do
-              gh cache delete $CACHE_KEY --confirm
-            done
+            echo "🧹 清理旧缓存..."
+            gh cache list --key "$WRT_TARGET-$WRT_VER" --limit 100 | awk '{print $1}' | xargs -n1 gh cache delete --confirm
           fi
 
-      # 第五阶段：编译准备
+      # 编译准备
       - name: Update Feeds
         run: |
           cd ./wrt/
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+          echo "📦 软件源更新完成"
 
       - name: Custom Packages
         run: |
           cd ./wrt/package/
+          echo "⚙️ 开始自定义软件包..."
           $GITHUB_WORKSPACE/Scripts/Packages.sh
           $GITHUB_WORKSPACE/Scripts/Handles.sh
+          echo "✅ 软件包处理完成"
 
       - name: Custom Settings
         run: |
           cd ./wrt/
+          echo "⚙️ 应用配置..."
           cat $GITHUB_WORKSPACE/Config/$WRT_TARGET.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
           $GITHUB_WORKSPACE/Scripts/Settings.sh
           make defconfig -j$(nproc)
           make clean
+          echo "🛠️ 配置已完成"
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-          make download -j$(nproc)
+          echo "📥 开始下载依赖包..."
+          make download -j$(nproc) || {
+            echo "::warning::部分依赖下载失败，尝试单线程下载"
+            make download -j1 V=s
+          }
+          echo "✅ 依赖下载完成"
 
-      # 第六阶段：编译过程
+      # 编译阶段
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
+        timeout-minutes: 120
         run: |
           cd ./wrt/
-          make -j2 V=s || { echo "::error::Compilation failed"; exit 1; }
+          echo "🏗️ 开始编译固件（使用2线程）..."
+          start_time=$(date +%s)
+          make -j2 V=s || {
+            echo "::error::编译失败！开始收集调试信息..."
+            find . -name 'logs' -exec tail -n 50 {} \;
+            exit 1
+          }
+          end_time=$(date +%s)
+          echo "⌛ 编译耗时: $((end_time - start_time)) 秒"
 
-      - name: Machine Information
+      # 调试信息
+      - name: Post-Compile Debug
+        if: always()
         run: |
-          echo "======================="
-          lscpu | grep -E "name|Core|Thread"
-          echo "======================="
+          echo "🔍 编译后系统状态："
+          echo "---- 内存使用 ----"
+          free -h
+          echo "---- 存储空间 ----"
           df -h
-          echo "======================="
-          du -h --max-depth=1
-          echo "======================="
+          echo "---- 交换空间 ----"
+          sudo swapon --show
 
-      # 第七阶段：成果处理
       - name: Package Firmware
         run: |
           cd ./wrt/
           mkdir -p upload
-          cp -f .config "upload/Config_${WRT_TARGET}_${WRT_VER}_${WRT_DATE}.txt"
+          echo "📦 打包固件..."
+          
+          # 保留配置文件
+          cp -fv .config "upload/Config_${WRT_TARGET}_${WRT_VER}_${WRT_DATE}.txt"
 
           if [[ $WRT_TEST != 'true' ]]; then
-            KVER=$(find ./bin/targets/ -name "*.manifest" -exec grep -m1 -oP 'kernel - \K[\d.]+' {} \;)
+            # 获取内核版本
+            KVER=$(find ./bin/targets/ -name "*.manifest" -print0 | xargs -0 grep -m1 -oP 'kernel - \K[\d.]+')
             
-            # 清理不需要的文件
-            find ./bin/targets/ $ -iname "*.buildinfo" -o -iname "*.json" -o -iname "*.manifest" $ -delete
-            
-            # 处理固件文件
-            while IFS= read -r -d '' FILE; do
-              FILENAME=$(basename "$FILE")
-              EXTENSION="${FILENAME#*.}"
-              NEW_NAME="${WRT_VER}_${WRT_DATE}.${EXTENSION}"
-              mv -f "$FILE" "upload/$NEW_NAME"
-            done < <(find ./bin/targets/ -type f -print0)
+            # 清理中间文件
+            find ./bin/targets/ \( \
+              -iname "*.buildinfo" \
+              -o -iname "packages.json" \
+              -o -iname "*.manifest" \
+              -o -iname "sha256sums" \
+            \) -delete
 
-            echo "WRT_KVER=${KVER:-none}" >> $GITHUB_ENV
+            # 重命名固件文件
+            find ./bin/targets/ -type f -print0 | while IFS= read -r -d '' file; do
+              new_name="${WRT_VER}_${WRT_DATE}_$(basename "$file")"
+              mv -fv "$file" "upload/$new_name"
+            done
+
+            echo "WRT_KVER=${KVER:-unknown}" >> $GITHUB_ENV
           fi
 
-      # 最终阶段：发布清理
+          echo "📁 最终文件列表："
+          tree -h upload/
+
+      # 发布阶段
       - name: Release Firmware
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{env.WRT_TARGET}}_${{env.WRT_VER}}_${{env.WRT_DATE}}
           files: ./wrt/upload/*
           body: |
-            📦 固件编译报告
-            
-            ### 基本配置
-            - 编译时间：`${{env.WRT_DATE}}`
-            - 内核版本：`${{env.WRT_KVER}}`
-            - 目标平台：`${{env.WRT_TARGET}}`
-            
-            ### 网络配置
-            - WiFi SSID：`${{env.WRT_SSID}}`
-            - WiFi 密码：`${{env.WRT_WORD}}`
-            - 管理地址：`http://${{env.WRT_IP}}`
-            - 管理密码：`${{env.WRT_PW}}`
+            ### 🚀 固件编译报告
+            **编译时间**: `${{env.WRT_DATE}}`  
+            **目标平台**: `${{env.WRT_TARGET}}`  
+            **内核版本**: `${{env.WRT_KVER}}`  
 
-            ### 源码信息
-            - 代码仓库：[${{env.WRT_REPO}}](${{env.WRT_REPO}})
-            - 代码分支：`${{env.WRT_BRANCH}}`
-            - 最后提交：`${{env.WRT_HASH}}`
+            ### 🔧 配置信息
+            - 管理地址: `${{env.WRT_IP}}`
+            - 管理密码: `${{env.WRT_PW}}`
+            - WiFi SSID: `${{env.WRT_SSID}}`
+            - WiFi 密码: `${{env.WRT_WORD}}`
 
-      - name: Cleanup Swap
+            ### 📦 源码信息
+            ```yaml
+            Repository: ${{env.WRT_REPO}}
+            Branch:     ${{env.WRT_BRANCH}}
+            Commit:     ${{env.WRT_HASH}}
+            ```
+
+      # 清理阶段
+      - name: Cleanup
         run: |
+          echo "🧹 开始清理..."
           sudo swapoff /swapfile
-          sudo rm -f /swapfile
-          echo "Swap space removed successfully"
+          sudo rm -fv /swapfile
+          echo "✅ 交换空间已移除"
           df -h
