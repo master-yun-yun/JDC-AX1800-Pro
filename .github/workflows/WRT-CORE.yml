@@ -73,9 +73,6 @@ jobs:
           large-packages: true
           swap-storage: true
           tool-cache: true
-        run: |
-          sudo apt-get remove --autoremove -y $pkgs || echo "::warning::The command [sudo apt-get remove --autoremove -y $pkgs] failed to complete successfully. Proceeding..."
-          sudo apt-get clean || echo "::warning::The command [sudo apt-get clean] failed to complete successfully. Proceeding..."
 
       - name: Initialization Environment
         env:
@@ -83,9 +80,9 @@ jobs:
         run: |
           sudo -E apt -yqq update
           sudo -E apt -yqq full-upgrade
-          sudo -E apt -yqq autoremove --purge
-          sudo -E apt -yqq autoclean
-          sudo -E apt -yqq clean
+          sudo -E apt -yqq autoremove --purge || echo "::warning::The command [sudo apt-get autoremove --purge] failed to complete successfully. Proceeding..."
+          sudo -E apt -yqq autoclean || echo "::warning::The command [sudo apt-get autoclean] failed to complete successfully. Proceeding..."
+          sudo -E apt -yqq clean || echo "::warning::The command [sudo apt-get clean] failed to complete successfully. Proceeding..."
           sudo -E apt -yqq install dos2unix libfuse-dev
           sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
           sudo -E systemctl daemon-reload
