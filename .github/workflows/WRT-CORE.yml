@@ -73,6 +73,9 @@ jobs:
           large-packages: true
           swap-storage: true
           tool-cache: true
+        run: |
+          sudo apt-get remove --autoremove -y $pkgs || echo "::warning::The command [sudo apt-get remove --autoremove -y $pkgs] failed to complete successfully. Proceeding..."
+          sudo apt-get clean || echo "::warning::The command [sudo apt-get clean] failed to complete successfully. Proceeding..."
 
       - name: Initialization Environment
         env:
