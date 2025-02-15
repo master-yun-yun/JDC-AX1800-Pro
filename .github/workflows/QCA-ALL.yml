@@ -46,7 +46,6 @@ jobs:
       WRT_PACKAGE: ${{inputs.PACKAGE}}
       WRT_TEST: ${{inputs.TEST}}
 
-jobs:
   core:
     name: ${{inputs.WRT_SOURCE}}
     runs-on: ubuntu-22.04
