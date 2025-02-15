@@ -40,7 +40,7 @@ jobs:
           rustup default nightly
 
       - name: Checkout Projects
-        uses: actions/checkout@v4  # 升级到稳定版本
+        uses: actions/checkout@v4  # 使用v4版本
 
       - name: Free Disk Space
         uses: FirelightFlagboy/gh-runner-free-disk-space@main
@@ -67,7 +67,8 @@ jobs:
           done
 
       - name: Call WRT-CORE Workflow
-        uses: ./.github/workflows/WRT-CORE.yml  # 确保文件名实际为WRT-CORE.yml
+        # 关键修复：添加分支引用（如@main）
+        uses: ./.github/workflows/WRT-CORE.yml@main
         with:
           WRT_TARGET: ${{matrix.CONFIG}}
           WRT_THEME: argon
