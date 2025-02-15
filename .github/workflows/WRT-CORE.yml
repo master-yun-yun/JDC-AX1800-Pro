@@ -1,4 +1,4 @@
-#云编译公用核心
+# 云编译公用核心
 name: WRT-CORE
 
 on:
@@ -63,7 +63,9 @@ jobs:
       - name: Install Rust
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          . "$HOME/.cargo/env"
+          source $HOME/.cargo/env
+          rustup install stable
+          rustup default stable
           rustup update stable
 
       - name: Checkout Projects
