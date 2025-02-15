@@ -57,6 +57,11 @@ jobs:
           swap-storage: true
           tool-cache: true
 
+      - name: Remove Packages
+        run: |
+          sudo apt-get remove --autoremove -y $pkgs || echo "::warning::Failed to remove packages. Proceeding..."
+          sudo apt-get clean || echo "::warning::Failed to clean packages. Proceeding..."
+
       - name: Call WRT-CORE Workflow
         uses: ./.github/workflows/WRT-CORE.yml
         with:
