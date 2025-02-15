@@ -74,13 +74,6 @@ jobs:
           swap-storage: true
           tool-cache: true
 
-      - name: Install Rust
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          source $HOME/.cargo/env
-          rustup update nightly
-          rustup default nightly
-
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -98,6 +91,13 @@ jobs:
           sudo mkdir -p /mnt/build_wrt
           sudo chown $USER:$USER /mnt/build_wrt
           sudo ln -s /mnt/build_wrt $GITHUB_WORKSPACE/wrt
+
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          rustup update nightly
+          rustup default nightly
 
       - name: Initialization Values
         run: |
