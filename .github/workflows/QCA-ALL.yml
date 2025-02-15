@@ -1,12 +1,10 @@
 name: QCA-ALL
 
 on:
-  # 自动编译：当Auto-Clean运行完成后
   workflow_run:
     workflows: ["Auto-Clean"]
     types:
       - completed
-  # 手动编译
   workflow_dispatch:
     inputs:
       PACKAGE:
@@ -77,10 +75,10 @@ jobs:
           sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
           sudo -E systemctl daemon-reload
           sudo -E timedatectl set-timezone "Asia/Shanghai"
-          # 更新 Rust 和 rustup
           sudo apt-get install -y rustup
           rustup install 1.85.0
           rustup default 1.85.0
+          rustup update stable
 
       - name: Initialization Values
         run: |
