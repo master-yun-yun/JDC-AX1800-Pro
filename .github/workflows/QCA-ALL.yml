@@ -39,11 +39,8 @@ jobs:
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source $HOME/.cargo/env
-          CURRENT_RUST_VERSION=$(rustc --version | cut -d ' ' -f 2)
-          if [[ "$CURRENT_RUST_VERSION" < "1.85.0" ]]; then
-            rustup update stable
-            rustup default stable
-          fi
+          rustup update stable
+          rustup default stable
 
       - name: Checkout Projects
         uses: actions/checkout@main
@@ -63,8 +60,14 @@ jobs:
         run: |
           echo "$gcloud_prerm" | sudo tee /var/lib/dpkg/info/google-cloud-cli-anthoscli.prerm > /dev/null
           echo "$gcloud_prerm" | sudo tee /var/lib/dpkg/info/google-cloud-cli.prerm > /dev/null
-          sudo apt-get remove --autoremove -y $pkgs || echo "::warning::The command [sudo apt-get remove -y] failed to complete successfully. Proceeding..."
-          sudo apt-get clean || echo "::warning::The command [sudo apt-get clean] failed to complete successfully. Proceeding..."
+          for i in {1..3}; do
+            sudo apt-get remove --autoremove -y $pkgs && break || echo "::warning::The command [sudo apt-get remove -y] failed to complete successfully. Retrying... ($i)"
+            sleep 5
+          done
+          for i in {1..3}; do
+            sudo apt-get clean && break || echo "::warning::The command [sudo apt-get clean] failed to complete successfully. Retrying... ($i)"
+            sleep 5
+          done
 
       - name: Call WRT-CORE Workflow
         uses: ./.github/workflows/WRT-CORE.yml
