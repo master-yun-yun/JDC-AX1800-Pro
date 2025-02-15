@@ -39,8 +39,9 @@ jobs:
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source $HOME/.cargo/env
-          rustup update stable
+          rustup install stable
           rustup default stable
+          rustup update stable
 
       - name: Checkout Projects
         uses: actions/checkout@main
