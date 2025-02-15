@@ -32,35 +32,58 @@ jobs:
       fail-fast: false
       #max-parallel: 3
       matrix:
-        #CONFIG: [IPQ60XX-WIFI-YES, IPQ60XX-WIFI-NO, IPQ807X-WIFI-YES, IPQ807X-WIFI-NO]
-        CONFIG: [IPQ60XX-WIFI-YES]
+        CONFIG: [IPQ60XX-WIFI-YES, IPQ60XX-WIFI-NO, IPQ807X-WIFI-YES, IPQ807X-WIFI-NO]
         SOURCE: [VIKINGYFY/immortalwrt]
         BRANCH: [main]
 
-    #调用公用编译核心WRT-CORE.yml
-    uses: ./.github/workflows/WRT-CORE.yml
-    with:
-      #编译配置
-      WRT_TARGET: ${{matrix.CONFIG}}
-      #默认主题
-      WRT_THEME: argon
-      #默认主机名
-      WRT_NAME: OWRT
-      #默认WIFI名称
-      WRT_SSID: OWRT
-      #默认WIFI密码
-      WRT_WORD: 12345678
-      #默认地址
-      WRT_IP: 192.168.10.1
-      #默认密码，仅作提示，修改无用
-      WRT_PW: 无
-      #源码链接
-      WRT_REPO: https://github.com/${{matrix.SOURCE}}.git
-      #源码分支
-      WRT_BRANCH: ${{matrix.BRANCH}}
-      #源码名称
-      WRT_SOURCE: ${{matrix.SOURCE}}
-      #插件调整
-      WRT_PACKAGE: ${{inputs.PACKAGE}}
-      #仅输出配置文件
-      WRT_TEST: ${{inputs.TEST}}
+    steps:
+      - name: Checkout Projects
+        uses: actions/checkout@main
+
+      - name: Free Disk Space
+        uses: FirelightFlagboy/gh-runner-free-disk-space@main
+        with:
+          android: true
+          dotnet: true
+          haskell: true
+          docker-images: true
+          large-packages: true
+          swap-storage: true
+          tool-cache: true
+
+      - name: Install Rust
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rustup
+          rustup install 1.85.0
+          rustup default 1.85.0
+          rustup update stable
+
+      #调用公用编译核心WRT-CORE.yml
+      - name: Call WRT-CORE Workflow
+        uses: ./.github/workflows/WRT-CORE.yml
+        with:
+          #编译配置
+          WRT_TARGET: ${{matrix.CONFIG}}
+          #默认主题
+          WRT_THEME: argon
+          #默认主机名
+          WRT_NAME: OWRT
+          #默认WIFI名称
+          WRT_SSID: OWRT
+          #默认WIFI密码
+          WRT_WORD: 12345678
+          #默认地址
+          WRT_IP: 192.168.10.1
+          #默认密码，仅作提示，修改无用
+          WRT_PW: 无
+          #源码链接
+          WRT_REPO: https://github.com/${{matrix.SOURCE}}.git
+          #源码分支
+          WRT_BRANCH: ${{matrix.BRANCH}}
+          #源码名称
+          WRT_SOURCE: ${{matrix.SOURCE}}
+          #插件调整
+          WRT_PACKAGE: ${{inputs.PACKAGE}}
+          #仅输出配置文件
+          WRT_TEST: ${{inputs.TEST}}
