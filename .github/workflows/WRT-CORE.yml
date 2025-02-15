@@ -110,9 +110,7 @@ jobs:
       - name: Clone Code
         run: |
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
-
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
-
           PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
           if [ -f "$PROJECT_MIRRORS_FILE" ]; then
             sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
@@ -141,65 +139,53 @@ jobs:
             find "./wrt/staging_dir" -type d -name "stamp" -not -path "*target*" | while read -r DIR; do
               find "$DIR" -type f -exec touch {} +
             done
-
             mkdir -p ./wrt/tmp && echo "1" > ./wrt/tmp/.build
-
-            echo "toolchain skiped done!"
+            echo "toolchain skipped done!"
           else
             echo "caches missed!"
           fi
-
           if ${{steps.check-cache.outputs.cache-hit != 'true'}}; then
             CACHE_LIST=$(gh cache list --key "$WRT_TARGET-$WRT_VER" | cut -f 1)
             for CACHE_KEY in $CACHE_LIST; do
                gh cache delete $CACHE_KEY
             done
-
             echo "caches cleanup done!"
           fi
 
       - name: Update Feeds
         run: |
           cd ./wrt/
-
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: Custom Packages
         run: |
           cd ./wrt/package/
-
           $GITHUB_WORKSPACE/Scripts/Packages.sh
           $GITHUB_WORKSPACE/Scripts/Handles.sh
 
       - name: Custom Settings
         run: |
           cd ./wrt/
-
           cat $GITHUB_WORKSPACE/Config/$WRT_TARGET.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
-
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-
           make defconfig -j$(nproc) && make clean
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-
           make download -j$(nproc)
 
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-
           make -j$(nproc) || make -j1 V=s
 
       - name: Machine Information
         run: |
           cd ./wrt/
-
           echo "======================="
           lscpu | grep -E "name|Core|Thread"
           echo "======================="
@@ -211,14 +197,10 @@ jobs:
       - name: Package Firmware
         run: |
           cd ./wrt/ && mkdir ./upload/
-
           cp -f ./.config ./upload/Config_"$WRT_TARGET"_"$WRT_VER"_"$WRT_DATE".txt
-
           if [[ $WRT_TEST != 'true' ]]; then
             KVER=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)
-
             find ./bin/targets/ -iregex ".*\(buildinfo\|json\|manifest\|sha256sums\|packages\)$" -exec rm -rf {} +
-
             for TYPE in $WRT_TYPE ; do
               for FILE in $(find ./bin/targets/ -type f -iname "*$TYPE*.*") ; do
                 EXT=$(basename $FILE | cut -d '.' -f 2-)
@@ -227,10 +209,8 @@ jobs:
                 mv -f $FILE ./upload/$NEW_FILE
               done
             done
-
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
           fi
-
           echo "WRT_KVER=${KVER:-none}" >> $GITHUB_ENV
 
       - name: Release Firmware
@@ -242,14 +222,10 @@ jobs:
             这是个平台固件包，内含多个设备！
             请注意选择你需要的设备固件！
             不要问，刷就完事了！
-
             全系带开源硬件加速，别问了！
-
             内核版本：${{env.WRT_KVER}}
-
             WIFI名称：${{env.WRT_SSID}}
             WIFI密码：${{env.WRT_WORD}}
-
             源码：${{env.WRT_REPO}}
             分支：${{env.WRT_BRANCH}}
             平台：${{env.WRT_TARGET}}
