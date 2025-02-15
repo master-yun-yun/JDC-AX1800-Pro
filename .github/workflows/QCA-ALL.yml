@@ -41,7 +41,7 @@ jobs:
           source $HOME/.cargo/env
           CURRENT_RUST_VERSION=$(rustc --version | cut -d ' ' -f 2)
           if [[ "$CURRENT_RUST_VERSION" < "1.85.0" ]]; then
-            rustup install $(rustup update stable | grep 'rustc' | cut -d ' ' -f 2)
+            rustup update stable
             rustup default stable
           fi
 
