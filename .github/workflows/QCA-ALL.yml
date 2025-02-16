@@ -66,7 +66,7 @@ jobs:
       WRT_TEST: ${{inputs.TEST}}
 
   cleanup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -100,6 +100,6 @@ jobs:
           echo "$gcloud_prerm" | sudo tee /var/lib/dpkg/info/google-cloud-cli-anthoscli.prerm > /dev/null
           echo "$gcloud_prerm" | sudo tee /var/lib/dpkg/info/google-cloud-cli.prerm > /dev/null
 
-          pkgs="package1 package2 package3"
+          pkgs="dos2unix libfuse-dev"
           retry sudo apt-get remove --autoremove -y $pkgs
           retry sudo apt-get clean
