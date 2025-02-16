@@ -64,3 +64,42 @@ jobs:
       WRT_PACKAGE: ${{inputs.PACKAGE}}
       #仅输出配置文件
       WRT_TEST: ${{inputs.TEST}}
+
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Remove unnecessary packages
+        run: |
+          retry() {
+            local n=1
+            local max=5
+            local delay=5
+            while true; do
+              "$@" && break || {
+                if [[ $n -lt $max ]]; then
+                  ((n++))
+                  echo "Command failed. Attempt $n/$max:"
+                  sleep $delay;
+                else
+                  echo "The command has failed after $n attempts."
+                  return 1
+                fi
+              }
+            done
+          }
+
+          gcloud_prerm=$(cat << 'EOF'
+          #!/bin/sh
+          set -e
+          apt-get remove --autoremove -y google-cloud-cli
+          EOF
+          )
+          echo "$gcloud_prerm" | sudo tee /var/lib/dpkg/info/google-cloud-cli-anthoscli.prerm > /dev/null
+          echo "$gcloud_prerm" | sudo tee /var/lib/dpkg/info/google-cloud-cli.prerm > /dev/null
+
+          pkgs="package1 package2 package3"
+          retry sudo apt-get remove --autoremove -y $pkgs
+          retry sudo apt-get clean
