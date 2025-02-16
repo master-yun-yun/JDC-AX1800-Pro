@@ -32,6 +32,22 @@ if [ -d *"luci-theme-argon"* ]; then
 	cd $PKG_PATH && echo "theme-argon has been fixed!"
 fi
 
+#修改qca-nss-drv启动顺序
+NSS_DRV="../feeds/nss_packages/qca-nss-drv/files/qca-nss-drv.init"
+if [ -f "$NSS_DRV" ]; then
+	sed -i 's/START=.*/START=85/g' "$qca_drv_path" $NSS_DRV
+
+	cd $PKG_PATH && echo "qca-nss-drv has been fixed!"
+fi
+
+#修改qca-nss-pbuf启动顺序
+NSS_PBUF="./kernel/mac80211/files/qca-nss-pbuf.init"
+if [ -f "$NSS_PBUF" ]; then
+	sed -i 's/START=.*/START=86/g' "$qca_drv_path" $NSS_PBUF
+
+	cd $PKG_PATH && echo "qca-nss-pbuf has been fixed!"
+fi
+
 #移除Shadowsocks组件
 PW_FILE=$(find ./ -maxdepth 3 -type f -wholename "*/luci-app-passwall/Makefile")
 if [ -f "$PW_FILE" ]; then
@@ -63,6 +79,6 @@ fi
 CM_FILE=$(find ../feeds/packages/ -maxdepth 3 -type f -wholename "*/coremark/Makefile")
 if [ -f "$CM_FILE" ]; then
 	sed -i 's/mkdir/mkdir -p/g' $CM_FILE
+
 	cd $PKG_PATH && echo "coremark has been fixed!"
- 
 fi
