@@ -50,6 +50,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Verify Disk Space and Memory
+        run: |
+          df -h
+          free -m
+
       - name: Remove unnecessary packages
         run: |
           retry() {
