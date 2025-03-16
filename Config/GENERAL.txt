@@ -145,9 +145,9 @@ CONFIG_PACKAGE_luci-app-wifischedule=y
 #阿里云盘webdav
 #CONFIG_PACKAGE_luci-app-aliyundrive-webdav=y
 #docker
-CONFIG_PACKAGE_luci-app-dockerman=y
+#CONFIG_PACKAGE_luci-app-dockerman=y
 #KMS服务器
-CONFIG_PACKAGE_luci-app-vlmcsd=y
+#CONFIG_PACKAGE_luci-app-vlmcsd=y
 #ZeroTier内网穿透
 CONFIG_PACKAGE_luci-app-zerotier=y
 #访问时间控制
