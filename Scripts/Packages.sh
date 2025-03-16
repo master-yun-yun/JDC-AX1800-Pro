@@ -135,4 +135,6 @@ UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"
 #openvpn-server服务器
 #UPDATE_PACKAGE "luci-app-openvpn-server" "hyperlook/luci-app-openvpn-server" "main"
 #UPDATE_PACKAGE "luci-app-openvpn-server" "ixiaan/luci-app-openvpn-server" "main"
+#luci-app-vlmcsd服务器
+UPDATE_PACKAGE "luci-app-vlmcsd" "AutoCONFIG/luci-app-vlmcsd" "master"
 #以上自定义源
