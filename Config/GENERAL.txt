@@ -154,4 +154,6 @@ CONFIG_PACKAGE_luci-app-zerotier=y
 #CONFIG_PACKAGE_luci-app-accesscontrol=y
 #通用即插即用UPnP（端口自动转发）
 CONFIG_PACKAGE_luci-app-upnp=y
+#提供网络设备的自动重启和断网检测功能
+CONFIG_PACKAGE_luci-app-watchcat=y
 #以上为自行增加的插件及组件
