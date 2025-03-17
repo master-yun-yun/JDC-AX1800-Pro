@@ -58,5 +58,5 @@ jobs:
 
       - name: Build and install packages
         run: |
-          make package/feeds/packages/luci-app-openvpn-server/compile
+          make package/luci-app-openvpn-server/compile
           make package/install
