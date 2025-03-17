@@ -59,7 +59,7 @@ if [ -f "$PW_FILE" ]; then
 fi
 
 SP_FILE=$(find ./ -maxdepth 3 -type f -wholename "*/luci-app-ssr-plus/Makefile")
-if [ -f "$SP_FILE" ]; then
+if [ -f "$SP_FILE" ];then
     sed -i '/default PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks_Libev/,/libev/d' $SP_FILE
     sed -i '/config PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR/,/x86_64/d' $SP_FILE
     sed -i '/Shadowsocks_NONE/d; /Shadowsocks_Libev/d; /ShadowsocksR/d' $SP_FILE
@@ -81,4 +81,13 @@ if [ -f "$CM_FILE" ]; then
     sed -i 's/mkdir/mkdir -p/g' $CM_FILE
 
     cd $PKG_PATH && echo "coremark has been fixed!"
+fi
+
+# 修复luci-app-openvpn-server编译文件冲突
+OVPN_SERVER_FILE=$(find ../feeds/packages/ -maxdepth 3 -type f -wholename "*/luci-app-openvpn-server/Makefile")
+if [ -f "$OVPN_SERVER_FILE" ]; then
+    rm -f /etc/config/openvpn
+    rm -f /etc/easy-rsa/vars
+
+    cd $PKG_PATH && echo "luci-app-openvpn-server conflicts have been fixed!"
 fi
