@@ -22,7 +22,8 @@ on:
         type: boolean
 
 # CI权限
-permissions: write-all
+permissions:
+  contents: write
 
 # CI任务
 jobs:
@@ -31,11 +32,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        CONFIG: [X86] # 可以根据需要添加更多配置
+        CONFIG: [X86]
         SOURCE: [VIKINGYFY/immortalwrt]
         BRANCH: [owrt]
 
-    # 调用公用编译核心WRT-CORE.yml
     uses: ./.github/workflows/WRT-CORE.yml
     with:
       WRT_CONFIG: ${{matrix.CONFIG}}
