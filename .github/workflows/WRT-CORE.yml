@@ -105,11 +105,20 @@ jobs:
       # 关键修复步骤
       - name: Pre-Compile Conflict Fix
         run: |
+          # 修复权限问题
           chmod +x $GITHUB_WORKSPACE/Scripts/Handles.sh
+
+          # 第一次执行冲突清理
           $GITHUB_WORKSPACE/Scripts/Handles.sh
+
+          # 保留关键编译环境
           cd $GITHUB_WORKSPACE/wrt/
-          rm -rf tmp/
-          touch .config
+          if [ -d tmp/ ]; then
+            rm -rf tmp/.config*
+            touch .config
+          else
+            mkdir -p tmp && touch .config
+          fi
 
       - name: Check Scripts
         run: |
