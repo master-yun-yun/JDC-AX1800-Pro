@@ -107,13 +107,23 @@ jobs:
       # 关键修复：赋予脚本权限
       - name: Pre-Compile Conflict Fix
         run: |
+          # 赋予权限
           chmod +x $GITHUB_WORKSPACE/Scripts/Handles.sh
+
+          # 第一次执行（基础清理）
           cd $GITHUB_WORKSPACE/Scripts/
           ./Handles.sh
 
+          # 强制刷新编译环境
           cd $GITHUB_WORKSPACE/wrt/
           rm -rf tmp/
           touch .config
+
+          # 第二次执行（处理 feeds 更新后的冲突）
+          if [ -d "$GITHUB_WORKSPACE/wrt/feeds" ]; then
+            cd $GITHUB_WORKSPACE/Scripts/
+            ./Handles.sh
+          fi
 
       - name: Check Scripts
         run: |
