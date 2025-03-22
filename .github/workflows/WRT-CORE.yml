@@ -103,9 +103,8 @@ jobs:
           chmod +x $GITHUB_WORKSPACE/Scripts/Handles.sh
           $GITHUB_WORKSPACE/Scripts/Handles.sh
           cd $GITHUB_WORKSPACE/wrt/
-          [ -d tmp/ ] && rm -rf tmp/.config* || mkdir -p tmp
+          [ -d tmp/ ] && rm -rf tmp/.package* tmp/stamp
           touch .config
-          make defconfig
 
       - name: Check Scripts
         run: |
@@ -155,6 +154,14 @@ jobs:
           cd $GITHUB_WORKSPACE/wrt/
           make defconfig
 
+      # 新增内核配置生成
+      - name: Generate Kernel Config
+        if: env.WRT_TEST != 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/wrt/
+          make target/linux/{clean,prepare} V=s
+          make kernel_oldconfig
+
       - name: Custom Packages
         run: |
           cd ./wrt/package/
@@ -177,8 +184,10 @@ jobs:
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-          make -j1 package/compile || make -j1 V=s package/compile
-          make -j$(nproc)
+          # 优先编译内核
+          make target/linux/compile -j$(nproc) V=s
+          # 再编译其他包
+          make -j$(nproc) || make -j1 V=s
 
       - name: Machine Information
         run: |
