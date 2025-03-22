@@ -105,6 +105,18 @@ jobs:
             sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
           fi
 
+      # 新增关键步骤：在包安装前执行冲突清理
+      - name: Pre-Compile Conflict Fix
+        run: |
+          # 提前执行 Handles.sh 中的修复逻辑
+          cd $GITHUB_WORKSPACE/Scripts/
+          ./Handles.sh
+
+          # 强制刷新编译环境
+          cd $GITHUB_WORKSPACE/wrt/
+          rm -rf tmp/
+          touch .config
+
       - name: Check Scripts
         run: |
           find ./ -maxdepth 3 -type f -iregex ".*\(txt\|sh\)$" -exec dos2unix {} \; -exec chmod +x {} \;
@@ -148,45 +160,44 @@ jobs:
       - name: Update Feeds
         run: |
           cd ./wrt/
-
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+
+      # 新增：二次清理确保覆盖策略生效
+      - name: Post-Feeds Conflict Fix
+        run: |
+          cd $GITHUB_WORKSPACE/Scripts/
+          ./Handles.sh
 
       - name: Custom Packages
         run: |
           cd ./wrt/package/
-
           $GITHUB_WORKSPACE/Scripts/Packages.sh
-          $GITHUB_WORKSPACE/Scripts/Handles.sh
 
       - name: Custom Settings
         run: |
           cd ./wrt/
-
           cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
-
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-
           make download -j$(nproc)
 
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-
-          make -j$(nproc) || make -j$(nproc) V=s
+          # 强制单线程编译关键阶段
+          make -j1 package/compile || make -j1 V=s package/compile
+          make -j$(nproc)
 
       - name: Machine Information
         run: |
           cd ./wrt/
-
           echo "======================="
           lscpu | grep -E "name|Core|Thread"
           echo "======================="
@@ -198,7 +209,6 @@ jobs:
       - name: Package Firmware
         run: |
           cd ./wrt/ && mkdir ./upload/
-
           cp -f ./.config ./upload/Config_"$WRT_CONFIG"_"$WRT_VER"_"$WRT_DATE".txt
 
           if [[ $WRT_TEST != 'true' ]]; then
