@@ -105,6 +105,7 @@ jobs:
           cd $GITHUB_WORKSPACE/wrt/
           [ -d tmp/ ] && rm -rf tmp/.config* || mkdir -p tmp
           touch .config
+          make defconfig
 
       - name: Check Scripts
         run: |
@@ -151,6 +152,8 @@ jobs:
       - name: Post-Feeds Conflict Fix
         run: |
           $GITHUB_WORKSPACE/Scripts/Handles.sh
+          cd $GITHUB_WORKSPACE/wrt/
+          make defconfig
 
       - name: Custom Packages
         run: |
