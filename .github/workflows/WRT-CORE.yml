@@ -76,7 +76,6 @@ jobs:
           sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
           sudo -E systemctl daemon-reload
           sudo -E timedatectl set-timezone "Asia/Shanghai"
-
           sudo mkdir -p /mnt/build_wrt
           sudo chown $USER:$USER /mnt/build_wrt
           sudo ln -s /mnt/build_wrt $GITHUB_WORKSPACE/wrt
@@ -87,7 +86,6 @@ jobs:
           export WRT_MARK=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 1)
           export WRT_VER=$(echo $WRT_REPO | cut -d '/' -f 5-)-$WRT_BRANCH
           export WRT_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' ./Config/$WRT_CONFIG.txt | tr '[:lower:]' '[:upper:]')
-
           echo "WRT_DATE=$WRT_DATE" >> $GITHUB_ENV
           echo "WRT_MARK=$WRT_MARK" >> $GITHUB_ENV
           echo "WRT_VER=$WRT_VER" >> $GITHUB_ENV
@@ -98,27 +96,15 @@ jobs:
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
           PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
-          if [ -f "$PROJECT_MIRRORS_FILE" ]; then
-            sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
-          fi
+          [ -f "$PROJECT_MIRRORS_FILE" ] && sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
 
-      # 关键修复步骤
       - name: Pre-Compile Conflict Fix
         run: |
-          # 修复权限问题
           chmod +x $GITHUB_WORKSPACE/Scripts/Handles.sh
-
-          # 第一次执行冲突清理
           $GITHUB_WORKSPACE/Scripts/Handles.sh
-
-          # 保留关键编译环境
           cd $GITHUB_WORKSPACE/wrt/
-          if [ -d tmp/ ]; then
-            rm -rf tmp/.config*
-            touch .config
-          else
-            mkdir -p tmp && touch .config
-          fi
+          [ -d tmp/ ] && rm -rf tmp/.config* || mkdir -p tmp
+          touch .config
 
       - name: Check Scripts
         run: |
@@ -162,7 +148,6 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # 二次清理确保覆盖
       - name: Post-Feeds Conflict Fix
         run: |
           $GITHUB_WORKSPACE/Scripts/Handles.sh
