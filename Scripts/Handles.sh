@@ -2,6 +2,15 @@
 
 PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 
+# ------------------------- 新增：清理文件覆盖冲突 -------------------------
+# 修复 luci-app-socat 与 socat 的冲突
+find ./ -maxdepth 3 -type f -wholename "*/socat.install" -exec sed -i '\|/usr/bin/socat|d' {} \;
+
+# 修复 luci-app-openvpn-server 与 openvpn-openssl/easy-rsa 的冲突
+find ./ -maxdepth 5 -type f \( -wholename "*/openvpn-openssl.install" -o -wholename "*/openvpn-easy-rsa.install" \) \
+  -exec sed -i '\|/etc/config/openvpn|d; \|/etc/easy-rsa/vars|d' {} \;
+# -----------------------------------------------------------------------
+
 #预置HomeProxy数据
 if [ -d *"homeproxy"* ]; then
 	HP_RULE="surge"
@@ -21,6 +30,8 @@ if [ -d *"homeproxy"* ]; then
 
 	cd $PKG_PATH && echo "homeproxy date has been updated!"
 fi
+
+# ...（保持后续原有代码不变）
 
 #修改argon主题字体和颜色
 if [ -d *"luci-theme-argon"* ]; then
