@@ -99,20 +99,18 @@ jobs:
 
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
 
-          # GitHub Action 移除国内下载源
           PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
           if [ -f "$PROJECT_MIRRORS_FILE" ]; then
             sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
           fi
 
-      # 新增关键步骤：在包安装前执行冲突清理
+      # 关键修复：赋予脚本权限
       - name: Pre-Compile Conflict Fix
         run: |
-          # 提前执行 Handles.sh 中的修复逻辑
+          chmod +x $GITHUB_WORKSPACE/Scripts/Handles.sh
           cd $GITHUB_WORKSPACE/Scripts/
           ./Handles.sh
 
-          # 强制刷新编译环境
           cd $GITHUB_WORKSPACE/wrt/
           rm -rf tmp/
           touch .config
@@ -163,7 +161,6 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # 新增：二次清理确保覆盖策略生效
       - name: Post-Feeds Conflict Fix
         run: |
           cd $GITHUB_WORKSPACE/Scripts/
@@ -191,7 +188,6 @@ jobs:
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-          # 强制单线程编译关键阶段
           make -j1 package/compile || make -j1 V=s package/compile
           make -j$(nproc)
 
