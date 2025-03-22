@@ -96,15 +96,19 @@ if [ -f "$SP_FILE" ]; then
 fi
 
 # 修复TailScale冲突
-TS_FILE=$(find "$GITHUB_WORKSPACE/wrt/feeds/packages" -maxdepth 5 -type f -wholename "*/tailscale/Makefile")
-if [ -f "$TS_FILE" ]; then
-  sed -i '/\/files/d' "$TS_FILE"
-  echo "tailscale fixed!"
+if [ -d "$GITHUB_WORKSPACE/wrt/feeds/packages" ]; then
+  TS_FILE=$(find "$GITHUB_WORKSPACE/wrt/feeds/packages" -maxdepth 5 -type f -wholename "*/tailscale/Makefile")
+  if [ -f "$TS_FILE" ]; then
+    sed -i '/\/files/d' "$TS_FILE"
+    echo "tailscale fixed!"
+  fi
 fi
 
 # 修复Coremark编译
-CM_FILE=$(find "$GITHUB_WORKSPACE/wrt/feeds/packages" -maxdepth 5 -type f -wholename "*/coremark/Makefile")
-if [ -f "$CM_FILE" ]; then
-  sed -i 's/mkdir/mkdir -p/g' "$CM_FILE"
-  echo "coremark fixed!"
+if [ -d "$GITHUB_WORKSPACE/wrt/feeds/packages" ]; then
+  CM_FILE=$(find "$GITHUB_WORKSPACE/wrt/feeds/packages" -maxdepth 5 -type f -wholename "*/coremark/Makefile")
+  if [ -f "$CM_FILE" ]; then
+    sed -i 's/mkdir/mkdir -p/g' "$CM_FILE"
+    echo "coremark fixed!"
+  fi
 fi
