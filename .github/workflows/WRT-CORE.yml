@@ -72,10 +72,13 @@ jobs:
           sudo -E apt -yqq autoremove --purge
           sudo -E apt -yqq autoclean
           sudo -E apt -yqq clean
+          # 新增工具链依赖
+          sudo -E apt -yqq install texinfo bison flex libgmp-dev libmpfr-dev libmpc-dev
           sudo -E apt -yqq install dos2unix libfuse-dev
           sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
           sudo -E systemctl daemon-reload
           sudo -E timedatectl set-timezone "Asia/Shanghai"
+
           sudo mkdir -p /mnt/build_wrt
           sudo chown $USER:$USER /mnt/build_wrt
           sudo ln -s /mnt/build_wrt $GITHUB_WORKSPACE/wrt
@@ -154,7 +157,15 @@ jobs:
           cd $GITHUB_WORKSPACE/wrt/
           make defconfig
 
-      # 新增内核配置生成
+      # 新增: 手动下载 binutils 源码
+      - name: Download Binutils Source
+        if: env.WRT_TEST != 'true'
+        run: |
+          cd ./wrt/
+          BINUTILS_URL=$(grep -oP '^SOURCE:\s*\Khttps?://.*' ./tools/binutils/Makefile | head -1)
+          wget -t 5 -T 30 -O ./dl/$(basename "$BINUTILS_URL") "$BINUTILS_URL" || true
+          make -j1 tools/binutils/download V=s
+
       - name: Generate Kernel Config
         if: env.WRT_TEST != 'true'
         run: |
@@ -180,13 +191,16 @@ jobs:
           cd ./wrt/
           make download -j$(nproc)
 
+      # 分阶段编译流程
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-          # 优先编译内核
-          make target/linux/compile -j$(nproc) V=s
-          # 再编译其他包
+          # 1. 单线程编译工具链
+          make toolchain/install -j1 V=s
+          # 2. 多线程编译内核
+          make target/linux/compile -j$(nproc)
+          # 3. 多线程编译其他包
           make -j$(nproc) || make -j1 V=s
 
       - name: Machine Information
