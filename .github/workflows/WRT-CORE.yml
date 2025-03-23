@@ -72,12 +72,11 @@ jobs:
           sudo -E apt -yqq autoremove --purge
           sudo -E apt -yqq autoclean
           sudo -E apt -yqq clean
-          # 新增工具链依赖
-          sudo -E apt -yqq install texinfo bison flex libgmp-dev libmpfr-dev libmpc-dev
           sudo -E apt -yqq install dos2unix libfuse-dev
           sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
           sudo -E systemctl daemon-reload
           sudo -E timedatectl set-timezone "Asia/Shanghai"
+
           sudo mkdir -p /mnt/build_wrt
           sudo chown $USER:$USER /mnt/build_wrt
           sudo ln -s /mnt/build_wrt $GITHUB_WORKSPACE/wrt
@@ -88,6 +87,7 @@ jobs:
           export WRT_MARK=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 1)
           export WRT_VER=$(echo $WRT_REPO | cut -d '/' -f 5-)-$WRT_BRANCH
           export WRT_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' ./Config/$WRT_CONFIG.txt | tr '[:lower:]' '[:upper:]')
+
           echo "WRT_DATE=$WRT_DATE" >> $GITHUB_ENV
           echo "WRT_MARK=$WRT_MARK" >> $GITHUB_ENV
           echo "WRT_VER=$WRT_VER" >> $GITHUB_ENV
@@ -96,40 +96,14 @@ jobs:
       - name: Clone Code
         run: |
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
-          cd ./wrt/
-          # 初始化子模块（如果存在）
-          if [ -f .gitmodules ]; then
-            git submodule update --init --recursive
-          fi
-          echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
+
+          cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
+
+          # GitHub Action 移除国内下载源
           PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
-          [ -f "$PROJECT_MIRRORS_FILE" ] && sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
-
-      # 新增：检查 binutils 路径
-      - name: Check Binutils Path
-        run: |
-          cd ./wrt/
-          BINUTILS_MAKEFILE=$(find ./ -maxdepth 5 -type f -wholename "*/binutils/Makefile")
-          if [ -f "$BINUTILS_MAKEFILE" ]; then
-            echo "BINUTILS_DIR=$(dirname $BINUTILS_MAKEFILE)" >> $GITHUB_ENV
-            echo "BINUTILS Makefile found at: $BINUTILS_MAKEFILE"
-          else
-            echo "::error::ERROR: binutils/Makefile not found!"
-            echo "可能的修复方案："
-            echo "1. 检查仓库 $WRT_REPO 分支 $WRT_BRANCH 是否包含 binutils 目录"
-            echo "2. 确保编译配置启用了 binutils（检查 Config/$WRT_CONFIG.txt）"
-            exit 1
+          if [ -f "$PROJECT_MIRRORS_FILE" ]; then
+            sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
           fi
-
-      # 后续步骤保持不变...
-
-      - name: Pre-Compile Conflict Fix
-        run: |
-          chmod +x $GITHUB_WORKSPACE/Scripts/Handles.sh
-          $GITHUB_WORKSPACE/Scripts/Handles.sh
-          cd $GITHUB_WORKSPACE/wrt/
-          [ -d tmp/ ] && rm -rf tmp/.package* tmp/stamp
-          touch .config
 
       - name: Check Scripts
         run: |
@@ -154,87 +128,65 @@ jobs:
             find "./wrt/staging_dir" -type d -name "stamp" -not -path "*target*" | while read -r DIR; do
               find "$DIR" -type f -exec touch {} +
             done
+
             mkdir -p ./wrt/tmp && echo "1" > ./wrt/tmp/.build
+
             echo "toolchain skiped done!"
           else
             echo "caches missed!"
           fi
+
           if ${{steps.check-cache.outputs.cache-hit != 'true'}}; then
             CACHE_LIST=$(gh cache list --key "$WRT_CONFIG-$WRT_VER" | cut -f 1)
             for CACHE_KEY in $CACHE_LIST; do
               gh cache delete $CACHE_KEY
             done
+
             echo "caches cleanup done!"
           fi
 
       - name: Update Feeds
         run: |
           cd ./wrt/
+
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-
-      - name: Post-Feeds Conflict Fix
-        run: |
-          $GITHUB_WORKSPACE/Scripts/Handles.sh
-          cd $GITHUB_WORKSPACE/wrt/
-          make defconfig
-
-      # 动态检查 binutils 路径
-      - name: Check Binutils Path
-        run: |
-          cd ./wrt/
-          BINUTILS_MAKEFILE=$(find ./ -maxdepth 4 -type f -wholename "*/binutils/Makefile")
-          if [ -f "$BINUTILS_MAKEFILE" ]; then
-            echo "BINUTILS_DIR=$(dirname $BINUTILS_MAKEFILE)" >> $GITHUB_ENV
-          else
-            echo "ERROR: binutils/Makefile not found!" && exit 1
-          fi
-
-      - name: Generate Kernel Config
-        if: env.WRT_TEST != 'true'
-        run: |
-          cd $GITHUB_WORKSPACE/wrt/
-          make target/linux/{clean,prepare} V=s
-          make kernel_oldconfig
 
       - name: Custom Packages
         run: |
           cd ./wrt/package/
+
           $GITHUB_WORKSPACE/Scripts/Packages.sh
+          $GITHUB_WORKSPACE/Scripts/Handles.sh
 
       - name: Custom Settings
         run: |
           cd ./wrt/
+
           cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
+
           $GITHUB_WORKSPACE/Scripts/Settings.sh
+
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
+
           make download -j$(nproc)
 
-      # 分阶段编译流程（动态路径支持）
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-          # 动态定位 binutils 路径并编译
-          if [ -d "$BINUTILS_DIR" ]; then
-            make -C "$BINUTILS_DIR" clean
-            make -C "$BINUTILS_DIR" compile -j1 V=s
-            make -C "$BINUTILS_DIR" install
-          else
-            make toolchain/install -j1 V=s
-          fi
-          # 编译内核和其他包
-          make target/linux/compile -j$(nproc)
-          make -j$(nproc) || make -j1 V=s
+
+          make -j$(nproc) || make -j$(nproc) V=s
 
       - name: Machine Information
         run: |
           cd ./wrt/
+
           echo "======================="
           lscpu | grep -E "name|Core|Thread"
           echo "======================="
@@ -246,19 +198,26 @@ jobs:
       - name: Package Firmware
         run: |
           cd ./wrt/ && mkdir ./upload/
+
           cp -f ./.config ./upload/Config_"$WRT_CONFIG"_"$WRT_VER"_"$WRT_DATE".txt
+
           if [[ $WRT_TEST != 'true' ]]; then
             KVER=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)
+
             find ./bin/targets/ -iregex ".*\(buildinfo\|json\|manifest\|sha256sums\|packages\)$" -exec rm -rf {} +
+
             for FILE in $(find ./bin/targets/ -type f -iname "*$WRT_TARGET*") ; do
               EXT=$(basename $FILE | cut -d '.' -f 2-)
               NAME=$(basename $FILE | cut -d '.' -f 1 | grep -io "\($WRT_TARGET\).*")
               NEW_FILE="$WRT_VER"_"$NAME"_"$WRT_DATE"."$EXT"
               mv -f $FILE ./upload/$NEW_FILE
             done
+
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
+
             make clean -j$(nproc)
           fi
+
           echo "WRT_KVER=${KVER:-none}" >> $GITHUB_ENV
 
       - name: Release Firmware
