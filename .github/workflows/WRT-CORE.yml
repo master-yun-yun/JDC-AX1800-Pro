@@ -96,9 +96,32 @@ jobs:
       - name: Clone Code
         run: |
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
-          cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
+          cd ./wrt/
+          # 初始化子模块（如果存在）
+          if [ -f .gitmodules ]; then
+            git submodule update --init --recursive
+          fi
+          echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
           PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
           [ -f "$PROJECT_MIRRORS_FILE" ] && sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
+
+      # 新增：检查 binutils 路径
+      - name: Check Binutils Path
+        run: |
+          cd ./wrt/
+          BINUTILS_MAKEFILE=$(find ./ -maxdepth 5 -type f -wholename "*/binutils/Makefile")
+          if [ -f "$BINUTILS_MAKEFILE" ]; then
+            echo "BINUTILS_DIR=$(dirname $BINUTILS_MAKEFILE)" >> $GITHUB_ENV
+            echo "BINUTILS Makefile found at: $BINUTILS_MAKEFILE"
+          else
+            echo "::error::ERROR: binutils/Makefile not found!"
+            echo "可能的修复方案："
+            echo "1. 检查仓库 $WRT_REPO 分支 $WRT_BRANCH 是否包含 binutils 目录"
+            echo "2. 确保编译配置启用了 binutils（检查 Config/$WRT_CONFIG.txt）"
+            exit 1
+          fi
+
+      # 后续步骤保持不变...
 
       - name: Pre-Compile Conflict Fix
         run: |
