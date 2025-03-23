@@ -78,7 +78,6 @@ jobs:
           sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
           sudo -E systemctl daemon-reload
           sudo -E timedatectl set-timezone "Asia/Shanghai"
-
           sudo mkdir -p /mnt/build_wrt
           sudo chown $USER:$USER /mnt/build_wrt
           sudo ln -s /mnt/build_wrt $GITHUB_WORKSPACE/wrt
@@ -157,14 +156,16 @@ jobs:
           cd $GITHUB_WORKSPACE/wrt/
           make defconfig
 
-      # 新增: 手动下载 binutils 源码
-      - name: Download Binutils Source
-        if: env.WRT_TEST != 'true'
+      # 动态检查 binutils 路径
+      - name: Check Binutils Path
         run: |
           cd ./wrt/
-          BINUTILS_URL=$(grep -oP '^SOURCE:\s*\Khttps?://.*' ./tools/binutils/Makefile | head -1)
-          wget -t 5 -T 30 -O ./dl/$(basename "$BINUTILS_URL") "$BINUTILS_URL" || true
-          make -j1 tools/binutils/download V=s
+          BINUTILS_MAKEFILE=$(find ./ -maxdepth 4 -type f -wholename "*/binutils/Makefile")
+          if [ -f "$BINUTILS_MAKEFILE" ]; then
+            echo "BINUTILS_DIR=$(dirname $BINUTILS_MAKEFILE)" >> $GITHUB_ENV
+          else
+            echo "ERROR: binutils/Makefile not found!" && exit 1
+          fi
 
       - name: Generate Kernel Config
         if: env.WRT_TEST != 'true'
@@ -191,16 +192,21 @@ jobs:
           cd ./wrt/
           make download -j$(nproc)
 
-      # 分阶段编译流程
+      # 分阶段编译流程（动态路径支持）
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
-          # 1. 单线程编译工具链
-          make toolchain/install -j1 V=s
-          # 2. 多线程编译内核
+          # 动态定位 binutils 路径并编译
+          if [ -d "$BINUTILS_DIR" ]; then
+            make -C "$BINUTILS_DIR" clean
+            make -C "$BINUTILS_DIR" compile -j1 V=s
+            make -C "$BINUTILS_DIR" install
+          else
+            make toolchain/install -j1 V=s
+          fi
+          # 编译内核和其他包
           make target/linux/compile -j$(nproc)
-          # 3. 多线程编译其他包
           make -j$(nproc) || make -j1 V=s
 
       - name: Machine Information
