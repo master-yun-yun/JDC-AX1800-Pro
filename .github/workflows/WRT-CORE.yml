@@ -154,7 +154,7 @@ jobs:
           cd ./wrt/package/
 
           $GITHUB_WORKSPACE/Scripts/Packages.sh
-          $GITHUB_WORKSPACE/Scripts/Handles.sh
+          $GITHUB_WORKSPACE/Scripts/Handles.sh  # 此处执行Handles.sh中的冲突处理逻辑
 
       - name: Custom Settings
         run: |
@@ -173,11 +173,13 @@ jobs:
 
           make download -j$(nproc)
 
+      # -------------------------- 新增编译环境变量 --------------------------
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
+        env:
+          IPKG_NO_SCRIPT: 1  # 避免安装时脚本冲突
         run: |
           cd ./wrt/
-
           make -j$(nproc) || make -j$(nproc) V=s
 
       - name: Machine Information
