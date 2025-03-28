@@ -82,3 +82,23 @@ if [ -f "$CM_FILE" ]; then
 
 	cd $PKG_PATH && echo "coremark has been fixed!"
 fi
+
+# -------------------------- 新增冲突处理逻辑 --------------------------
+# 处理文件冲突：在安装包前备份可能冲突的文件
+echo "处理文件冲突..."
+# OpenVPN相关冲突
+if [ -f /etc/config/openvpn ]; then
+  mv /etc/config/openvpn /etc/config/openvpn.bak && echo "已备份/etc/config/openvpn"
+fi
+if [ -f /etc/easy-rsa/vars ]; then
+  mv /etc/easy-rsa/vars /etc/easy-rsa/vars.bak && echo "已备份/etc/easy-rsa/vars"
+fi
+
+# Socat相关冲突
+if [ -f /etc/config/socat ]; then
+  mv /etc/config/socat /etc/config/socat.bak && echo "已备份/etc/config/socat"
+fi
+if [ -f /etc/init.d/socat ]; then
+  mv /etc/init.d/socat /etc/init.d/socat.bak && echo "已备份/etc/init.d/socat"
+fi
+# -------------------------- 新增结束 --------------------------
