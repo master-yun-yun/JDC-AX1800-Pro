@@ -173,14 +173,15 @@ jobs:
 
           make download -j$(nproc)
 
-      # -------------------------- 新增编译环境变量 --------------------------
+      # -------------------------- 修改编译命令添加强制覆盖参数 --------------------------
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         env:
-          IPKG_NO_SCRIPT: 1  # 避免安装时脚本冲突
+          IPKG_NO_SCRIPT: 1  # 禁用包安装脚本
+          OPKG_OPTIONS: "--force-overwrite"  # 新增强制覆盖参数
         run: |
           cd ./wrt/
-          make -j$(nproc) || make -j$(nproc) V=s
+          make -j$(nproc) OPKG="opkg ${OPKG_OPTIONS}" || make -j$(nproc) V=s OPKG="opkg ${OPKG_OPTIONS}"
 
       - name: Machine Information
         run: |
