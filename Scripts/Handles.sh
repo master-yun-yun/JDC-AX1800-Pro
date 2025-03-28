@@ -2,6 +2,24 @@
 
 PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 
+# -------------------------- 新增冲突预处理逻辑 --------------------------
+# 删除固件构建目录中已存在的冲突文件（关键修改）
+echo "删除预存在的冲突文件..."
+# OpenVPN配置文件冲突
+OPENVPN_CONF_PATH="$GITHUB_WORKSPACE/wrt/package/base-files/files/etc/config/openvpn"
+[ -f "$OPENVPN_CONF_PATH" ] && rm -vf "$OPENVPN_CONF_PATH" && echo "已删除冲突文件: $OPENVPN_CONF_PATH"
+
+# Easy-RSA文件冲突
+EASY_RSA_VARS_PATH="$GITHUB_WORKSPACE/wrt/package/base-files/files/etc/easy-rsa/vars"
+[ -f "$EASY_RSA_VARS_PATH" ] && rm -vf "$EASY_RSA_VARS_PATH" && echo "已删除冲突文件: $EASY_RSA_VARS_PATH"
+
+# Socat配置文件冲突
+SOCAT_CONF_PATH="$GITHUB_WORKSPACE/wrt/package/base-files/files/etc/config/socat"
+[ -f "$SOCAT_CONF_PATH" ] && rm -vf "$SOCAT_CONF_PATH" && echo "已删除冲突文件: $SOCAT_CONF_PATH"
+SOCAT_INIT_PATH="$GITHUB_WORKSPACE/wrt/package/base-files/files/etc/init.d/socat"
+[ -f "$SOCAT_INIT_PATH" ] && rm -vf "$SOCAT_INIT_PATH" && echo "已删除冲突文件: $SOCAT_INIT_PATH"
+# -------------------------- 新增结束 --------------------------
+
 #预置HomeProxy数据
 if [ -d *"homeproxy"* ]; then
 	HP_RULE="surge"
@@ -21,6 +39,7 @@ if [ -d *"homeproxy"* ]; then
 
 	cd $PKG_PATH && echo "homeproxy date has been updated!"
 fi
+
 
 #修改argon主题字体和颜色
 if [ -d *"luci-theme-argon"* ]; then
