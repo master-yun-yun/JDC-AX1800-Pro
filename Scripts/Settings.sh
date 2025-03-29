@@ -1,18 +1,5 @@
 #!/bin/bash
 
-# 修复rtw88补丁问题
-RTW88_PATCH_DIR="$GITHUB_WORKSPACE/wrt/target/linux/mediatek/patches-5.15"
-RTW88_PATCH_FILE="$RTW88_PATCH_DIR/999-rtw88.patch"
-
-if [ -f "$RTW88_PATCH_FILE" ]; then
-  echo "修复rtw88补丁路径..."
-  # 修正补丁路径
-  sed -i 's/a\/drivers\/net\/wireless\/realtek\/rtw88\//a\/drivers\/net\/wireless\/realtek\/rtw88\/rtw88-core\//g' "$RTW88_PATCH_FILE"
-  # 添加缺失的头文件引用
-  sed -i '/^--- a\/drivers\/net\/wireless\/realtek\/rtw88\/main.h/i +#include <linux/module.h>' "$RTW88_PATCH_FILE"
-  echo "rtw88补丁已修复"
-fi
-
 #修改默认主题
 sed -i "s/luci-theme-bootstrap/luci-theme-$WRT_THEME/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
 #修改immortalwrt.lan关联IP
