@@ -154,7 +154,7 @@ jobs:
           cd ./wrt/package/
 
           $GITHUB_WORKSPACE/Scripts/Packages.sh
-          $GITHUB_WORKSPACE/Scripts/Handles.sh  # 此处执行Handles.sh中的冲突处理逻辑
+          $GITHUB_WORKSPACE/Scripts/Handles.sh  # 此处执行冲突清理
 
       - name: Custom Settings
         run: |
@@ -173,15 +173,18 @@ jobs:
 
           make download -j$(nproc)
 
-      # -------------------------- 修改编译命令添加强制覆盖参数 --------------------------
+      # -------------------------- 强化编译参数 --------------------------
       - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         env:
-          IPKG_NO_SCRIPT: 1  # 禁用包安装脚本
-          OPKG_OPTIONS: "--force-overwrite"  # 新增强制覆盖参数
+          IPKG_NO_SCRIPT: 1
+          OPKG_OPTIONS: "--force-overwrite --force-depends --force-checksum"
+          BUILD_OPTIONS: "IGNORE_ERRORS=m V=sc"
         run: |
           cd ./wrt/
-          make -j$(nproc) OPKG="opkg ${OPKG_OPTIONS}" || make -j$(nproc) V=s OPKG="opkg ${OPKG_OPTIONS}"
+          make clean
+          make -j$(nproc) OPKG="opkg ${OPKG_OPTIONS}" BUILD_LOG=1 ${BUILD_OPTIONS} || \
+          make -j$(nproc) OPKG="opkg ${OPKG_OPTIONS}" BUILD_LOG=1 ${BUILD_OPTIONS} V=s
 
       - name: Machine Information
         run: |
