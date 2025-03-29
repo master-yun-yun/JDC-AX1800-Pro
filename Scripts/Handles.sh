@@ -2,22 +2,20 @@
 
 PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 
-# -------------------------- 新增冲突预处理逻辑 --------------------------
-# 删除固件构建目录中已存在的冲突文件（关键修改）
-echo "删除预存在的冲突文件..."
-# OpenVPN配置文件冲突
-OPENVPN_CONF_PATH="$GITHUB_WORKSPACE/wrt/package/base-files/files/etc/config/openvpn"
-[ -f "$OPENVPN_CONF_PATH" ] && rm -vf "$OPENVPN_CONF_PATH" && echo "已删除冲突文件: $OPENVPN_CONF_PATH"
+# -------------------------- 新增精准冲突文件清理 --------------------------
+echo "执行精准冲突文件清理..."
+# 清理openvpn-openssl配置文件
+find "$GITHUB_WORKSPACE/wrt/feeds" -type f -path "*/openvpn-openssl/files/etc/config/openvpn" -delete
+echo "已清除所有openvpn-openssl配置文件"
 
-# Easy-RSA文件冲突
-EASY_RSA_VARS_PATH="$GITHUB_WORKSPACE/wrt/package/base-files/files/etc/easy-rsa/vars"
-[ -f "$EASY_RSA_VARS_PATH" ] && rm -vf "$EASY_RSA_VARS_PATH" && echo "已删除冲突文件: $EASY_RSA_VARS_PATH"
+# 清理socat相关文件
+find "$GITHUB_WORKSPACE/wrt/feeds" -type f \( -path "*/socat/files/etc/config/socat" -o -path "*/socat/files/etc/init.d/socat" \) -delete
+echo "已清除所有socat配置文件"
 
-# Socat配置文件冲突
-SOCAT_CONF_PATH="$GITHUB_WORKSPACE/wrt/package/base-files/files/etc/config/socat"
-[ -f "$SOCAT_CONF_PATH" ] && rm -vf "$SOCAT_CONF_PATH" && echo "已删除冲突文件: $SOCAT_CONF_PATH"
-SOCAT_INIT_PATH="$GITHUB_WORKSPACE/wrt/package/base-files/files/etc/init.d/socat"
-[ -f "$SOCAT_INIT_PATH" ] && rm -vf "$SOCAT_INIT_PATH" && echo "已删除冲突文件: $SOCAT_INIT_PATH"
+# 清理残留lock文件
+find "$GITHUB_WORKSPACE/wrt" -name "*.rej" -delete
+find "$GITHUB_WORKSPACE/wrt" -name "*.orig" -delete
+echo "已清除补丁残留文件"
 # -------------------------- 新增结束 --------------------------
 
 #预置HomeProxy数据
@@ -39,7 +37,6 @@ if [ -d *"homeproxy"* ]; then
 
 	cd $PKG_PATH && echo "homeproxy date has been updated!"
 fi
-
 
 #修改argon主题字体和颜色
 if [ -d *"luci-theme-argon"* ]; then
@@ -101,23 +98,3 @@ if [ -f "$CM_FILE" ]; then
 
 	cd $PKG_PATH && echo "coremark has been fixed!"
 fi
-
-# -------------------------- 新增冲突处理逻辑 --------------------------
-# 处理文件冲突：在安装包前备份可能冲突的文件
-echo "处理文件冲突..."
-# OpenVPN相关冲突
-if [ -f /etc/config/openvpn ]; then
-  mv /etc/config/openvpn /etc/config/openvpn.bak && echo "已备份/etc/config/openvpn"
-fi
-if [ -f /etc/easy-rsa/vars ]; then
-  mv /etc/easy-rsa/vars /etc/easy-rsa/vars.bak && echo "已备份/etc/easy-rsa/vars"
-fi
-
-# Socat相关冲突
-if [ -f /etc/config/socat ]; then
-  mv /etc/config/socat /etc/config/socat.bak && echo "已备份/etc/config/socat"
-fi
-if [ -f /etc/init.d/socat ]; then
-  mv /etc/init.d/socat /etc/init.d/socat.bak && echo "已备份/etc/init.d/socat"
-fi
-# -------------------------- 新增结束 --------------------------
