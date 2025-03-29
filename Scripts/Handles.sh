@@ -2,22 +2,6 @@
 
 PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 
-# -------------------------- 新增精准冲突文件清理 --------------------------
-echo "执行精准冲突文件清理..."
-# 清理openvpn-openssl配置文件
-find "$GITHUB_WORKSPACE/wrt/feeds" -type f -path "*/openvpn-openssl/files/etc/config/openvpn" -delete
-echo "已清除所有openvpn-openssl配置文件"
-
-# 清理socat相关文件
-find "$GITHUB_WORKSPACE/wrt/feeds" -type f \( -path "*/socat/files/etc/config/socat" -o -path "*/socat/files/etc/init.d/socat" \) -delete
-echo "已清除所有socat配置文件"
-
-# 清理残留lock文件
-find "$GITHUB_WORKSPACE/wrt" -name "*.rej" -delete
-find "$GITHUB_WORKSPACE/wrt" -name "*.orig" -delete
-echo "已清除补丁残留文件"
-# -------------------------- 新增结束 --------------------------
-
 #预置HomeProxy数据
 if [ -d *"homeproxy"* ]; then
 	HP_RULE="surge"
