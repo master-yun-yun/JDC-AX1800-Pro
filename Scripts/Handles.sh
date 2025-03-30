@@ -3,14 +3,6 @@
 # 全局工作目录定义
 PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 
-# ======================== 新增：OpenVPN预安装钩子 ========================
-# 位置说明：放在脚本最前端，确保在修改任何系统配置前执行
-if [ -f "/etc/config/openvpn" ]; then
-    mv -v "/etc/config/openvpn" "/etc/config/openvpn.bak"
-    echo "[Pre-Install] OpenVPN config backed up to /etc/config/openvpn.bak"
-fi
-# ======================== 原有功能模块 ========================
-
 #预置HomeProxy数据
 if [ -d *"homeproxy"* ]; then
 	HP_RULE="surge"
