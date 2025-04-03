@@ -134,7 +134,7 @@ UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"
 #UPDATE_PACKAGE "luci-app-vlmcsd" "AutoCONFIG/luci-app-vlmcsd" "master"
 #以上自定义源
 #-------------------------------------2025.04.03测试---------------------------------------#
-UPDATE_PACKAGE "kiddin9" "kiddin9/kwrt-packages" "main" "" "luci-app-store luci-app-vlmcsd luci-app-aliyundrive-webdav luci-app-clouddrive2 luci-app-sunpanel luci-app-openvpn-server luci-app-socat"
+UPDATE_PACKAGE "" "kiddin9/kwrt-packages" "main" "" "luci-app-store luci-app-vlmcsd luci-app-aliyundrive-webdav luci-app-clouddrive2 luci-app-sunpanel luci-app-openvpn-server luci-app-socat"
 #UPDATE_PACKAGE "iStore" "kiddin9/kwrt-packages" "main" "" "luci-app-store"
 #UPDATE_PACKAGE "Vlmcsd KMS 服务器" "kiddin9/kwrt-packages" "main" "" "luci-app-vlmcsd"
 #UPDATE_PACKAGE "阿里云webdav" "kiddin9/kwrt-packages" "main" "" "luci-app-aliyundrive-webdav"
