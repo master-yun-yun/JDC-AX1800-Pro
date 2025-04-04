@@ -156,4 +156,20 @@ UPDATE_PACKAGE "luci-app-openvpn-server" "master-yun-yun/kwrt-packages-kiddin9" 
 
 UPDATE_PACKAGE "luci-app-socat" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 
+UPDATE_PACKAGE "istoreenhance" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+UPDATE_PACKAGE "luci-app-istoreenhance" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "linkease" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+UPDATE_PACKAGE "luci-app-linkease" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "luci-app-memos" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "luci-app-navidrome" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "quickstart" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+UPDATE_PACKAGE "luci-app-quickstart" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "luci-theme-design" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+UPDATE_PACKAGE "luci-app-design-config" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
 #-------------------------------------2025.04.04测试---------------------------------------#
