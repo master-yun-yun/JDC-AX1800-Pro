@@ -33,6 +33,7 @@ UPDATE_PACKAGE() {
 
 	# 处理克隆的仓库
 	if [[ $PKG_SPECIAL == "pkg" ]]; then
+		# 提取指定包并删除仓库目录（关键修改：仅保留需要的包）
 		find ./$REPO_NAME/*/ -maxdepth 3 -type d -iname "*$PKG_NAME*" -prune -exec cp -rf {} ./ \;
 		rm -rf ./$REPO_NAME/
 	elif [[ $PKG_SPECIAL == "name" ]]; then
@@ -41,10 +42,6 @@ UPDATE_PACKAGE() {
 }
 
 # 调用示例
-# UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "" "custom_name1 custom_name2"
-# UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "" "luci-app-appfilter oaf" 这样会把原有的open-app-filter，luci-app-appfilter，oaf相关组件删除，不会出现coremark错误。
-
-# UPDATE_PACKAGE "包名" "项目地址" "项目分支" "pkg/name，可选，pkg为从大杂烩中单独提取包名插件；name为重命名为包名"
 UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-24.10"
 UPDATE_PACKAGE "kucat" "sirpdboy/luci-theme-kucat" "js"
 
@@ -109,37 +106,22 @@ UPDATE_VERSION() {
 	done
 }
 
-#UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
 UPDATE_VERSION "sing-box"
 UPDATE_VERSION "tailscale"
 
 #以下自定义源
-#全能推送PushBot
 UPDATE_PACKAGE "luci-app-pushbot" "zzsj0928/luci-app-pushbot" "master"
-#关机poweroff
 UPDATE_PACKAGE "luci-app-poweroff" "DongyangHu/luci-app-poweroff" "main"
-#主题界面edge
 UPDATE_PACKAGE "luci-theme-edge" "ricemices/luci-theme-edge" "master"
-#分区扩容
 UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"
-#阿里云盘aliyundrive-webdav
-#UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "messense/aliyundrive-webdav" "main"
-#UPDATE_PACKAGE "aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main" "pkg"
-#UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main"
-#openvpn-server服务器
-#UPDATE_PACKAGE "luci-app-openvpn-server" "hyperlook/luci-app-openvpn-server" "main"
-#UPDATE_PACKAGE "luci-app-openvpn-server" "ixiaan/luci-app-openvpn-server" "main"
-#UPDATE_PACKAGE "luci-app-openvpn-server" "master-yun-yun/luci-app-openvpn-server" "main"
-#luci-app-vlmcsd服务器
-#UPDATE_PACKAGE "luci-app-vlmcsd" "AutoCONFIG/luci-app-vlmcsd" "master"
-#以上自定义源
+
 #-------------------------------------2025.04.04测试---------------------------------------#
-UPDATE_PACKAGE "luci-app-store luci-app-vlmcsd luci-app-aliyundrive-webdav luci-app-clouddrive2 luci-app-sunpanel luci-app-openvpn-server luci-app-socat" "kiddin9/kwrt-packages" "main" "" "luci-app-store luci-app-vlmcsd luci-app-aliyundrive-webdav luci-app-clouddrive2 luci-app-sunpanel luci-app-openvpn-server luci-app-socat"
-#UPDATE_PACKAGE "iStore" "kiddin9/kwrt-packages" "main" "" "luci-app-store"
-#UPDATE_PACKAGE "Vlmcsd KMS 服务器" "kiddin9/kwrt-packages" "main" "" "luci-app-vlmcsd"
-#UPDATE_PACKAGE "阿里云webdav" "kiddin9/kwrt-packages" "main" "" "luci-app-aliyundrive-webdav"
-#UPDATE_PACKAGE "clouddrive2" "kiddin9/kwrt-packages" "main" "" "luci-app-clouddrive2"
-#UPDATE_PACKAGE "sunpanel面板" "kiddin9/kwrt-packages" "main" "" "luci-app-sunpanel"
-#UPDATE_PACKAGE "openvpn服务器" "kiddin9/kwrt-packages" "main" "" "luci-app-openvpn-server"
-#UPDATE_PACKAGE "socat端口转发设置" "kiddin9/kwrt-packages" "main" "" "luci-app-socat"
+# 关键修改：使用 "pkg" 模式逐个提取需要的包，避免克隆整个仓库
+UPDATE_PACKAGE "luci-app-store" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-clouddrive2" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-openvpn-server" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-socat" "kiddin9/kwrt-packages" "main" "pkg"
 #-------------------------------------2025.04.04测试---------------------------------------#
