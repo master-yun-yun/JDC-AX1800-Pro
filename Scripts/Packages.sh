@@ -159,6 +159,7 @@ UPDATE_PACKAGE "luci-app-socat" "master-yun-yun/kwrt-packages-kiddin9" "main" "p
 UPDATE_PACKAGE "istoreenhance" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 UPDATE_PACKAGE "luci-app-istoreenhance" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 
+UPDATE_PACKAGE "linkmount" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 UPDATE_PACKAGE "linkease" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 UPDATE_PACKAGE "luci-app-linkease" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 
