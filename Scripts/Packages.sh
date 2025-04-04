@@ -135,11 +135,23 @@ UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"
 #以上自定义源
 #-------------------------------------2025.04.04测试---------------------------------------#
 # 关键修改：使用 pkg 模式逐个提取需要的包，避免引入整个仓库
-UPDATE_PACKAGE "luci-app-store" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "luci-app-vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "luci-app-clouddrive2" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "luci-app-openvpn-server" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "luci-app-socat" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-lib-taskd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+UPDATE_PACKAGE "luci-app-store" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "vlmcsd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+UPDATE_PACKAGE "luci-app-vlmcsd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "aliyundrive-webdav" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "clouddrive2" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+UPDATE_PACKAGE "luci-app-clouddrive2" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "sunpanel" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+UPDATE_PACKAGE "luci-app-sunpanel" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "luci-app-openvpn-server" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
+UPDATE_PACKAGE "luci-app-socat" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+
 #-------------------------------------2025.04.04测试---------------------------------------#
