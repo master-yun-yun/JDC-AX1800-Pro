@@ -135,6 +135,8 @@ UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"
 #以上自定义源
 #-------------------------------------2025.04.04测试---------------------------------------#
 # 关键修改：使用 pkg 模式逐个提取需要的包，避免引入整个仓库
+UPDATE_PACKAGE "luci-lib-xterm" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+UPDATE_PACKAGE "taskd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 UPDATE_PACKAGE "luci-lib-taskd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 UPDATE_PACKAGE "luci-app-store" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 
