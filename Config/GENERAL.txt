@@ -166,6 +166,7 @@ CONFIG_PACKAGE_luci-app-argon-config=y
 #磁盘管理-diskman
 CONFIG_PACKAGE_luci-app-diskman=y
 #-------------------以上为自行增加的插件及组件--------------------------------------#
+#*********************(^)***(^)***(^)***(^)***(^)**********************************#
 #-------------------2025.04.04-测试------------------------------------------------#
 CONFIG_PACKAGE_libpcre2=y
 CONFIG_PACKAGE_luci-app-store=y
@@ -175,4 +176,11 @@ CONFIG_PACKAGE_luci-app-clouddrive2=y
 CONFIG_PACKAGE_luci-app-sunpanel=y
 CONFIG_PACKAGE_luci-app-openvpn-server=y
 CONFIG_PACKAGE_luci-app-socat=y
+CONFIG_PACKAGE_luci-app-istoreenhance=y
+CONFIG_PACKAGE_luci-app-linkease=y
+CONFIG_PACKAGE_luci-app-memos=y
+CONFIG_PACKAGE_luci-app-navidrome=y
+CONFIG_PACKAGE_luci-app-quickstart=y
+CONFIG_PACKAGE_luci-theme-design=y
+CONFIG_PACKAGE_luci-app-design-config=y
 #-------------------2025.04.04-测试------------------------------------------------#
