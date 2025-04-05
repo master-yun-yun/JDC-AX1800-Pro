@@ -106,12 +106,12 @@ CONFIG_PACKAGE_sudo=y
 #DDNS依赖
 CONFIG_PACKAGE_drill=y
 #openvpn服务器
-#CONFIG_PACKAGE_openvpn-easy-rsa=y
-#CONFIG_PACKAGE_openssl-util=y
-#CONFIG_PACKAGE_openvpn-openssl=y
-#CONFIG_PACKAGE_libcap-ng=y
-#CONFIG_PACKAGE_liblz4-1=y
-#CONFIG_PACKAGE_liblzo2=y
+CONFIG_PACKAGE_openvpn-easy-rsa=y
+CONFIG_PACKAGE_openssl-util=y
+CONFIG_PACKAGE_openvpn-openssl=y
+CONFIG_PACKAGE_libcap-ng=y
+CONFIG_PACKAGE_liblz4-1=y
+CONFIG_PACKAGE_liblzo2=y
 #CONFIG_PACKAGE_luci-app-openvpn-server=y
 #FTP服务器
 CONFIG_PACKAGE_luci-app-vsftpd=y
@@ -169,7 +169,7 @@ CONFIG_PACKAGE_luci-app-diskman=y
 #*********************(^)***(^)***(^)***(^)***(^)**********************************#
 #-------------------2025.04.04-测试------------------------------------------------#
 CONFIG_PACKAGE_libpcre2=y
-#CONFIG_PACKAGE_luci-app-store=y
+CONFIG_PACKAGE_luci-app-store=y
 #CONFIG_PACKAGE_luci-app-vlmcsd=y
 CONFIG_PACKAGE_luci-app-aliyundrive-webdav=y
 CONFIG_PACKAGE_luci-app-clouddrive2=y
