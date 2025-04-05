@@ -140,8 +140,8 @@ UPDATE_PACKAGE "taskd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 UPDATE_PACKAGE "luci-lib-taskd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 UPDATE_PACKAGE "luci-app-store" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 
-UPDATE_PACKAGE "vlmcsd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
-UPDATE_PACKAGE "luci-app-vlmcsd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+#UPDATE_PACKAGE "vlmcsd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+#UPDATE_PACKAGE "luci-app-vlmcsd" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 
 UPDATE_PACKAGE "aliyundrive-webdav" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
@@ -152,9 +152,9 @@ UPDATE_PACKAGE "luci-app-clouddrive2" "master-yun-yun/kwrt-packages-kiddin9" "ma
 UPDATE_PACKAGE "sunpanel" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 UPDATE_PACKAGE "luci-app-sunpanel" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 
-UPDATE_PACKAGE "luci-app-openvpn-server" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+#UPDATE_PACKAGE "luci-app-openvpn-server" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 
-UPDATE_PACKAGE "luci-app-socat" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
+#UPDATE_PACKAGE "luci-app-socat" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 
 UPDATE_PACKAGE "istoreenhance" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
 UPDATE_PACKAGE "luci-app-istoreenhance" "master-yun-yun/kwrt-packages-kiddin9" "main" "pkg"
