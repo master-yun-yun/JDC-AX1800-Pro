@@ -141,8 +141,8 @@ CONFIG_PACKAGE_luci-app-alist=y
 CONFIG_PACKAGE_php8=y
 CONFIG_PACKAGE_php8-cgi=y
 CONFIG_PACKAGE_php8-mod-curl=y
-#Wi-Fi定时开关
-CONFIG_PACKAGE_luci-app-wifischedule=y
+#Wi-Fi定时开关（x86暂不需要）
+#CONFIG_PACKAGE_luci-app-wifischedule=y
 #阿里云盘webdav
 #CONFIG_PACKAGE_luci-app-aliyundrive-webdav=y
 #docker
