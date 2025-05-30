@@ -1,3 +1,6 @@
+# 这是一个默认使用opkg的固件。集成istore商店。
+# RE-SS-01-亚瑟-wifi、RE-CS-02-雅典娜-wifi。请注意选择你需要的设备固件！
+# 固件已切换到6.12内核。
 # OpenWRT-CI
 云编译OpenWRT固件
 
