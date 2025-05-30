@@ -143,7 +143,7 @@ CONFIG_PACKAGE_php8-mod-curl=y
 #Wi-Fi定时开关
 CONFIG_PACKAGE_luci-app-wifischedule=y
 #阿里云盘webdav
-CONFIG_PACKAGE_luci-app-aliyundrive-webdav=y
+#CONFIG_PACKAGE_luci-app-aliyundrive-webdav=y
 #docker
 CONFIG_PACKAGE_luci-app-dockerman=y
 #KMS服务器
