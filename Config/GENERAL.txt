@@ -152,7 +152,7 @@ CONFIG_PACKAGE_luci-app-wifischedule=y
 #docker
 CONFIG_PACKAGE_luci-app-dockerman=y
 #KMS服务器
-CONFIG_PACKAGE_luci-app-vlmcsd=y
+#CONFIG_PACKAGE_luci-app-vlmcsd=y
 #ZeroTier内网穿透
 CONFIG_PACKAGE_luci-app-zerotier=y
 #访问时间控制
