@@ -31,12 +31,25 @@ UPDATE_PACKAGE() {
 	# 克隆 GitHub 仓库
 	git clone --depth=1 --single-branch --branch $PKG_BRANCH "https://github.com/$PKG_REPO.git"
 
+ 	#--------以下原代码--------恢复时取消“##”（2个#）------#
+	### 处理克隆的仓库
+	##if [[ $PKG_SPECIAL == "pkg" ]]; then
+		##find ./$REPO_NAME/*/ -maxdepth 3 -type d -iname "*$PKG_NAME*" -prune -exec cp -rf {} ./ \;
+		##rm -rf ./$REPO_NAME/
+	##elif [[ $PKG_SPECIAL == "name" ]]; then
+		##mv -f $REPO_NAME $PKG_NAME
+	##fi
+##}
+	#--------以上原代码--------恢复时取消“##”（2个#）------#
+ 
 	# 处理克隆的仓库
-	if [[ "$PKG_SPECIAL" == "pkg" ]]; then
-		find ./$REPO_NAME/*/ -maxdepth 3 -type d -iname "*$PKG_NAME*" -prune -exec cp -rf {} ./ \;
-		rm -rf ./$REPO_NAME/
+ 	if [[ "$PKG_SPECIAL" == "pkg" ]]; then
+  	  # 修改后的 find 命令：覆盖深层目录（如 relevance/filebrowser）
+  	  find ./$REPO_NAME/ -maxdepth 10 -type d -iname "*$PKG_NAME*" -prune -exec cp -rf {} ./ \;
+  	  rm -rf ./$REPO_NAME/
 	elif [[ "$PKG_SPECIAL" == "name" ]]; then
-		mv -f $REPO_NAME $PKG_NAME
+  	  # 原逻辑：直接重命名仓库目录（适用于插件与仓库同名的情况）
+  	  mv -f $REPO_NAME $PKG_NAME
 	fi
 }
 
@@ -61,9 +74,9 @@ UPDATE_PACKAGE "ddns-go" "sirpdboy/luci-app-ddns-go" "main"
 UPDATE_PACKAGE "easytier" "EasyTier/luci-app-easytier" "main"
 UPDATE_PACKAGE "gecoosac" "lwb1978/openwrt-gecoosac" "main"
 UPDATE_PACKAGE "mosdns" "sbwml/luci-app-mosdns" "v5" "" "v2dat"
-UPDATE_PACKAGE "netspeedtest" "sirpdboy/luci-app-netspeedtest" "js" "" "homebox speedtest"
-UPDATE_PACKAGE "partexp" "sirpdboy/luci-app-partexp" "main"
-UPDATE_PACKAGE "qbittorrent" "sbwml/luci-app-qbittorrent" "master" "" "qt6base qt6tools rblibtorrent"
+#UPDATE_PACKAGE "netspeedtest" "sirpdboy/luci-app-netspeedtest" "js" "" "homebox speedtest"
+#UPDATE_PACKAGE "partexp" "sirpdboy/luci-app-partexp" "main"
+#UPDATE_PACKAGE "qbittorrent" "sbwml/luci-app-qbittorrent" "master" "" "qt6base qt6tools rblibtorrent"
 UPDATE_PACKAGE "qmodem" "FUjr/QModem" "main"
 UPDATE_PACKAGE "viking" "VIKINGYFY/packages" "main" "" "luci-app-timewol luci-app-wolplus"
 UPDATE_PACKAGE "vnt" "lmq8267/luci-app-vnt" "main"
@@ -112,3 +125,76 @@ UPDATE_VERSION() {
 #UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
 UPDATE_VERSION "sing-box"
 UPDATE_VERSION "tailscale"
+
+#------------------以下自定义源--------------------#
+
+#全能推送PushBot----OK
+UPDATE_PACKAGE "luci-app-pushbot" "zzsj0928/luci-app-pushbot" "master"
+
+#关机poweroff----OK
+UPDATE_PACKAGE "luci-app-poweroff" "DongyangHu/luci-app-poweroff" "main"
+
+#主题界面edge----OK
+UPDATE_PACKAGE "luci-theme-edge" "ricemices/luci-theme-edge" "master"
+
+#分区扩容----OK
+UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"
+
+#阿里云盘aliyundrive-webdav----OK
+UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "messense/aliyundrive-webdav" "main"
+#UPDATE_PACKAGE "aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main" "pkg"
+#UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main"
+
+#服务器
+#UPDATE_PACKAGE "luci-app-openvpn-server" "hyperlook/luci-app-openvpn-server" "main"
+#UPDATE_PACKAGE "luci-app-openvpn-server" "ixiaan/luci-app-openvpn-server" "main"
+
+#luci-app-navidrome音乐服务器----OK
+UPDATE_PACKAGE "luci-app-navidrome" "tty228/luci-app-navidrome" "main"
+
+#luci-theme-design主题界面----OK
+#UPDATE_PACKAGE "luci-theme-design" "emxiong/luci-theme-design" "master"
+#luci-app-design-config主题配置----OK
+#UPDATE_PACKAGE "luci-app-design-config" "kenzok78/luci-app-design-config" "main"
+
+#luci-app-quickstart
+#UPDATE_PACKAGE "luci-app-quickstart" "animegasan/luci-app-quickstart" "main"
+
+#端口转发luci-app-socat----OK
+UPDATE_PACKAGE "luci-app-socat" "WROIATE/luci-app-socat" "main"
+
+#------------------以上自定义源--------------------#
+
+
+#-------------------2025.04.12-测试-----------------#
+#UPDATE_PACKAGE "luci-app-clouddrive2" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+
+UPDATE_PACKAGE "istoreenhance" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+UPDATE_PACKAGE "luci-app-istoreenhance" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+
+UPDATE_PACKAGE "linkmount" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+UPDATE_PACKAGE "linkease" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+UPDATE_PACKAGE "luci-app-linkease" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+
+#UPDATE_PACKAGE "quickstart" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+#UPDATE_PACKAGE "luci-app-quickstart" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+UPDATE_PACKAGE "quickstart" "master-yun-yun/package-istore" "Immortalwrt" "pkg"
+UPDATE_PACKAGE "luci-app-quickstart" "master-yun-yun/package-istore" "Immortalwrt" "pkg"
+
+UPDATE_PACKAGE "luci-app-store" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+
+UPDATE_PACKAGE "webdav2" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+UPDATE_PACKAGE "unishare" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+UPDATE_PACKAGE "luci-app-unishare" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+
+#luci-app-athena-led-雅典娜led屏幕显示（第一个源显示效果不好）
+#UPDATE_PACKAGE "luci-app-athena-led" "haipengno1/luci-app-athena-led" "main"
+UPDATE_PACKAGE "luci-app-athena-led" "NONGFAH/luci-app-athena-led" "main"
+#-------------------2025.04.12-测试-----------------#
+# 添加雅典娜LED执行权限
+if [ -d "luci-app-athena-led" ]; then
+    chmod +x luci-app-athena-led/root/etc/init.d/athena_led
+    chmod +x luci-app-athena-led/root/usr/sbin/athena-led
+    echo "Added execute permissions for athena_led files."
+fi
+#-------------------2025.05.31-测试-----------------#
