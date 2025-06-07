@@ -98,11 +98,42 @@ jobs:
 
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
 
+          # ---------修改软件源为IPK（新增部分）-------#
+          sed -i 's/.apk/.ipk/g' feeds.conf.default
+
           # GitHub Action 移除国内下载源
           PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
           if [ -f "$PROJECT_MIRRORS_FILE" ]; then
             sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
           fi
+
+# ========== 语言包处理 - 必须在 Clone Code 之后（确保 ./wrt 目录存在）；在 Check Scripts 之前（避免被dos2unix处理） ========== #
+
+      - name: Prepare Language Packs
+        run: |
+          # 创建目标目录结构
+          mkdir -p ./wrt/files/usr/lib/lua/luci/i18n/
+          
+          # 复制语言包文件到目标目录（直接打包进固件）
+          cp -v "$GITHUB_WORKSPACE/Scripts/linkease.zh-cn.lmo" ./wrt/files/usr/lib/lua/luci/i18n/
+          cp -v "$GITHUB_WORKSPACE/Scripts/quickstart.zh-cn.lmo" ./wrt/files/usr/lib/lua/luci/i18n/
+          cp -v "$GITHUB_WORKSPACE/Scripts/unishare.zh-cn.lmo" ./wrt/files/usr/lib/lua/luci/i18n/
+          
+          # 验证复制结果
+          ls -l ./wrt/files/usr/lib/lua/luci/i18n/
+          echo "语言包已直接放置在固件的 /usr/lib/lua/luci/i18n/ 目录"
+
+      - name: Verify Language Pack Placement
+        run: |
+          echo "验证语言包位置:"
+          ls -l ./wrt/files/usr/lib/lua/luci/i18n/*.lmo
+          [ $(ls ./wrt/files/usr/lib/lua/luci/i18n/*.lmo | wc -l) -eq 3 ] || {
+            echo "::error::语言包文件数量不正确"
+            exit 1
+          }
+          echo "验证通过：找到3个语言包文件"
+
+# ========== 以上语言包处理------以下原有编译步骤 ========== #
 
       - name: Check Scripts
         run: |
