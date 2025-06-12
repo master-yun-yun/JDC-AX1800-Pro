@@ -260,6 +260,7 @@ jobs:
           files: ./wrt/upload/*.*
           body: |
             这是个平台固件包，内含多个设备！
+            RE-SS-01-亚瑟-wifi、RE-CS-02-雅典娜-wifi！
             请注意选择你需要的设备固件！
             不要问，刷就完事了！
 
