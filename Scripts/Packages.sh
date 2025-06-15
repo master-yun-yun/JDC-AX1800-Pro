@@ -163,8 +163,9 @@ UPDATE_PACKAGE "luci-app-navidrome" "tty228/luci-app-navidrome" "main"
 #端口转发luci-app-socat----OK
 UPDATE_PACKAGE "luci-app-socat" "WROIATE/luci-app-socat" "main"
 
-#timecontrol 上网时间控制插件
+#timecontrol 上网时间控制插件 - 上网时间控制NFT版2.0.2版==专门针对24.10分支，适配NFT的上网时间控制插件。
 UPDATE_PACKAGE "luci-app-timecontrol" "sirpdboy/luci-app-timecontrol" "main"
+#timecontrol 上网时间控制插件 - 自适应FW3/FW4防火墙，支持IPv4/IPv6。改自Lienol原版luci-app-timecontrol FW3版本。
 #UPDATE_PACKAGE "luci-app-timecontrol" "gaobin89/luci-app-timecontrol" "main"
 
 #luci-app-taskplan 任务设置2.0版
