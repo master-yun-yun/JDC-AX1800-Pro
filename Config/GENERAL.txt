@@ -141,7 +141,8 @@ CONFIG_PACKAGE_luci-theme-edge=y
 #文件浏览器filebrowser-go
 CONFIG_PACKAGE_luci-app-filebrowser-go=y
 #多端网盘挂载alist
-CONFIG_PACKAGE_luci-app-alist=y
+#CONFIG_PACKAGE_luci-app-alist=y
+CONFIG_PACKAGE_luci-app-openlist=y
 #php8
 CONFIG_PACKAGE_php8=y
 CONFIG_PACKAGE_php8-cgi=y
