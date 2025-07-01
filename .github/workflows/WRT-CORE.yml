@@ -203,6 +203,12 @@ jobs:
 
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
+      # 2025.07.02新增：确保cgroupfs-mount被启用（双重保险）
+      - name: Ensure cgroupfs-mount
+        run: |
+          cd ./wrt/
+          echo "CONFIG_PACKAGE_cgroupfs-mount=y" >> .config
+
       - name: Download Packages
         if: env.WRT_TEST != 'true'
         run: |
@@ -251,6 +257,35 @@ jobs:
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
 
             make clean -j$(nproc)
+          fi
+
+      # 2025.07.02新增：cgroup支持验证
+      - name: Verify cgroup Support
+        run: |
+          cd ./wrt/
+          echo "======================="
+          echo "验证cgroup内核配置:"
+          grep "CONFIG_CGROUPS" .config
+          grep "CONFIG_MEMCG" .config
+          grep "CONFIG_PACKAGE_kmod-cgroup-v2" .config
+          grep "CONFIG_PACKAGE_cgroupfs-mount" .config
+          
+          echo "======================="
+          echo "验证cgroup启动脚本调整:"
+          if [ -f ./package/feeds/packages/cgroupfs-mount/files/cgroupfs-mount.init ]; then
+            grep "START=10" ./package/feeds/packages/cgroupfs-mount/files/cgroupfs-mount.init
+            echo "cgroupfs-mount启动顺序已调整为10"
+          else
+            echo "::warning::未找到cgroupfs-mount启动脚本"
+          fi
+          
+          echo "======================="
+          echo "验证内核cgroup支持:"
+          if [ -f bin/targets/*/*/config-* ]; then
+            zgrep -i "cgroup" bin/targets/*/*/config-* | head -n 20
+            echo "......(显示前20行)"
+          else
+            echo "::warning::未找到内核配置文件"
           fi
 
       - name: Release Firmware
