@@ -75,3 +75,11 @@ if [ -f "$RUST_FILE" ]; then
 
 	cd $PKG_PATH && echo "rust has been fixed!"
 fi
+
+# 调整cgroup启动顺序 （使用变量方式）--- 2025.07.02-----#
+CGROUP_INIT="./package/feeds/packages/cgroupfs-mount/files/cgroupfs-mount.init"
+if [ -f "$CGROUP_INIT" ]; then
+    echo " "
+    sed -i 's/START=.*/START=10/g' "$CGROUP_INIT"
+    echo "cgroupfs-mount startup priority adjusted!"
+fi
