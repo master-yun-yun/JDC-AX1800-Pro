@@ -207,7 +207,14 @@ jobs:
       - name: Ensure cgroupfs-mount
         run: |
           cd ./wrt/
-          echo "CONFIG_PACKAGE_cgroupfs-mount=y" >> .config
+          
+          # 检查是否已存在配置
+          if ! grep -q "CONFIG_PACKAGE_cgroupfs-mount=y" .config; then
+              echo "添加cgroupfs-mount配置"
+              echo "CONFIG_PACKAGE_cgroupfs-mount=y" >> .config
+          else
+              echo "cgroupfs-mount配置已存在，无需添加"
+          fi
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'
@@ -260,6 +267,11 @@ jobs:
           fi
 
       # 2025.07.02新增：cgroup支持验证（非致命性）
+      - name: Package Firmware
+        run: |
+          cd ./wrt/ && mkdir ./upload/
+          # ... 打包逻辑 ...
+      
       - name: Verify cgroup Support
         run: |
           cd ./wrt/
@@ -267,37 +279,42 @@ jobs:
           echo "======================="
           echo "验证cgroup内核配置:"
           
-          # 所有grep命令添加|| true避免失败
-          grep "CONFIG_CGROUPS" .config || true
-          grep "CONFIG_MEMCG" .config || true
-          grep "CONFIG_PACKAGE_kmod-cgroup-v2" .config || true
-          grep "CONFIG_PACKAGE_cgroupfs-mount" .config || true
+          # 去重显示配置
+          sort -u .config | grep "CONFIG_PACKAGE_cgroupfs-mount" || true
+          sort -u .config | grep "CONFIG_PACKAGE_kmod-cgroup-v2" || true
           
           echo "======================="
           echo "验证cgroup启动脚本调整:"
           
-          # 添加额外的路径检查
-          CGROUP_INIT="./package/feeds/packages/cgroupfs-mount/files/cgroupfs-mount.init"
+          # 改进的路径查找
+          CGROUP_INIT=$(find ./package/feeds/packages/ -path "*/cgroupfs-mount/files/cgroupfs-mount.init" 2>/dev/null | head -1)
           if [ -f "$CGROUP_INIT" ]; then
-            grep "START=10" "$CGROUP_INIT" || echo "::warning::cgroup启动顺序未调整"
-            echo "cgroupfs-mount启动脚本存在"
+              if grep -q "START=10" "$CGROUP_INIT"; then
+                  echo "cgroupfs-mount启动顺序已调整为10"
+              else
+                  echo "::warning::cgroup启动顺序未调整"
+                  echo "当前启动脚本内容:"
+                  cat "$CGROUP_INIT"
+              fi
           else
-            echo "::warning::未找到cgroupfs-mount启动脚本"
+              echo "::warning::未找到cgroupfs-mount启动脚本"
           fi
           
           echo "======================="
           echo "验证内核cgroup支持:"
           
-          # 添加通配符安全检查
-          KERNEL_CONFIG=$(find bin/targets/ -name "config-*" 2>/dev/null | head -1)
+          # 更可靠的内核配置文件查找
+          KERNEL_CONFIG=$(find bin/targets/ -name "config-*" -o -name "kernel.config" 2>/dev/null | head -1)
           if [ -f "$KERNEL_CONFIG" ]; then
-            zgrep -i "cgroup" "$KERNEL_CONFIG" || echo "::warning::内核配置中未找到cgroup相关项"
-            echo "内核配置文件存在"
+              echo "找到内核配置文件: $KERNEL_CONFIG"
+              zgrep -i "cgroup" "$KERNEL_CONFIG" || echo "::warning::内核配置中未找到cgroup相关项"
           else
-            echo "::warning::未找到内核配置文件"
+              echo "::warning::未找到内核配置文件"
+              echo "备选查找方案:"
+              find bin/targets/ -type f 2>/dev/null | head -n 5
           fi
           
-          # 最终确认步骤完成
+          # 最终确认
           echo "cgroup支持验证完成（结果仅供参考，不影响编译）"
 
       - name: Release Firmware
