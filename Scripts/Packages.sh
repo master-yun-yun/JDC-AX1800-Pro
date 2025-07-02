@@ -207,6 +207,3 @@ if [ -d "luci-app-athena-led" ]; then
     echo "Added execute permissions for athena_led files."
 fi
 #-------------------2025.05.31-测试-----------------#
-
-#------2025.07.03---cgroup
-UPDATE_PACKAGE "cgroupfs-mount" "openwrt/packages" "master" "" ""
