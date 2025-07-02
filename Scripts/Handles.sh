@@ -86,27 +86,29 @@ if [ -n "$CGROUP_INIT" ]; then
         echo "cgroupfs-mount启动顺序已调整为10"
     else
         echo "::warning::启动脚本中没有START设置，添加新设置"
-        echo "START=10" >> "$CGROUP_INIT"
+        sed -i '1iSTART=10' "$CGROUP_INIT"
     fi
+    chmod +x "$CGROUP_INIT"
 else
     echo "::warning::未找到cgroupfs-mount启动脚本"
 fi
 
-# cgroup兜底挂载--- 2025.07.02-----#
-if [ ! -f ./files/etc/rc.local ]; then
+# cgroup兜底挂载
+RC_LOCAL=./files/etc/rc.local
+if [ ! -f "$RC_LOCAL" ]; then
     mkdir -p ./files/etc
-    cat << 'EOF' > ./files/etc/rc.local
+    cat << 'EOF' > "$RC_LOCAL"
 #!/bin/sh -e
 # openwrt cgroup 挂载兜底
 if ! mount | grep -q cgroup; then
   mkdir -p /sys/fs/cgroup
   mount -t tmpfs cgroup_root /sys/fs/cgroup
-  for sys in $(cut -d: -f2 /proc/1/cgroup | tr ',' ' '); do
-      mkdir -p /sys/fs/cgroup/$sys
-      mount -t cgroup -o $sys cgroup /sys/fs/cgroup/$sys
+  for sys in $(awk -F: '{print $2}' /proc/1/cgroup | tr ',' '\n' | sort -u); do
+      [ -n "$sys" ] && mkdir -p /sys/fs/cgroup/$sys
+      [ -n "$sys" ] && mount -t cgroup -o $sys cgroup /sys/fs/cgroup/$sys
   done
 fi
 exit 0
 EOF
-    chmod +x ./files/etc/rc.local
+    chmod +x "$RC_LOCAL"
 fi
