@@ -76,39 +76,55 @@ if [ -f "$RUST_FILE" ]; then
 	cd $PKG_PATH && echo "rust has been fixed!"
 fi
 
-# 调整cgroup启动顺序 （使用变量方式）--- 2025.07.02-----#
+# ================= 以下cgroup启动顺序调整+挂载兜底（推荐最完整做法） 2025.07.03================= #
+
 echo "查找cgroupfs-mount启动脚本..."
 CGROUP_INIT=$(find ./package/feeds/packages/ -path "*/cgroupfs-mount/files/cgroupfs-mount.init" 2>/dev/null | head -1)
 if [ -n "$CGROUP_INIT" ]; then
     echo "找到启动脚本: $CGROUP_INIT"
-    if grep -q "START=" "$CGROUP_INIT"; then
-        sed -i 's/START=.*/START=10/g' "$CGROUP_INIT"
-        echo "cgroupfs-mount启动顺序已调整为10"
+    # 调整启动顺序到10，若无则插入
+    if grep -q "^START=" "$CGROUP_INIT"; then
+        sed -i 's/^START=.*/START=10/' "$CGROUP_INIT"
     else
-        echo "::warning::启动脚本中没有START设置，添加新设置"
         sed -i '1iSTART=10' "$CGROUP_INIT"
     fi
     chmod +x "$CGROUP_INIT"
+    echo "cgroupfs-mount启动顺序已调整为10"
 else
     echo "::warning::未找到cgroupfs-mount启动脚本"
 fi
 
-# cgroup兜底挂载
-RC_LOCAL=./files/etc/rc.local
-if [ ! -f "$RC_LOCAL" ]; then
-    mkdir -p ./files/etc
-    cat << 'EOF' > "$RC_LOCAL"
-#!/bin/sh -e
+# ----------- cgroup挂载兜底，自动兼容已有rc.local，防重复插入 -----------
+RC_LOCAL="./files/etc/rc.local"
+CGROUP_MARKER="# openwrt cgroup 挂载兜底"
+
+mkdir -p "$(dirname "$RC_LOCAL")"
+
+# 如已插入过，不再追加
+if ! grep -q "$CGROUP_MARKER" "$RC_LOCAL" 2>/dev/null ; then
+    cat << 'EOF' >> "$RC_LOCAL"
+
 # openwrt cgroup 挂载兜底
-if ! mount | grep -q cgroup; then
+if ! mount | grep -q 'cgroup'; then
   mkdir -p /sys/fs/cgroup
   mount -t tmpfs cgroup_root /sys/fs/cgroup
-  for sys in $(awk -F: '{print $2}' /proc/1/cgroup | tr ',' '\n' | sort -u); do
-      [ -n "$sys" ] && mkdir -p /sys/fs/cgroup/$sys
-      [ -n "$sys" ] && mount -t cgroup -o $sys cgroup /sys/fs/cgroup/$sys
+  # 处理所有子系统，兼容多行多子系统
+  awk -F: '{print $2}' /proc/1/cgroup | tr ',' '\n' | sort -u | while read sys; do
+    [ -n "$sys" ] && mkdir -p "/sys/fs/cgroup/$sys"
+    [ -n "$sys" ] && mount -t cgroup -o "$sys" cgroup "/sys/fs/cgroup/$sys" 2>/dev/null || true
   done
 fi
-exit 0
+
 EOF
-    chmod +x "$RC_LOCAL"
 fi
+
+# 保证exit 0在rc.local末尾且唯一
+if ! grep -q '^exit 0' "$RC_LOCAL" 2>/dev/null; then
+    echo "exit 0" >> "$RC_LOCAL"
+else
+    # 若多次插入，确保只有一处exit 0（取最后一处）
+    sed -i '/^exit 0/!b;:a;n;b a' "$RC_LOCAL"
+fi
+
+chmod +x "$RC_LOCAL"
+# ================= 以上cgroup启动顺序调整+挂载兜底（推荐最完整做法） 2025.07.03================= #
