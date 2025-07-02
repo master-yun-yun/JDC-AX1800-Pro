@@ -77,9 +77,17 @@ if [ -f "$RUST_FILE" ]; then
 fi
 
 # 调整cgroup启动顺序 （使用变量方式）--- 2025.07.02-----#
-CGROUP_INIT="./package/feeds/packages/cgroupfs-mount/files/cgroupfs-mount.init"
-if [ -f "$CGROUP_INIT" ]; then
-    echo " "
-    sed -i 's/START=.*/START=10/g' "$CGROUP_INIT"
-    echo "cgroupfs-mount startup priority adjusted!"
+echo "查找cgroupfs-mount启动脚本..."
+CGROUP_INIT=$(find ./package/feeds/packages/ -path "*/cgroupfs-mount/files/cgroupfs-mount.init" 2>/dev/null | head -1)
+if [ -n "$CGROUP_INIT" ]; then
+    echo "找到启动脚本: $CGROUP_INIT"
+    if grep -q "START=" "$CGROUP_INIT"; then
+        sed -i 's/START=.*/START=10/g' "$CGROUP_INIT"
+        echo "cgroupfs-mount启动顺序已调整为10"
+    else
+        echo "::warning::启动脚本中没有START设置，添加新设置"
+        echo "START=10" >> "$CGROUP_INIT"
+    fi
+else
+    echo "::warning::未找到cgroupfs-mount启动脚本"
 fi
