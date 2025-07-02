@@ -203,19 +203,6 @@ jobs:
 
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
-      # 2025.07.02新增：确保cgroupfs-mount被启用（双重保险）
-      - name: Ensure cgroupfs-mount
-        run: |
-          cd ./wrt/
-          
-          # 检查是否已存在配置
-          if ! grep -q "CONFIG_PACKAGE_cgroupfs-mount=y" .config; then
-              echo "添加cgroupfs-mount配置"
-              echo "CONFIG_PACKAGE_cgroupfs-mount=y" >> .config
-          else
-              echo "cgroupfs-mount配置已存在，无需添加"
-          fi
-
       - name: Download Packages
         if: env.WRT_TEST != 'true'
         run: |
@@ -265,52 +252,6 @@ jobs:
 
             make clean -j$(nproc)
           fi
-
-      # 2025.07.02新增：cgroup支持验证（非致命性）
-      - name: Verify cgroup Support
-        run: |
-          cd ./wrt/
-          
-          echo "======================="
-          echo "验证cgroup内核配置:"
-          
-          # 去重显示配置
-          sort -u .config | grep "CONFIG_PACKAGE_cgroupfs-mount" || true
-          sort -u .config | grep "CONFIG_PACKAGE_kmod-cgroup-v2" || true
-          
-          echo "======================="
-          echo "验证cgroup启动脚本调整:"
-          
-          # 改进的路径查找
-          CGROUP_INIT=$(find ./package/feeds/packages/ -path "*/cgroupfs-mount/files/cgroupfs-mount.init" 2>/dev/null | head -1)
-          if [ -f "$CGROUP_INIT" ]; then
-              if grep -q "START=10" "$CGROUP_INIT"; then
-                  echo "cgroupfs-mount启动顺序已调整为10"
-              else
-                  echo "::warning::cgroup启动顺序未调整"
-                  echo "当前启动脚本内容:"
-                  cat "$CGROUP_INIT"
-              fi
-          else
-              echo "::warning::未找到cgroupfs-mount启动脚本"
-          fi
-          
-          echo "======================="
-          echo "验证内核cgroup支持:"
-          
-          # 更可靠的内核配置文件查找
-          KERNEL_CONFIG=$(find bin/targets/ -name "config-*" -o -name "kernel.config" 2>/dev/null | head -1)
-          if [ -f "$KERNEL_CONFIG" ]; then
-              echo "找到内核配置文件: $KERNEL_CONFIG"
-              zgrep -i "cgroup" "$KERNEL_CONFIG" || echo "::warning::内核配置中未找到cgroup相关项"
-          else
-              echo "::warning::未找到内核配置文件"
-              echo "备选查找方案:"
-              find bin/targets/ -type f 2>/dev/null | head -n 5
-          fi
-          
-          # 最终确认
-          echo "cgroup支持验证完成（结果仅供参考，不影响编译）"
 
       - name: Release Firmware
         uses: softprops/action-gh-release@master
