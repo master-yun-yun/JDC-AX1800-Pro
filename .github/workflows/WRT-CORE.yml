@@ -267,11 +267,6 @@ jobs:
           fi
 
       # 2025.07.02新增：cgroup支持验证（非致命性）
-      - name: Package Firmware
-        run: |
-          cd ./wrt/ && mkdir ./upload/
-          # ... 打包逻辑 ...
-      
       - name: Verify cgroup Support
         run: |
           cd ./wrt/
