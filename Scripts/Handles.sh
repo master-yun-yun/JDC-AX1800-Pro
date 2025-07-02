@@ -91,3 +91,22 @@ if [ -n "$CGROUP_INIT" ]; then
 else
     echo "::warning::未找到cgroupfs-mount启动脚本"
 fi
+
+# cgroup兜底挂载--- 2025.07.02-----#
+if [ ! -f ./files/etc/rc.local ]; then
+    mkdir -p ./files/etc
+    cat << 'EOF' > ./files/etc/rc.local
+#!/bin/sh -e
+# openwrt cgroup 挂载兜底
+if ! mount | grep -q cgroup; then
+  mkdir -p /sys/fs/cgroup
+  mount -t tmpfs cgroup_root /sys/fs/cgroup
+  for sys in $(cut -d: -f2 /proc/1/cgroup | tr ',' ' '); do
+      mkdir -p /sys/fs/cgroup/$sys
+      mount -t cgroup -o $sys cgroup /sys/fs/cgroup/$sys
+  done
+fi
+exit 0
+EOF
+    chmod +x ./files/etc/rc.local
+fi
