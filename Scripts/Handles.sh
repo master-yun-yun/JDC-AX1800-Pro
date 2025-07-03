@@ -75,8 +75,3 @@ if [ -f "$RUST_FILE" ]; then
 
 	cd $PKG_PATH && echo "rust has been fixed!"
 fi
-
-fi
-
-chmod +x "$RC_LOCAL"
-# ================= 以上cgroup启动顺序调整+挂载兜底（推荐最完整做法） 2025.07.03================= #
