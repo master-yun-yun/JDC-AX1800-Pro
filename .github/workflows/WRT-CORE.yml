@@ -182,6 +182,13 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+#-------------------------以下2025.07.05---添加补丁--------------------------------#
+      - name: Patch rstrip.sh
+        run: |
+          chmod +x $GITHUB_WORKSPACE/Scripts/patch_rstrip.sh
+          bash $GITHUB_WORKSPACE/Scripts/patch_rstrip.sh
+#-------------------------以上2025.07.05---添加补丁--------------------------------#
+
       - name: Custom Packages
         run: |
           cd ./wrt/package/
