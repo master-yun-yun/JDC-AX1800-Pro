@@ -187,6 +187,11 @@ jobs:
         run: |
           chmod +x $GITHUB_WORKSPACE/Scripts/patch_rstrip.sh
           bash $GITHUB_WORKSPACE/Scripts/patch_rstrip.sh
+
+      - name: Check rstrip.sh patch
+        run: |
+          grep 'Skipping strip for \$1' ./wrt/scripts/rstrip.sh && echo "补丁已生效"
+          head -20 ./wrt/scripts/rstrip.sh
 #-------------------------以上2025.07.05---添加补丁--------------------------------#
 
       - name: Custom Packages
