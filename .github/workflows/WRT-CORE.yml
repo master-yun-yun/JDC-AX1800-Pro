@@ -183,6 +183,11 @@ jobs:
           ./scripts/feeds install -a
 
 #-------------------------以下2025.07.05---添加补丁--------------------------------#
+      - name: Fix samba4 Dependency
+        run: |
+          chmod +x $GITHUB_WORKSPACE/Scripts/fix_samba4_deps.sh
+          bash $GITHUB_WORKSPACE/Scripts/fix_samba4_deps.sh
+
       - name: Patch rstrip.sh
         run: |
           chmod +x $GITHUB_WORKSPACE/Scripts/patch_rstrip.sh
