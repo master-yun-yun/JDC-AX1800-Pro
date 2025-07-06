@@ -1,11 +1,29 @@
 #!/bin/bash
-# 修正依赖命名问题的终极samba4修复脚本
+# 智能解决samba4所有依赖问题
 
 set -e  # 遇到任何错误立即退出
 
-echo "开始终极samba4修复..."
+echo "开始智能解决samba4依赖问题..."
 
-# 1. 重构samba4包结构（修正依赖命名）
+# 1. 准备依赖映射表（OpenWrt包名与实际依赖的映射）
+declare -A DEP_MAP=(
+    ["libdl"]=""
+    ["libz"]="zlib"
+    ["libopenssl"]="libopenssl"
+    ["libpcre"]="libpcre"
+    ["libicu"]="icu"
+    ["libkrb5"]="krb5-libs"
+    ["libtdb"]="tdb"
+    ["libtevent"]="tevent"
+    ["libldb"]="ldb"
+    ["libbsd"]="libbsd"
+    ["libaio"]="libaio"
+    ["libcap"]="libcap"
+    ["librt"]=""
+    ["libpthread"]=""
+)
+
+# 2. 重构samba4包结构
 SAMBA_MAKEFILE="./wrt/feeds/packages/net/samba4/Makefile"
 
 if [ ! -f "$SAMBA_MAKEFILE" ]; then
@@ -13,36 +31,44 @@ if [ ! -f "$SAMBA_MAKEFILE" ]; then
     exit 1
 fi
 
-echo "重构samba4包结构（修正依赖命名）..."
+echo "重构samba4包结构..."
 # 备份原始文件
 cp "$SAMBA_MAKEFILE" "$SAMBA_MAKEFILE.bak"
 
-# 完全重构Makefile（使用正确的依赖命名）
-cat > "$SAMBA_MAKEFILE" << 'EOF'
-include $(TOPDIR)/rules.mk
+# 智能生成依赖列表
+REAL_DEPS=""
+for dep in "${!DEP_MAP[@]}"; do
+    if [ -n "${DEP_MAP[$dep]}" ]; then
+        REAL_DEPS+="+${DEP_MAP[$dep]} "
+    fi
+done
+
+# 完全重构Makefile
+cat > "$SAMBA_MAKEFILE" << EOF
+include \$(TOPDIR)/rules.mk
 
 PKG_NAME:=samba4
 PKG_VERSION:=4.22.2
 PKG_RELEASE:=1
 
-PKG_SOURCE:=samba-$(PKG_VERSION).tar.gz
+PKG_SOURCE:=samba-\$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://download.samba.org/pub/samba/stable/
 PKG_HASH:=d3b7c3f3f5b1e3c5d2e7e8c9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9
 
-include $(INCLUDE_DIR)/package.mk
+include \$(INCLUDE_DIR)/package.mk
 
 define Package/samba4-libs
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Samba4 core libraries
-  DEPENDS:= +libpthread +librt +libdl +zlib +openssl +pcre +icu +krb5 +talloc +tdb +tevent +ldb +libbsd
+  DEPENDS:= ${REAL_DEPS}
 endef
 
 define Package/samba4-server
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Samba4 server
-  DEPENDS:=+samba4-libs +libaio +libcap
+  DEPENDS:=+samba4-libs
 endef
 
 define Package/samba4-client
@@ -64,105 +90,103 @@ define Package/samba4-client/description
  Samba4 client utilities
 endef
 
-CONFIGURE_ARGS += \
-	--disable-rpath \
-	--disable-rpath-install \
-	--disable-avahi \
-	--disable-cups \
-	--disable-glusterfs \
-	--disable-iprint \
-	--without-pam \
-	--with-libiconv="no" \
-	--with-system-mitkrb5 \
-	--without-systemd \
-	--without-ldap \
-	--without-ad-dc \
-	--without-fam \
-	--without-regedit \
-	--without-acl-support \
-	--without-ads \
-	--without-automount \
-	--without-cluster-support \
-	--without-dmapi \
-	--without-dnsupdate \
-	--without-fake-kaserver \
-	--without-gettext \
-	--without-gpgme \
-	--without-iconv \
-	--without-libarchive \
-	--without-lttng \
-	--without-ntvfs-fileserver \
-	--without-pie \
-	--without-quotas \
-	--without-syslog \
-	--without-utmp \
-	--without-winbind \
-	--enable-shared \
-	--disable-static \
-	--with-shared-modules=!pdb_tdbsam,!pdb_ldap,!pdb_smbpasswd,!pdb_wbc_sam,!idmap_ldap,!idmap_tdb2,!idmap_rid,!idmap_ad,!idmap_hash,!idmap_adex,!vfs_snapper,!auth_winbind
+CONFIGURE_ARGS += \\
+	--disable-rpath \\
+	--disable-rpath-install \\
+	--disable-avahi \\
+	--disable-cups \\
+	--disable-glusterfs \\
+	--disable-iprint \\
+	--without-pam \\
+	--with-libiconv="no" \\
+	--without-systemd \\
+	--without-ldap \\
+	--without-ad-dc \\
+	--without-fam \\
+	--without-regedit \\
+	--without-acl-support \\
+	--without-ads \\
+	--without-automount \\
+	--without-cluster-support \\
+	--without-dmapi \\
+	--without-dnsupdate \\
+	--without-fake-kaserver \\
+	--without-gettext \\
+	--without-gpgme \\
+	--without-iconv \\
+	--without-libarchive \\
+	--without-lttng \\
+	--without-ntvfs-fileserver \\
+	--without-pie \\
+	--without-quotas \\
+	--without-syslog \\
+	--without-utmp \\
+	--without-winbind \\
+	--enable-shared \\
+	--disable-static
 
 TARGET_CFLAGS += -ffunction-sections -fdata-sections
 TARGET_LDFLAGS += -Wl,--gc-sections
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); \
-		./configure \
-			--prefix=/usr \
-			--sysconfdir=/etc \
-			--localstatedir=/var \
-			--cross-compile \
-			--cross-answers=$(PKG_BUILD_DIR)/cache.txt \
-			--hostcc=gcc \
-			--disable-python \
-			--disable-gnutls \
-			--with-relro \
-			$(CONFIGURE_ARGS) \
+	(cd \$(PKG_BUILD_DIR); \\
+		./configure \\
+			--prefix=/usr \\
+			--sysconfdir=/etc \\
+			--localstatedir=/var \\
+			--cross-compile \\
+			--cross-answers=\$(PKG_BUILD_DIR)/cache.txt \\
+			--hostcc=gcc \\
+			--disable-python \\
+			--disable-gnutls \\
+			--with-relro \\
+			\$(CONFIGURE_ARGS) \\
 	)
 endef
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
-		LIBS="-lcrypt -ldl -lpthread -lresolv -lrt" \
+	\$(MAKE) -C \$(PKG_BUILD_DIR) \\
+		DESTDIR="\$(PKG_INSTALL_DIR)" \\
+		LIBS="-lcrypt -ldl -lpthread -lresolv -lrt" \\
 		all
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		DESTDIR="$(PKG_INSTALL_DIR)" \
+	\$(MAKE) -C \$(PKG_BUILD_DIR) \\
+		DESTDIR="\$(PKG_INSTALL_DIR)" \\
 		install
 endef
 
 define Package/samba4-libs/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
-	$(INSTALL_DIR) $(1)/usr/lib/samba
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/samba/* $(1)/usr/lib/samba/
+	\$(INSTALL_DIR) \$(1)/usr/lib
+	\$(CP) \$(PKG_INSTALL_DIR)/usr/lib/*.so* \$(1)/usr/lib/
+	\$(INSTALL_DIR) \$(1)/usr/lib/samba
+	\$(CP) \$(PKG_INSTALL_DIR)/usr/lib/samba/* \$(1)/usr/lib/samba/
 endef
 
 define Package/samba4-server/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/smbd $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/nmbd $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/samba4.config $(1)/etc/config/samba4
-	$(INSTALL_DIR) $(1)/etc/samba
-	$(INSTALL_DATA) ./files/smb.conf.template $(1)/etc/samba/
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/samba4.init $(1)/etc/init.d/samba4
+	\$(INSTALL_DIR) \$(1)/usr/sbin
+	\$(INSTALL_BIN) \$(PKG_INSTALL_DIR)/usr/sbin/smbd \$(1)/usr/sbin/
+	\$(INSTALL_BIN) \$(PKG_INSTALL_DIR)/usr/sbin/nmbd \$(1)/usr/sbin/
+	\$(INSTALL_DIR) \$(1)/etc/config
+	\$(INSTALL_CONF) ./files/samba4.config \$(1)/etc/config/samba4
+	\$(INSTALL_DIR) \$(1)/etc/samba
+	\$(INSTALL_DATA) ./files/smb.conf.template \$(1)/etc/samba/
+	\$(INSTALL_DIR) \$(1)/etc/init.d
+	\$(INSTALL_BIN) ./files/samba4.init \$(1)/etc/init.d/samba4
 endef
 
 define Package/samba4-client/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/smbclient $(1)/usr/bin/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/nmblookup $(1)/usr/bin/
+	\$(INSTALL_DIR) \$(1)/usr/bin
+	\$(INSTALL_BIN) \$(PKG_INSTALL_DIR)/usr/bin/smbclient \$(1)/usr/bin/
+	\$(INSTALL_BIN) \$(PKG_INSTALL_DIR)/usr/bin/nmblookup \$(1)/usr/bin/
 endef
 
-$(eval $(call BuildPackage,samba4-libs))
-$(eval $(call BuildPackage,samba4-server))
-$(eval $(call BuildPackage,samba4-client))
+\$(eval \$(call BuildPackage,samba4-libs))
+\$(eval \$(call BuildPackage,samba4-server))
+\$(eval \$(call BuildPackage,samba4-client))
 EOF
 
-echo "samba4包结构重构完成（依赖命名已修正）"
+echo "samba4包结构重构完成"
 
-# 2. 修复所有依赖包的引用
+# 3. 修复所有依赖包的引用
 fix_dependency() {
     local pkg_makefile=$1
     local old_dep=$2
@@ -179,11 +203,6 @@ fix_dependency "./wrt/feeds/packages/net/backuppc/Makefile" "samba4-client" "sam
 fix_dependency "./wrt/feeds/luci/applications/luci-app-samba4/Makefile" "samba4-server" "samba4-server"
 fix_dependency "./wrt/package/unishare/Makefile" "samba4-server" "samba4-server"
 
-# 3. 修复构建依赖问题
-echo "修复samba4构建依赖..."
-sed -i '/PKG_BUILD_DEPENDS:=/ s/$/ samba4-libs/' "$SAMBA_MAKEFILE"
-sed -i 's/samba4-libs\/host/samba4-libs/g' "$SAMBA_MAKEFILE"
-
 # 4. 确保全局配置包含所有必要组件
 echo "CONFIG_PACKAGE_samba4-libs=y" >> ./wrt/.config
 echo "CONFIG_PACKAGE_samba4-server=y" >> ./wrt/.config
@@ -191,35 +210,74 @@ echo "CONFIG_PACKAGE_samba4-client=y" >> ./wrt/.config
 echo "CONFIG_PACKAGE_luci-app-samba4=y" >> ./wrt/.config
 echo "CONFIG_PACKAGE_unishare=y" >> ./wrt/.config
 
-# 5. 添加必要的库包到全局配置
-echo "添加必要的库包到全局配置..."
+# 5. 自动添加所有必需的依赖包
+echo "自动添加所有必需的依赖包..."
 REQUIRED_PKGS=(
-    "CONFIG_PACKAGE_zlib=y"
-    "CONFIG_PACKAGE_openssl-util=y"
-    "CONFIG_PACKAGE_pcre=y"
-    "CONFIG_PACKAGE_icu=y"
-    "CONFIG_PACKAGE_krb5-libs=y"
-    "CONFIG_PACKAGE_talloc=y"
-    "CONFIG_PACKAGE_tdb=y"
-    "CONFIG_PACKAGE_tevent=y"
-    "CONFIG_PACKAGE_ldb=y"
-    "CONFIG_PACKAGE_libbsd=y"
+    "zlib"
+    "libopenssl"
+    "libpcre"
+    "icu"
+    "krb5-libs"
+    "talloc"
+    "tdb"
+    "tevent"
+    "ldb"
+    "libbsd"
+    "libaio"
+    "libcap"
 )
 
 for pkg in "${REQUIRED_PKGS[@]}"; do
-    if ! grep -q "^$pkg" ./wrt/.config; then
-        echo "$pkg" >> ./wrt/.config
-        echo "已添加: $pkg"
+    # 检查包是否存在
+    if grep -q "Package: $pkg" ./wrt/feeds/packages.index; then
+        config_name="CONFIG_PACKAGE_${pkg//-/_}=y"
+        if ! grep -q "^$config_name" ./wrt/.config; then
+            echo "$config_name" >> ./wrt/.config
+            echo "已添加: $config_name"
+        else
+            echo "已存在: $config_name"
+        fi
     else
-        echo "已存在: $pkg"
+        echo "警告: 包 $pkg 不存在于 feeds 中"
     fi
 done
 
-# 6. 创建必要的符号链接
+# 6. 递归添加依赖的依赖
+echo "递归添加依赖的依赖..."
+DEPENDENCY_CHAINS=(
+    "krb5-libs>libopenssl"
+    "ldb>talloc"
+    "tevent>talloc"
+    "tdb>talloc"
+)
+
+for chain in "${DEPENDENCY_CHAINS[@]}"; do
+    IFS='>' read -ra deps <<< "$chain"
+    for dep in "${deps[@]}"; do
+        if grep -q "Package: $dep" ./wrt/feeds/packages.index; then
+            config_name="CONFIG_PACKAGE_${dep//-/_}=y"
+            if ! grep -q "^$config_name" ./wrt/.config; then
+                echo "$config_name" >> ./wrt/.config
+                echo "已添加依赖链: $config_name"
+            fi
+        fi
+    done
+done
+
+# 7. 创建必要的符号链接
 find ./wrt/staging_dir -type d -name "target-*" | while read target_dir; do
     mkdir -p "$target_dir/usr/lib"
     ln -sf "../../../../lib/libc.so" "$target_dir/usr/lib/libcrypt.so.1" 2>/dev/null
     echo "创建符号链接: $target_dir/usr/lib/libcrypt.so.1"
+    
+    # 创建其他可能需要的符号链接
+    for lib in dl pthread rt; do
+        ln -sf "../../../../lib/libc.so" "$target_dir/usr/lib/lib$lib.so" 2>/dev/null
+    done
 done
 
-echo "终极samba4修复完成（所有问题已解决）"
+# 8. 简化配置
+echo "CONFIG_SAMBA4_SIMPLE=y" >> ./wrt/.config
+echo "CONFIG_SAMBA4_MINIMAL=y" >> ./wrt/.config
+
+echo "samba4依赖问题智能解决完成"
