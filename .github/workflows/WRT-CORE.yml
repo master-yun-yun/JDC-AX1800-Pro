@@ -191,10 +191,11 @@ jobs:
           rm -rf ./wrt/staging_dir/target-*/usr/lib/samba4*
           echo "samba4缓存已清理"
 
-      - name: Ultimate samba4 Fix
+      # ========== 修复 ipk 模式下的 samba4 问题 ========== #
+      - name: Fix samba4 for IPK
         run: |
-          chmod +x $GITHUB_WORKSPACE/Scripts/ultimate_samba_fix.sh
-          bash $GITHUB_WORKSPACE/Scripts/ultimate_samba_fix.sh
+          chmod +x $GITHUB_WORKSPACE/Scripts/fix_samba4_for_ipk.sh
+          bash $GITHUB_WORKSPACE/Scripts/fix_samba4_for_ipk.sh
 
       - name: Patch rstrip.sh
         run: |
