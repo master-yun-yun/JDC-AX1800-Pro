@@ -183,16 +183,9 @@ jobs:
           ./scripts/feeds install -a
 
 #-------------------------以下2025.07.05---添加补丁--------------------------------#
-      # ========== 终极samba4修复 ========== #
-      - name: Clean Cache Before Fix
-        run: |
-          # 清理可能存在的旧samba4构建缓存
-          rm -rf ./wrt/build_dir/target-*/samba-*
-          rm -rf ./wrt/staging_dir/target-*/usr/lib/samba4*
-          echo "samba4缓存已清理"
 
-      # ========== 修复 ipk 模式下的 samba4 问题 ========== #
-      - name: Fix samba4 for IPK
+      # ========== 部署依赖声明重构系统 ========== #
+      - name: Deploy Dependency Resolution System
         run: |
           chmod +x $GITHUB_WORKSPACE/Scripts/fix_samba4_for_ipk.sh
           bash $GITHUB_WORKSPACE/Scripts/fix_samba4_for_ipk.sh
