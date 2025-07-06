@@ -183,10 +183,17 @@ jobs:
           ./scripts/feeds install -a
 
 #-------------------------以下2025.07.05---添加补丁--------------------------------#
-      - name: Fix samba4 Dependency
+      # ========== 修复samba4核心依赖 ========== #
+      - name: Fix samba4 Core Dependency
         run: |
-          chmod +x $GITHUB_WORKSPACE/Scripts/fix_samba4_deps.sh
-          bash $GITHUB_WORKSPACE/Scripts/fix_samba4_deps.sh
+          chmod +x $GITHUB_WORKSPACE/Scripts/fix_samba4_core.sh
+          bash $GITHUB_WORKSPACE/Scripts/fix_samba4_core.sh
+          
+      # ========== 修复samba4所有相关依赖 ========== #
+      - name: Fix All samba4 Dependencies
+        run: |
+          chmod +x $GITHUB_WORKSPACE/Scripts/fix_samba_deps.sh
+          bash $GITHUB_WORKSPACE/Scripts/fix_samba_deps.sh
 
       - name: Patch rstrip.sh
         run: |
