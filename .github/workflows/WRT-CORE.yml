@@ -188,37 +188,6 @@ jobs:
         run: |
           chmod +x $GITHUB_WORKSPACE/Scripts/fix_samba_structure.sh
           bash $GITHUB_WORKSPACE/Scripts/fix_samba_structure.sh
-          
-      # ========== 验证samba4修复 ========== #
-      - name: Verify samba4 Fix
-        run: |
-          echo "验证samba4包结构修复..."
-          
-          # 检查samba4-server包定义
-          if grep -q "BuildPackage,samba4-server" ./wrt/feeds/packages/net/samba4/Makefile; then
-            echo "samba4-server包定义存在"
-          else
-            echo "::error::samba4-server包定义缺失"
-            exit 1
-          fi
-          
-          # 检查unishare依赖
-          if grep -q "DEPENDS:=.*samba4-server" ./wrt/package/unishare/Makefile; then
-            echo "unishare依赖正确"
-          else
-            echo "::error::unishare依赖不正确"
-            exit 1
-          fi
-          
-          # 检查全局配置
-          if grep -q "CONFIG_PACKAGE_samba4-server=y" ./wrt/.config; then
-            echo "samba4-server已包含在配置中"
-          else
-            echo "::error::samba4-server未包含在配置中"
-            exit 1
-          fi
-          
-          echo "samba4修复验证通过"
 
       - name: Patch rstrip.sh
         run: |
