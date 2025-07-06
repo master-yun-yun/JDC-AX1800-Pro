@@ -5,32 +5,17 @@ set -e
 
 echo "开始精确修复依赖关系..."
 
-# 1. 精确修复所有依赖声明（避免双重替换）
-fix_dependency() {
-    local file=$1
-    local target=$2
-    local replacement=$3
-    
-    if [ -f "$file" ]; then
-        echo "修复 $file: $target -> $replacement"
-        # 使用精确边界匹配，避免嵌套替换
-        sed -i "s/\b${target}\b/${replacement}/g" "$file"
-    fi
-}
-
-# 2. 修复 samba4 相关依赖
+# 1. 修正所有依赖包名
 find ./wrt/ -type f -name "Makefile" | while read makefile; do
-    # 避免重复替换
-    if grep -q "samba4-server" "$makefile" && ! grep -q "virtual-samba4-server" "$makefile"; then
-        fix_dependency "$makefile" "samba4-server" "samba4-server"
-    fi
-    
-    if grep -q "samba4-client" "$makefile" && ! grep -q "virtual-samba4-client" "$makefile"; then
-        fix_dependency "$makefile" "samba4-client" "samba4-client"
-    fi
+    echo "修复 $makefile 中的包名..."
+    sed -i '
+        s/\blibpcre\b/pcre/g;
+        s/\bkrb5-libs\b/krb5/g;
+        s/\blibopenssl\b/openssl/g;
+    ' "$makefile"
 done
 
-# 3. 特别处理 unishare
+# 2. 创建unishare包
 UNISHARE_MAKEFILE="./wrt/package/unishare/Makefile"
 if [ ! -f "$UNISHARE_MAKEFILE" ]; then
     echo "创建 unishare 包..."
@@ -66,70 +51,10 @@ $(eval $(call BuildPackage,unishare))
 EOF
 fi
 
-# 4. 确保所有必要包被包含
-echo "确保所有必要包被包含..."
-ESSENTIAL_CONFIGS=(
-    "CONFIG_PACKAGE_samba4-libs=y"
-    "CONFIG_PACKAGE_samba4-server=y"
-    "CONFIG_PACKAGE_samba4-client=y"
-    "CONFIG_PACKAGE_luci-app-samba4=y"
-    "CONFIG_PACKAGE_unishare=y"
-    "CONFIG_PACKAGE_zlib=y"
-    "CONFIG_PACKAGE_libopenssl=y"
-    "CONFIG_PACKAGE_libpcre=y"
-    "CONFIG_PACKAGE_icu=y"
-    "CONFIG_PACKAGE_krb5-libs=y"
-    "CONFIG_PACKAGE_talloc=y"
-    "CONFIG_PACKAGE_tdb=y"
-    "CONFIG_PACKAGE_tevent=y"
-    "CONFIG_PACKAGE_ldb=y"
-    "CONFIG_PACKAGE_libbsd=y"
-    "CONFIG_PACKAGE_libaio=y"
-    "CONFIG_PACKAGE_libcap=y"
-)
-
-for config in "${ESSENTIAL_CONFIGS[@]}"; do
-    if ! grep -q "^$config" ./wrt/.config; then
-        echo "$config" >> ./wrt/.config
-        echo "已添加配置: $config"
-    fi
-done
-
-# 5. 创建必要的库链接
-create_lib_links() {
-    local target_dir=$1
-    
-    # 创建基本库链接
-    for lib in dl pthread rt; do
-        [ -e "$target_dir/usr/lib/lib$lib.so" ] || \
-        ln -sf "../../../../lib/libc.so" "$target_dir/usr/lib/lib$lib.so" 2>/dev/null
-    done
-    
-    # 创建特定库链接
-    [ -e "$target_dir/usr/lib/libcrypt.so.1" ] || \
-    ln -sf "../../../../lib/libc.so" "$target_dir/usr/lib/libcrypt.so.1" 2>/dev/null
-    
-    [ -e "$target_dir/usr/lib/libpcre.so" ] || \
-    ln -sf "libpcre2.so" "$target_dir/usr/lib/libpcre.so" 2>/dev/null
-    
-    [ -e "$target_dir/usr/lib/libkrb5support.so" ] || \
-    ln -sf "libkrb5support.so.0" "$target_dir/usr/lib/libkrb5support.so" 2>/dev/null
-}
-
-find ./wrt/staging_dir -type d -name "target-*" | while read target_dir; do
-    echo "处理目标架构: $(basename "$target_dir")"
-    create_lib_links "$target_dir"
-done
-
-# 6. 简化 samba4 的 Makefile
+# 3. 简化samba4的Makefile
 SAMBA_MAKEFILE="./wrt/feeds/packages/net/samba4/Makefile"
 if [ -f "$SAMBA_MAKEFILE" ]; then
     echo "简化 samba4 Makefile..."
-    
-    # 备份原始文件
-    cp "$SAMBA_MAKEFILE" "$SAMBA_MAKEFILE.bak"
-    
-    # 使用最小依赖集
     cat > "$SAMBA_MAKEFILE" << 'EOF'
 include $(TOPDIR)/rules.mk
 
@@ -147,7 +72,7 @@ define Package/samba4-libs
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Samba4 core libraries
-  DEPENDS:=+zlib +libopenssl +libpcre +icu +krb5-libs +talloc +tdb +tevent +ldb +libbsd
+  DEPENDS:=+zlib +openssl +pcre +icu +krb5 +talloc +tdb +tevent +ldb +libbsd
 endef
 
 define Package/samba4-server
@@ -269,5 +194,64 @@ $(eval $(call BuildPackage,samba4-server))
 $(eval $(call BuildPackage,samba4-client))
 EOF
 fi
+
+# 4. 在.config中添加必要配置
+echo "在.config中启用必要依赖包..."
+CONFIG_FILE="./wrt/.config"
+if [ ! -f "$CONFIG_FILE" ]; then
+    touch "$CONFIG_FILE"
+fi
+
+ESSENTIAL_CONFIGS=(
+    "CONFIG_PACKAGE_zlib=y"
+    "CONFIG_PACKAGE_openssl=y"
+    "CONFIG_PACKAGE_pcre=y"
+    "CONFIG_PACKAGE_icu=y"
+    "CONFIG_PACKAGE_krb5=y"
+    "CONFIG_PACKAGE_talloc=y"
+    "CONFIG_PACKAGE_tdb=y"
+    "CONFIG_PACKAGE_tevent=y"
+    "CONFIG_PACKAGE_ldb=y"
+    "CONFIG_PACKAGE_libbsd=y"
+    "CONFIG_PACKAGE_libaio=y"
+    "CONFIG_PACKAGE_libcap=y"
+    "CONFIG_PACKAGE_samba4-server=y"
+    "CONFIG_PACKAGE_samba4-client=y"
+    "CONFIG_PACKAGE_luci-app-samba4=y"
+    "CONFIG_PACKAGE_unishare=y"
+)
+
+for config in "${ESSENTIAL_CONFIGS[@]}"; do
+    if ! grep -q "^$config" "$CONFIG_FILE"; then
+        echo "$config" >> "$CONFIG_FILE"
+        echo "已添加配置: $config"
+    fi
+done
+
+# 5. 创建必要的库链接
+create_lib_links() {
+    local target_dir=$1
+    
+    # 创建基本库链接
+    for lib in dl pthread rt; do
+        [ -e "$target_dir/usr/lib/lib$lib.so" ] || \
+        ln -sf "../../../../lib/libc.so" "$target_dir/usr/lib/lib$lib.so" 2>/dev/null
+    done
+    
+    # 创建特定库链接
+    [ -e "$target_dir/usr/lib/libcrypt.so.1" ] || \
+    ln -sf "../../../../lib/libc.so" "$target_dir/usr/lib/libcrypt.so.1" 2>/dev/null
+    
+    [ -e "$target_dir/usr/lib/libpcre.so" ] || \
+    ln -sf "libpcre2.so" "$target_dir/usr/lib/libpcre.so" 2>/dev/null
+    
+    [ -e "$target_dir/usr/lib/libkrb5support.so" ] || \
+    ln -sf "libkrb5support.so.0" "$target_dir/usr/lib/libkrb5support.so" 2>/dev/null
+}
+
+find ./wrt/staging_dir -type d -name "target-*" | while read target_dir; do
+    echo "处理目标架构: $(basename "$target_dir")"
+    create_lib_links "$target_dir"
+done
 
 echo "精确依赖修复完成"
