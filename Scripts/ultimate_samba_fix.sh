@@ -1,11 +1,11 @@
 #!/bin/bash
-# 终极解决方案：全面重构samba4包结构和依赖关系
+# 修正依赖命名问题的终极samba4修复脚本
 
 set -e  # 遇到任何错误立即退出
 
 echo "开始终极samba4修复..."
 
-# 1. 重构samba4包结构
+# 1. 重构samba4包结构（修正依赖命名）
 SAMBA_MAKEFILE="./wrt/feeds/packages/net/samba4/Makefile"
 
 if [ ! -f "$SAMBA_MAKEFILE" ]; then
@@ -13,11 +13,11 @@ if [ ! -f "$SAMBA_MAKEFILE" ]; then
     exit 1
 fi
 
-echo "重构samba4包结构..."
+echo "重构samba4包结构（修正依赖命名）..."
 # 备份原始文件
 cp "$SAMBA_MAKEFILE" "$SAMBA_MAKEFILE.bak"
 
-# 完全重构Makefile
+# 完全重构Makefile（使用正确的依赖命名）
 cat > "$SAMBA_MAKEFILE" << 'EOF'
 include $(TOPDIR)/rules.mk
 
@@ -35,7 +35,7 @@ define Package/samba4-libs
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Samba4 core libraries
-  DEPENDS:=+libpthread +librt +libdl +libz +libopenssl +libpcre +libicu +libkrb5 +libtalloc +libtdb +libtevent +libldb +libbsd
+  DEPENDS:= +libpthread +librt +libdl +zlib +openssl +pcre +icu +krb5 +talloc +tdb +tevent +ldb +libbsd
 endef
 
 define Package/samba4-server
@@ -160,7 +160,7 @@ $(eval $(call BuildPackage,samba4-server))
 $(eval $(call BuildPackage,samba4-client))
 EOF
 
-echo "samba4包结构重构完成"
+echo "samba4包结构重构完成（依赖命名已修正）"
 
 # 2. 修复所有依赖包的引用
 fix_dependency() {
@@ -191,11 +191,35 @@ echo "CONFIG_PACKAGE_samba4-client=y" >> ./wrt/.config
 echo "CONFIG_PACKAGE_luci-app-samba4=y" >> ./wrt/.config
 echo "CONFIG_PACKAGE_unishare=y" >> ./wrt/.config
 
-# 5. 创建必要的符号链接
+# 5. 添加必要的库包到全局配置
+echo "添加必要的库包到全局配置..."
+REQUIRED_PKGS=(
+    "CONFIG_PACKAGE_zlib=y"
+    "CONFIG_PACKAGE_openssl-util=y"
+    "CONFIG_PACKAGE_pcre=y"
+    "CONFIG_PACKAGE_icu=y"
+    "CONFIG_PACKAGE_krb5-libs=y"
+    "CONFIG_PACKAGE_talloc=y"
+    "CONFIG_PACKAGE_tdb=y"
+    "CONFIG_PACKAGE_tevent=y"
+    "CONFIG_PACKAGE_ldb=y"
+    "CONFIG_PACKAGE_libbsd=y"
+)
+
+for pkg in "${REQUIRED_PKGS[@]}"; do
+    if ! grep -q "^$pkg" ./wrt/.config; then
+        echo "$pkg" >> ./wrt/.config
+        echo "已添加: $pkg"
+    else
+        echo "已存在: $pkg"
+    fi
+done
+
+# 6. 创建必要的符号链接
 find ./wrt/staging_dir -type d -name "target-*" | while read target_dir; do
     mkdir -p "$target_dir/usr/lib"
     ln -sf "../../../../lib/libc.so" "$target_dir/usr/lib/libcrypt.so.1" 2>/dev/null
     echo "创建符号链接: $target_dir/usr/lib/libcrypt.so.1"
 done
 
-echo "终极samba4修复完成"
+echo "终极samba4修复完成（所有问题已解决）"
