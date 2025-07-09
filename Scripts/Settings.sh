@@ -37,7 +37,7 @@ echo "CONFIG_LUCI_LANG_zh_Hans=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y" >> ./.config
 
-#--------软件源由APK切换到IPK---------#
+#----------------------------软件源由APK切换到IPK----------------------------#
 echo "CONFIG_USE_APK=n" >> ./.config
 
 #手动调整的插件
