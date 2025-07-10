@@ -136,25 +136,25 @@ jobs:
 # ========== 以上语言包处理------以下原有编译步骤 ========== #
 
 # ========================= 以下新增的samba4软件包替换步骤 ========================== #
-      - name: Replace Problematic Packages
-        run: |
-          cd ./wrt/
+      ##- name: Replace Problematic Packages
+        ##run: |
+          ##cd ./wrt/
           
-          echo "替换有问题的软件包为修复版本..."
+          ##echo "替换有问题的软件包为修复版本..."
           
           # 替换 liburing
-          rm -rf feeds/packages/libs/liburing
-          git clone --depth=1 https://github.com/sbwml/feeds_packages_libs_liburing feeds/packages/libs/liburing
+          ##rm -rf feeds/packages/libs/liburing
+          ##git clone --depth=1 https://github.com/sbwml/feeds_packages_libs_liburing feeds/packages/libs/liburing
           
           # 替换 samba4
-          rm -rf feeds/packages/net/samba4
-          git clone --depth=1 https://github.com/sbwml/feeds_packages_net_samba4 feeds/packages/net/samba4
+          ##rm -rf feeds/packages/net/samba4
+          ##git clone --depth=1 https://github.com/sbwml/feeds_packages_net_samba4 feeds/packages/net/samba4
           
           # 验证替换结果
-          echo "liburing 替换结果:"
-          ls -ld feeds/packages/libs/liburing
-          echo "samba4 替换结果:"
-          ls -ld feeds/packages/net/samba4
+          ##echo "liburing 替换结果:"
+          ##ls -ld feeds/packages/libs/liburing
+          ##echo "samba4 替换结果:"
+          ##ls -ld feeds/packages/net/samba4
 # =========================== 以上新增的samba4软件包替换步骤 ========================== #
 
       - name: Check Scripts
