@@ -2,11 +2,15 @@
 CONFIG_PACKAGE_luci-app-homeproxy=y
 #增加插件
 CONFIG_PACKAGE_luci-app-autoreboot=y
+# 集客无线AC控制器
 #CONFIG_PACKAGE_luci-app-gecoosac=y
+# 网络测速插件，支持内网网页测速（基于 homebox）、内网 iperf3 吞吐测试、外网 speedtest.net 测速（基于 speedtest-cli），以及特定服务器的端口延迟测试 
 #CONFIG_PACKAGE_luci-app-netspeedtest=y
+# 分区扩容逾挂载 （在自定义）
 #CONFIG_PACKAGE_luci-app-partexp=y
 CONFIG_PACKAGE_luci-app-samba4=y
 CONFIG_PACKAGE_luci-app-tailscale=y
+# （在自定义）
 #CONFIG_PACKAGE_luci-app-upnp=y
 CONFIG_PACKAGE_luci-app-wolplus=y
 #删除插件
@@ -96,24 +100,24 @@ CONFIG_PACKAGE_sgdisk=y
 #CONFIG_PACKAGE_usbutils=y
 
 #-----------------以下自行增加的插件及组件-----------------#
-#zram-swap内存压缩
+# zram-swap内存压缩
 CONFIG_PACKAGE_kmod-zram=y
 CONFIG_PACKAGE_zram-swap=y
-#依赖插件及组件
+# 依赖插件及组件
 CONFIG_PACKAGE_fuse-utils=y
 CONFIG_PACKAGE_fuse3-utils=y
 CONFIG_PACKAGE_libfuse1=y
 CONFIG_PACKAGE_libfuse3-3=y
-#动态域名解析
+# 动态域名解析
 CONFIG_PACKAGE_luci-app-ddns=y
 CONFIG_PACKAGE_luci-app-ddns-go=y
-#微力同步
+# 微力同步
 CONFIG_PACKAGE_luci-app-verysync=y
 #补全linux系统管理指令
 CONFIG_PACKAGE_sudo=y
-#DDNS依赖
+# DDNS依赖
 CONFIG_PACKAGE_drill=y
-#luci-app-openvpn-server服务器
+# luci-app-openvpn-server服务器
 #CONFIG_PACKAGE_openvpn-easy-rsa=y
 #CONFIG_PACKAGE_openssl-util=y
 #CONFIG_PACKAGE_openvpn-openssl=y
@@ -121,85 +125,85 @@ CONFIG_PACKAGE_drill=y
 #CONFIG_PACKAGE_liblz4-1=y
 #CONFIG_PACKAGE_liblzo2=y
 CONFIG_PACKAGE_luci-app-openvpn-server=y
-#FTP服务器
+# FTP服务器
 CONFIG_PACKAGE_luci-app-vsftpd=y
-#微信通知推送
+# 微信通知推送
 CONFIG_PACKAGE_luci-app-wechatpush=y
-#IPTV组播转换
+# IPTV组播转换
 CONFIG_PACKAGE_luci-app-msd_lite=y
-#IPTV组播代理
+# IPTV组播代理
 CONFIG_PACKAGE_luci-app-omcproxy=y
-#web服务器
+# web服务器
 CONFIG_PACKAGE_luci-app-uhttpd=y
-#网页版终端命令行
+# 网页版终端命令行
 CONFIG_PACKAGE_luci-app-ttyd=y
-#全能推送PushBot
+# 全能推送PushBot
 CONFIG_PACKAGE_luci-app-pushbot=y
-#关机poweroff
+# 关机poweroff
 CONFIG_PACKAGE_luci-app-poweroff=y
-#分区扩容
+# 分区扩容
 CONFIG_PACKAGE_luci-app-partexp=y
-#主题界面edge
+# 主题界面edge
 CONFIG_PACKAGE_luci-theme-edge=y
-#文件浏览器filebrowser-go
+# 文件浏览器filebrowser-go
 #CONFIG_PACKAGE_luci-app-filebrowser-go=y
-#多端网盘挂载alist
+# 多端网盘挂载alist
 #CONFIG_PACKAGE_luci-app-alist=y
 CONFIG_PACKAGE_luci-app-openlist=y
-#php8
+# php8
 CONFIG_PACKAGE_php8=y
 CONFIG_PACKAGE_php8-cgi=y
 CONFIG_PACKAGE_php8-mod-curl=y
-#Wi-Fi定时开关
+# Wi-Fi定时开关
 CONFIG_PACKAGE_luci-app-wifischedule=y
-#阿里云盘webdav
+# 阿里云盘webdav
 #CONFIG_PACKAGE_luci-app-aliyundrive-webdav=y
-#docker
+# docker
 CONFIG_PACKAGE_luci-app-dockerman=y
-#KMS服务器
+# KMS服务器
 #CONFIG_PACKAGE_luci-app-vlmcsd=y
-#ZeroTier内网穿透
+# ZeroTier内网穿透
 CONFIG_PACKAGE_luci-app-zerotier=y
-#访问时间控制
+# 访问时间控制
 #CONFIG_PACKAGE_luci-app-accesscontrol=y
-#通用即插即用UPnP（端口自动转发）
+# 通用即插即用UPnP（端口自动转发）
 CONFIG_PACKAGE_luci-app-upnp=y
-#提供网络设备的自动重启和断网检测功能
+# 提供网络设备的自动重启和断网检测功能
 CONFIG_PACKAGE_luci-app-watchcat=y
-#内核级文件共享
+# 内核级文件共享
 #CONFIG_PACKAGE_luci-app-ksmbd=y
-#argon主题配置
+# argon主题配置
 CONFIG_PACKAGE_luci-app-argon-config=y
-#端口转发socat
+# 端口转发socat
 #CONFIG_PACKAGE_socat=y
 #CONFIG_PACKAGE_luci-app-socat=y
-#磁盘管理-diskman
+# 磁盘管理-diskman
 CONFIG_PACKAGE_luci-app-diskman=n
-#timecontrol 上网时间控制插件 - 自适应FW3/FW4防火墙，支持IPv4/IPv6。改自Lienol原版luci-app-timecontrol FW3版本
+# timecontrol 上网时间控制插件 - 自适应FW3/FW4防火墙，支持IPv4/IPv6。改自Lienol原版luci-app-timecontrol FW3版本
 #CONFIG_PACKAGE_luci-app-timecontrol=y
-#timecontrol 上网时间控制插件 - 上网时间控制NFT版2.0.2版==专门针对24.10分支，适配NFT的上网时间控制插件。
+# timecontrol 上网时间控制插件 - 上网时间控制NFT版2.0.2版==专门针对24.10分支，适配NFT的上网时间控制插件。
 CONFIG_PACKAGE_luci-app-nft-timecontrol=y
-#luci-app-taskplan 任务设置2.0版
+# luci-app-taskplan 任务设置2.0版
 CONFIG_PACKAGE_luci-app-taskplan=y
 #-----------以上为自行增加的插件及组件-------------#
 
 #-------------------2025.04.12-测试-----------------#
 
-#clouddrive2云盘挂载
+# clouddrive2云盘挂载
 #CONFIG_PACKAGE_luci-app-clouddrive2=y
-#istore增强
+# istore增强
 CONFIG_PACKAGE_istoreenhance=y
 CONFIG_PACKAGE_luci-app-istoreenhance=y
-#易有云文件管理器
+# 易有云文件管理器
 CONFIG_PACKAGE_linkmount=y
 CONFIG_PACKAGE_linkease=y
 CONFIG_PACKAGE_luci-app-linkease=y
-#快速设置
+# 快速设置
 CONFIG_PACKAGE_quickstart=y
 CONFIG_PACKAGE_luci-app-quickstart=y
-#istore商店
+# istore商店
 CONFIG_PACKAGE_luci-app-store=y
-#通用共享
+# 通用共享
 CONFIG_PACKAGE_samba4-server=y
 CONFIG_PACKAGE_webdav2=y
 CONFIG_PACKAGE_unishare=y
