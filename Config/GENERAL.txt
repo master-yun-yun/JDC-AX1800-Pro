@@ -174,7 +174,7 @@ CONFIG_PACKAGE_luci-app-argon-config=y
 #CONFIG_PACKAGE_socat=y
 #CONFIG_PACKAGE_luci-app-socat=y
 #磁盘管理-diskman
-CONFIG_PACKAGE_luci-app-diskman=y
+CONFIG_PACKAGE_luci-app-diskman=n
 #timecontrol 上网时间控制插件 - 自适应FW3/FW4防火墙，支持IPv4/IPv6。改自Lienol原版luci-app-timecontrol FW3版本
 #CONFIG_PACKAGE_luci-app-timecontrol=y
 #timecontrol 上网时间控制插件 - 上网时间控制NFT版2.0.2版==专门针对24.10分支，适配NFT的上网时间控制插件。
