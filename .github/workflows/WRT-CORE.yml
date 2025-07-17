@@ -109,29 +109,52 @@ jobs:
 
 # ========== 语言包处理 - 必须在 Clone Code 之后（确保 ./wrt 目录存在）；在 Check Scripts 之前（避免被dos2unix处理） ========== #
 
-      - name: Prepare Language Packs
+      - name: Prepare Language Packs and istore_backend
         run: |
           # 创建目标目录结构
           mkdir -p ./wrt/files/usr/lib/lua/luci/i18n/
-          
-          # 复制语言包文件到目标目录（直接打包进固件）
-          cp -v "$GITHUB_WORKSPACE/Scripts/linkease.zh-cn.lmo" ./wrt/files/usr/lib/lua/luci/i18n/
-          cp -v "$GITHUB_WORKSPACE/Scripts/quickstart.zh-cn.lmo" ./wrt/files/usr/lib/lua/luci/i18n/
-          cp -v "$GITHUB_WORKSPACE/Scripts/unishare.zh-cn.lmo" ./wrt/files/usr/lib/lua/luci/i18n/
-          
+          mkdir -p ./wrt/files/usr/lib/lua/luci/controller/
+    
+          # 复制语言包文件（强制覆盖）
+          cp -vf "$GITHUB_WORKSPACE/Scripts/linkease.zh-cn.lmo" ./wrt/files/usr/lib/lua/luci/i18n/
+          cp -vf "$GITHUB_WORKSPACE/Scripts/quickstart.zh-cn.lmo" ./wrt/files/usr/lib/lua/luci/i18n/
+          cp -vf "$GITHUB_WORKSPACE/Scripts/unishare.zh-cn.lmo" ./wrt/files/usr/lib/lua/luci/i18n/
+    
+          # 复制istore_backend.lua并设置可执行权限（强制覆盖）
+          cp -vf "$GITHUB_WORKSPACE/Scripts/istore_backend.lua" ./wrt/files/usr/lib/lua/luci/controller/
+          chmod +x ./wrt/files/usr/lib/lua/luci/controller/istore_backend.lua
+    
           # 验证复制结果
+          echo "语言包文件:"
           ls -l ./wrt/files/usr/lib/lua/luci/i18n/
-          echo "语言包已直接放置在固件的 /usr/lib/lua/luci/i18n/ 目录"
+          echo "istore_backend.lua文件:"
+          ls -l ./wrt/files/usr/lib/lua/luci/controller/istore_backend.lua
+          echo "文件已放置到固件中"
 
-      - name: Verify Language Pack Placement
+      - name: Verify Language Pack and istore_backend Placement
         run: |
-          echo "验证语言包位置:"
-          ls -l ./wrt/files/usr/lib/lua/luci/i18n/*.lmo
-          [ $(ls ./wrt/files/usr/lib/lua/luci/i18n/*.lmo | wc -l) -eq 3 ] || {
-            echo "::error::语言包文件数量不正确"
-            exit 1
+          # 验证语言包
+          echo "验证语言包:"
+          lmo_count=$(ls ./wrt/files/usr/lib/lua/luci/i18n/*.lmo 2>/dev/null | wc -l)
+          [ "$lmo_count" -eq 3 ] || {
+          echo "::error::语言包文件数量不正确，找到 $lmo_count 个，预期 3 个"
+          exit 1
           }
-          echo "验证通过：找到3个语言包文件"
+    
+          # 验证istore_backend.lua
+          echo "验证istore_backend.lua:"
+          ISTORE_FILE="./wrt/files/usr/lib/lua/luci/controller/istore_backend.lua"
+          if [ ! -f "$ISTORE_FILE" ]; then
+          echo "::error::istore_backend.lua 文件不存在"
+          exit 1
+          fi
+    
+          if [ ! -x "$ISTORE_FILE" ]; then
+          echo "::error::istore_backend.lua 文件不可执行"
+          exit 1
+          fi
+    
+          echo "验证通过：找到3个语言包文件，且istore_backend.lua存在且可执行"
 
 # ========== 以上语言包处理------以下原有编译步骤 ========== #
 
