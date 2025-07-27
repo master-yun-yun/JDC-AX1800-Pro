@@ -132,19 +132,19 @@ UPDATE_VERSION "tailscale"
 
 #------------------以下自定义源--------------------#
 
-#全能推送PushBot----OK
+# 全能推送PushBot----OK
 UPDATE_PACKAGE "luci-app-pushbot" "zzsj0928/luci-app-pushbot" "master"
 
-#关机poweroff----OK
+# 关机poweroff----OK
 UPDATE_PACKAGE "luci-app-poweroff" "DongyangHu/luci-app-poweroff" "main"
 
-#主题界面edge----OK
+# 主题界面edge----OK
 UPDATE_PACKAGE "luci-theme-edge" "ricemices/luci-theme-edge" "master"
 
-#分区扩容----OK
+# 分区扩容----OK
 UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"
 
-#阿里云盘aliyundrive-webdav----OK
+# 阿里云盘aliyundrive-webdav----OK
 UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "messense/aliyundrive-webdav" "main"
 #UPDATE_PACKAGE "aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main" "pkg"
 #UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main"
@@ -153,26 +153,26 @@ UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "messense/aliyundrive-webdav" "main
 #UPDATE_PACKAGE "luci-app-openvpn-server" "hyperlook/luci-app-openvpn-server" "main"
 #UPDATE_PACKAGE "luci-app-openvpn-server" "ixiaan/luci-app-openvpn-server" "main"
 
-#luci-app-navidrome音乐服务器----OK
+# luci-app-navidrome音乐服务器----OK
 UPDATE_PACKAGE "luci-app-navidrome" "tty228/luci-app-navidrome" "main"
 
-#luci-theme-design主题界面----OK
+# luci-theme-design主题界面----OK
 #UPDATE_PACKAGE "luci-theme-design" "emxiong/luci-theme-design" "master"
-#luci-app-design-config主题配置----OK
+# luci-app-design-config主题配置----OK
 #UPDATE_PACKAGE "luci-app-design-config" "kenzok78/luci-app-design-config" "main"
 
-#luci-app-quickstart
+# luci-app-quickstart
 #UPDATE_PACKAGE "luci-app-quickstart" "animegasan/luci-app-quickstart" "main"
 
-#端口转发luci-app-socat----OK
+# 端口转发luci-app-socat----OK
 UPDATE_PACKAGE "luci-app-socat" "WROIATE/luci-app-socat" "main"
 
-#timecontrol 上网时间控制插件 - 上网时间控制NFT版2.0.2版==专门针对24.10分支，适配NFT的上网时间控制插件。
+# timecontrol 上网时间控制插件 - 上网时间控制NFT版2.0.2版==专门针对24.10分支，适配NFT的上网时间控制插件。
 UPDATE_PACKAGE "luci-app-timecontrol" "sirpdboy/luci-app-timecontrol" "main"
 #timecontrol 上网时间控制插件 - 自适应FW3/FW4防火墙，支持IPv4/IPv6。改自Lienol原版luci-app-timecontrol FW3版本。
 #UPDATE_PACKAGE "luci-app-timecontrol" "gaobin89/luci-app-timecontrol" "main"
 
-#luci-app-taskplan 任务设置2.0版
+# luci-app-taskplan 任务设置2.0版
 UPDATE_PACKAGE "luci-app-taskplan" "sirpdboy/luci-app-taskplan" "master"
 
 #------------------以上自定义源--------------------#
@@ -181,31 +181,45 @@ UPDATE_PACKAGE "luci-app-taskplan" "sirpdboy/luci-app-taskplan" "master"
 #-------------------2025.04.12-测试-----------------#
 #UPDATE_PACKAGE "luci-app-clouddrive2" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 
+# istore增强
 UPDATE_PACKAGE "istoreenhance" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 UPDATE_PACKAGE "luci-app-istoreenhance" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 
+# 易有云文件管理器
 UPDATE_PACKAGE "linkmount" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 UPDATE_PACKAGE "linkease" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 UPDATE_PACKAGE "luci-app-linkease" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 
+# istore首页及网络向导
 UPDATE_PACKAGE "quickstart" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 UPDATE_PACKAGE "luci-app-quickstart" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 #UPDATE_PACKAGE "quickstart" "master-yun-yun/package-istore" "Immortalwrt" "pkg"
 #UPDATE_PACKAGE "luci-app-quickstart" "master-yun-yun/package-istore" "Immortalwrt" "pkg"
 
+# istore商店
 UPDATE_PACKAGE "luci-app-store" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 
+# 统一文件共享
 UPDATE_PACKAGE "webdav2" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 UPDATE_PACKAGE "unishare" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 UPDATE_PACKAGE "luci-app-unishare" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 
+# 微力同步
 UPDATE_PACKAGE "verysync" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-verysync" "kiddin9/kwrt-packages" "main" "pkg"
 
+# Vlmcsd KMS 服务器
 UPDATE_PACKAGE "vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
 
-#luci-app-athena-led-雅典娜led屏幕显示（第一个源显示效果不好）
+# SunPanel导航页
+UPDATE_PACKAGE "sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
+
+# Memos知识管理
+UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
+
+# luci-app-athena-led-雅典娜led屏幕显示（第一个源显示效果不好）
 #UPDATE_PACKAGE "luci-app-athena-led" "haipengno1/luci-app-athena-led" "main"
 UPDATE_PACKAGE "luci-app-athena-led" "NONGFAH/luci-app-athena-led" "main"
 #-------------------2025.04.12-测试-----------------#
