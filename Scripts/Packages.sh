@@ -219,6 +219,9 @@ UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
 # Memos知识管理
 UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
 
+# 原高级设置升级版本
+UPDATE_PACKAGE "luci-app-advancedplus" "sirpdboy/luci-app-advancedplus" "main"
+
 # luci-app-athena-led-雅典娜led屏幕显示（第一个源显示效果不好）
 #UPDATE_PACKAGE "luci-app-athena-led" "haipengno1/luci-app-athena-led" "main"
 UPDATE_PACKAGE "luci-app-athena-led" "NONGFAH/luci-app-athena-led" "main"
