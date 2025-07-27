@@ -74,7 +74,7 @@ UPDATE_PACKAGE "luci-app-tailscale" "asvow/luci-app-tailscale" "main"
 #UPDATE_PACKAGE "openlist" "sbwml/luci-app-openlist" "main"
 UPDATE_PACKAGE "openlist2" "sbwml/luci-app-openlist2" "main"
 UPDATE_PACKAGE "ddns-go" "sirpdboy/luci-app-ddns-go" "main"
-#UPDATE_PACKAGE "diskman" "lisaac/luci-app-diskman" "master"
+UPDATE_PACKAGE "diskman" "lisaac/luci-app-diskman" "master"
 UPDATE_PACKAGE "easytier" "EasyTier/luci-app-easytier" "main"
 UPDATE_PACKAGE "gecoosac" "lwb1978/openwrt-gecoosac" "main"
 UPDATE_PACKAGE "mosdns" "sbwml/luci-app-mosdns" "v5" "" "v2dat"
@@ -201,6 +201,9 @@ UPDATE_PACKAGE "luci-app-unishare" "shidahuilang/openwrt-package" "Immortalwrt" 
 
 UPDATE_PACKAGE "verysync" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-verysync" "kiddin9/kwrt-packages" "main" "pkg"
+
+UPDATE_PACKAGE "vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
 
 #luci-app-athena-led-雅典娜led屏幕显示（第一个源显示效果不好）
 #UPDATE_PACKAGE "luci-app-athena-led" "haipengno1/luci-app-athena-led" "main"
