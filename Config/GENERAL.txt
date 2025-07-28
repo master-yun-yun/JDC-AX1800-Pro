@@ -212,8 +212,8 @@ CONFIG_PACKAGE_unishare=y
 CONFIG_PACKAGE_luci-app-unishare=y
 
 # kms
-#CONFIG_PACKAGE_vlmcsd=y
-#CONFIG_PACKAGE_luci-app-vlmcsd=y
+CONFIG_PACKAGE_vlmcsd=y
+CONFIG_PACKAGE_luci-app-vlmcsd=y
 # sunpanel
 CONFIG_PACKAGE_sunpanel=y
 CONFIG_PACKAGE_luci-app-sunpanel=y
