@@ -213,32 +213,9 @@ jobs:
           # 创建vlmcsd补丁目录
           mkdir -p ./wrt/feeds/packages/net/vlmcsd/patches
           
-          # 生成补丁内容（使用单引号heredoc避免特殊字符解析）
-          cat > ./wrt/feeds/packages/net/vlmcsd/patches/fix_vlmcsd_compile.patch << 'EOPATCH'
---- a/src/GNUmakefile
-+++ b/src/GNUmakefile
-@@ -72,6 +72,10 @@ VERBOSE ?= NO
- CC ?= gcc
- TARGETPLATFORM := $$(shell LANG=en_US.UTF-8 $$(CC) -v 2>&1 | grep '^Target: ' | cut -f 2 -d ' ')
- 
-+ifeq ($$(findstring ccache,$$(CC)),ccache)
-+	override CC := $$(subst ccache ,,$$(CC))
-+endif
-+
- ifneq (,$(findstring darwin,$(TARGETPLATFORM)))
-   DARWIN := 1
-   UNIX := 1
-@@ -510,7 +514,7 @@ $$(OBJECTS): $$(BUILD) $$(BUILD)/version.h
- 
- ../build/%.o: %.c
- 	@mkdir -p $$(@D)
--	$$(CC) $$(CFLAGS) -c $$^ -o $$@
-+	$$(CC) $$(CFLAGS) -c $$< -o $$@
- 
- ../build/vlmcsd: $$(OBJECTS) $$(HEADERS)
- 	@echo Linking $$@
-EOPATCH
-
+          # 使用base64编码安全写入补丁内容
+          echo 'LS0tIGEvc3JjL0dOVW1ha2VmaWxlDQorKysgYi9zcmMvR05VbWFrZWZpbGUNCkBAIC03Miw2ICs3MiwxMCBAQCBWRVJCT1NFID86PSBOTw0KICBDQyA/Oj0gZ2NjDQogIFRBUkdFVFBMQVRGT1JNIDo9ICQoc2hlbGwgTEFORz1lbl9VUy5VVEYtOCAkKENDKSAtdiAyPiYxIHwgZ3JlcCAnXlRhcmdldDogJyB8IGN1dCAtZiAyIC1kICcgJykNCisNCitpZmVxICgkKGZpbmRzdHJpbmcgY2NhY2hlLCAkKENDKSksY2NhY2hlKQ0KKwlvdmVycmlkZSBDQyA6PSAkKHN1YnN0IGNjYWNoZSAgLCwkKENDKSkNCitlbmRpZg0KKw0KICBpZm5lcSAoLCQoZmluZHN0cmluZyBkYXJ3aW4sJChUQVJHRVRQTEFURk9STSkgKSkNCiAgIERBUldJTiA6PSAxDQogIFVOSVggOj0gMQ0KQEAgLTUxMCw3ICs1MTQsNyBAQCANCiANCiAgLi4vYnVpbGQvJS5vOiAlLmMNCiAJQG1rZGlyIC1wICQoQEQpDQotCSQoQ0MpICQoQ0ZMQUdTKSAtYyAkXiAtbyAkQA0KKwkkKENDKSQoQ0ZMQUdTKSAtYyAkPCAtbyAkQA0KIA0KICAuLi9idWlsZC92bG1jc2Q6ICQoT0JKRUNUUykgJChIRUFERVJTKQ0KIAlAZWNobyBMaW5raW5nICQ@' | base64 -d > ./wrt/feeds/packages/net/vlmcsd/patches/fix_vlmcsd_compile.patch
+          
           echo "vlmcsd编译补丁已成功应用"
           
       # ================= 以上vlmcsd编译修复补丁 2025.07.28 ================= #
