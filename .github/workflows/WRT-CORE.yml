@@ -207,7 +207,7 @@ jobs:
           #--------2025.07.10-------------------------------------------------------------#
           ./scripts/feeds install python3-netifaces
 
-      # ================= 以下vlmcsd编译修复补丁 2025.07.28 ================= #
+# ================= 以下vlmcsd编译修复补丁 2025.07.28 ================= #
       - name: Apply vlmcsd Patch
         run: |
           # 创建vlmcsd补丁目录
@@ -216,27 +216,8 @@ jobs:
           # 使用base64编码安全写入补丁内容
           echo 'LS0tIGEvc3JjL0dOVW1ha2VmaWxlDQorKysgYi9zcmMvR05VbWFrZWZpbGUNCkBAIC03Miw2ICs3MiwxMCBAQCBWRVJCT1NFID86PSBOTw0KICBDQyA/Oj0gZ2NjDQogIFRBUkdFVFBMQVRGT1JNIDo9ICQoc2hlbGwgTEFORz1lbl9VUy5VVEYtOCAkKENDKSAtdiAyPiYxIHwgZ3JlcCAnXlRhcmdldDogJyB8IGN1dCAtZiAyIC1kICcgJykNCisNCitpZmVxICgkKGZpbmRzdHJpbmcgY2NhY2hlLCAkKENDKSksY2NhY2hlKQ0KKwlvdmVycmlkZSBDQyA6PSAkKHN1YnN0IGNjYWNoZSAgLCwkKENDKSkNCitlbmRpZg0KKw0KICBpZm5lcSAoLCQoZmluZHN0cmluZyBkYXJ3aW4sJChUQVJHRVRQTEFURk9STSkgKSkNCiAgIERBUldJTiA6PSAxDQogIFVOSVggOj0gMQ0KQEAgLTUxMCw3ICs1MTQsNyBAQCANCiANCiAgLi4vYnVpbGQvJS5vOiAlLmMNCiAJQG1rZGlyIC1wICQoQEQpDQotCSQoQ0MpICQoQ0ZMQUdTKSAtYyAkXiAtbyAkQA0KKwkkKENDKSQoQ0ZMQUdTKSAtYyAkPCAtbyAkQA0KIA0KICAuLi9idWlsZC92bG1jc2Q6ICQoT0JKRUNUUykgJChIRUFERVJTKQ0KIAlAZWNobyBMaW5raW5nICQ@' | base64 -d > ./wrt/feeds/packages/net/vlmcsd/patches/fix_vlmcsd_compile.patch
           
-          echo "vlmcsd编译补丁已成功应用"
-          
-      # ================= 以上vlmcsd编译修复补丁 2025.07.28 ================= #
-
-#-------------------"##"------以下2025.07.05---添加补丁----"##"----------------------------#
-
-      ##- name: Patch rstrip.sh
-        ##run: |
-          ##chmod +x $GITHUB_WORKSPACE/Scripts/patch_rstrip.sh
-          ##bash $GITHUB_WORKSPACE/Scripts/patch_rstrip.sh
-
-      ##- name: Check rstrip.sh patch
-        ##run: |
-          ##grep 'Skipping strip for \$1' ./wrt/scripts/rstrip.sh && echo "补丁已生效"
-          ##head -20 ./wrt/scripts/rstrip.sh
-
-      ##- name: Remove -Werror
-        ##run: |
-          ##chmod +x $GITHUB_WORKSPACE/Scripts/remove_werror.sh
-          ##bash $GITHUB_WORKSPACE/Scripts/remove_werror.sh
-#------------------"##"-------以上2025.07.05---添加补丁----"##"----------------------------#
+          echo "vlmcsd编译补丁已成功应用"     
+# ================= 以上vlmcsd编译修复补丁 2025.07.28 ================= #
 
       - name: Custom Packages
         run: |
