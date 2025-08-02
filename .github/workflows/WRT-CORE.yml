@@ -210,9 +210,10 @@ jobs:
 # ================= 以下修复 gettext-full host 构建失败 2025.08.02 ================= #
 
       - name: Fix gettext-full Host Build
+        timeout-minutes: 120  # 设置整个步骤的超时时间
         run: |
           chmod +x "$GITHUB_WORKSPACE/Scripts/fix_gettext_full.sh"
-          "$GITHUB_WORKSPACE/Scripts/fix_gettext_full.sh"
+          TOOLCHAIN_JOBS=2 "$GITHUB_WORKSPACE/Scripts/fix_gettext_full.sh"
 
 # ================= 以上修复 gettext-full host 构建失败 2025.08.02 ================= #
 
