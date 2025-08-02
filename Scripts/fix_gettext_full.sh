@@ -32,15 +32,17 @@
 
 # --------------------deepseek优化版本---------------------------- 3
 #!/usr/bin/env bash
-# fix_host_deps.sh - 高效修复 OpenWRT host 依赖问题（优化版）
+# fix_gettext_full.sh - 修复 OpenWRT host 依赖构建问题（完整优化版）
 
 set -euo pipefail
 
 # ================= 配置区域 =================
-MAX_JOBS=${MAX_JOBS:-$(nproc)}                # 默认使用物理核心数
-TOOLCHAIN_JOBS=${TOOLCHAIN_JOBS:-2}           # 工具链编译使用保守并行度
-LOG_DIR="${LOG_DIR:-logs}"                     # 日志存储目录
-ERROR_SUMMARY_LINES=30                        # 错误摘要显示行数
+MAX_JOBS=${MAX_JOBS:-1}                      # 默认串行编译
+TOOLCHAIN_JOBS=${TOOLCHAIN_JOBS:-1}          # 工具链编译使用串行
+LOG_DIR="${LOG_DIR:-logs}"                    # 日志存储目录
+ERROR_SUMMARY_LINES=30                       # 错误摘要显示行数
+DOWNLOAD_TIMEOUT=300                         # 下载超时5分钟
+MIN_DISK_SPACE=20000000                      # 最小磁盘空间 20GB
 # ============================================
 
 # ============== 颜色输出 ==============
@@ -60,20 +62,13 @@ status() { echo -e "${BLUE}[STATUS]${NC} $*"; }
 warn()   { echo -e "${YELLOW}[WARN]${NC} $*"; }
 die()    { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
 
-# 实时日志输出函数
-tail_log() {
-  local log_file=$1
-  local marker=${2:-""}
+# 磁盘空间检查
+check_disk_space() {
+  local avail=$(df -k . | awk 'NR==2 {print $4}')
   
-  # 等待日志文件创建
-  while [ ! -f "$log_file" ]; do sleep 1; done
-  
-  echo -e "${CYAN}==== 开始追踪日志: ${log_file} ${marker} ====${NC}"
-  tail -n 0 -f "$log_file" &
-  local tail_pid=$!
-  
-  # 返回PID以便后续停止
-  echo $tail_pid
+  if [ "$avail" -lt $MIN_DISK_SPACE ]; then
+    die "磁盘空间不足! 可用: $(($avail/1024))MB, 需要至少 $(($MIN_DISK_SPACE/1024))MB"
+  fi
 }
 
 # 显示错误摘要
@@ -89,39 +84,7 @@ show_error_summary() {
   echo -e "${YELLOW}=======================${NC}\n"
 }
 
-# 带资源监控的编译函数
-compile_with_monitor() {
-  local pkg_path=$1
-  local log_file=$2
-  local jobs=$3
-  
-  # 启动资源监控后台进程
-  local monitor_log="${log_file}.monitor"
-  (while true; do
-    echo "==== [$(date +%H:%M:%S)] 系统负载 ===="
-    echo "内存使用: $(free -m | awk '/Mem:/ {printf "%.1f%% (%dMB free)", $3/$2*100, $4}')"
-    echo "交换空间: $(free -m | awk '/Swap:/ {printf "%.1f%% (%dMB free)", $3/$2*100, $4}')"
-    echo "磁盘空间: $(df -h . | awk 'NR==2 {print $4 " free"}')"
-    echo "负载平均: $(uptime | awk -F'[a-z]:' '{print $2}')"
-    echo "进程状态: $(ps -eo pid,ppid,pcpu,pmem,comm | grep -E 'make|gcc|g\+\+' | grep -v grep || echo '无编译进程')"
-    sleep 10
-  done) > "$monitor_log" 2>&1 &
-  local monitor_pid=$!
-  
-  # 执行编译
-  set +e
-  time make "$pkg_path/clean" >/dev/null 2>&1
-  time make "$pkg_path/compile" -j$jobs V=s > "$log_file" 2>&1
-  local exit_code=$?
-  set -e
-  
-  # 停止监控
-  kill $monitor_pid 2>/dev/null || true
-  
-  return $exit_code
-}
-
-# 工具链编译函数
+# 编译工具链函数（添加进度监控）
 compile_toolchain() {
   local target=$1
   local log_file="${LOG_DIR}/${target//\//_}.log"
@@ -132,8 +95,36 @@ compile_toolchain() {
   status "编译 $target (并行度: ${TOOLCHAIN_JOBS})"
   status "日志文件: ${log_file}"
   
-  # 启动日志追踪
-  local tail_pid=$(tail_log "$log_file" "$target")
+  # 添加进度监控
+  (
+    while [ ! -f "$log_file" ]; do sleep 5; done
+    local last_size=0
+    local same_count=0
+    
+    while [ $same_count -lt 12 ]; do  # 1分钟无进展则警告
+      sleep 5
+      [ ! -f "$log_file" ] && continue
+      
+      local current_size=$(stat -c%s "$log_file" 2>/dev/null || echo 0)
+      if [ $current_size -eq $last_size ]; then
+        ((same_count++))
+      else
+        same_count=0
+        last_size=$current_size
+      fi
+    done
+    
+    warn "编译进度停滞！当前日志大小: ${last_size} 字节"
+    echo "==== [WARN] 编译进度停滞 ====" >> "$log_file"
+    echo "当前日志大小: ${last_size} 字节" >> "$log_file"
+    echo "==== 活动进程 ====" >> "$log_file"
+    ps auxf >> "$log_file"
+    echo "==== 磁盘空间 ====" >> "$log_file"
+    df -h >> "$log_file"
+    echo "==== 内存使用 ====" >> "$log_file"
+    free -m >> "$log_file"
+  ) &
+  local monitor_pid=$!
   
   # 执行编译
   set +e
@@ -141,17 +132,51 @@ compile_toolchain() {
   local exit_code=$?
   set -e
   
-  # 停止日志追踪
-  kill $tail_pid 2>/dev/null || true
+  # 停止监控
+  kill $monitor_pid 2>/dev/null || true
   
   if [ $exit_code -eq 0 ]; then
     log "$target 编译成功"
-    echo "[SUCCESS] $(date)" >> "$log_file"
     return 0
   else
     show_error_summary "$log_file"
     die "$target 编译失败！请查看完整日志: ${log_file}"
   fi
+}
+
+# 带资源监控的编译函数
+compile_with_monitor() {
+  local pkg_path=$1
+  local log_file=$2
+  local jobs=$3
+  
+  # 启动资源监控后台进程
+  local monitor_log="${log_file}.monitor"
+  (
+    echo "==== 开始监控资源使用 ===="
+    while true; do
+      echo "==== [$(date +%H:%M:%S)] ===="
+      echo "内存使用: $(free -m | awk '/Mem:/ {printf "%.1f%% (%dMB free)", $3/$2*100, $4}')"
+      echo "交换空间: $(free -m | awk '/Swap:/ {printf "%.1f%% (%dMB free)", $3/$2*100, $4}')"
+      echo "磁盘空间: $(df -h . | awk 'NR==2 {print $4 " free"}')"
+      echo "负载平均: $(uptime | awk -F'[a-z]:' '{print $2}')"
+      echo "进程状态: $(ps -eo pid,ppid,pcpu,pmem,comm | grep -E 'make|gcc|g\+\+' | grep -v grep || echo '无编译进程')"
+      sleep 10
+    done
+  ) > "$monitor_log" 2>&1 &
+  local monitor_pid=$!
+  
+  # 执行编译
+  set +e
+  time make "$pkg_path/clean" >/dev/null 2>&1
+  time make "$pkg_path/compile" -j$jobs V=s >> "$log_file" 2>&1
+  local exit_code=$?
+  set -e
+  
+  # 停止监控
+  kill $monitor_pid 2>/dev/null || true
+  
+  return $exit_code
 }
 
 # ============== 主程序 ==============
@@ -161,6 +186,9 @@ main() {
   cd "${WRT_DIR}" || die "无法进入目录: ${WRT_DIR}"
   [ -f Makefile ] || die "未在 wrt 根目录发现 Makefile"
   
+  # 磁盘空间检查
+  check_disk_space
+  
   # 创建日志目录
   LOG_DIR="${WRT_DIR}/${LOG_DIR}"
   mkdir -p "$LOG_DIR"
@@ -169,8 +197,9 @@ main() {
   log "系统信息: $(uname -a)"
   log "处理器: $(nproc) 核心"
   log "内存: $(free -h | awk '/Mem:/{print $2}')"
-  status "最大并行任务数: ${MAX_JOBS}"
+  log "磁盘空间: $(df -h . | awk 'NR==2 {print $4 " free"}')"
   status "工具链并行度: ${TOOLCHAIN_JOBS}"
+  status "最大并行任务数: ${MAX_JOBS}"
   status "日志目录: ${LOG_DIR}"
 
   # 0. 生成 .config
@@ -179,8 +208,23 @@ main() {
     make defconfig > "${LOG_DIR}/defconfig.log" 2>&1
   fi
 
-  # 1. 预编译 host 工具链（保守并行）
-  status "预编译 host 工具链 (使用保守并行度 ${TOOLCHAIN_JOBS})"
+  # 下载所有依赖源码
+  status "下载所有依赖源码 (超时: ${DOWNLOAD_TIMEOUT}s) ..."
+  set +e
+  timeout $DOWNLOAD_TIMEOUT make download >> "${LOG_DIR}/download.log" 2>&1
+  local download_status=$?
+  set -e
+  
+  if [ $download_status -eq 124 ]; then
+    warn "下载超时，尝试继续编译"
+  elif [ $download_status -ne 0 ]; then
+    warn "下载失败 (状态码: $download_status)，尝试继续编译"
+  else
+    log "依赖源码下载成功"
+  fi
+
+  # 1. 预编译 host 工具链（串行）
+  status "预编译 host 工具链 (使用串行编译)"
   compile_toolchain "tools/install"
   compile_toolchain "toolchain/install"
 
@@ -224,17 +268,11 @@ main() {
     status "编译: $pkg_name (并行度: ${MAX_JOBS})"
     status "详细日志: ${log_file}"
     
-    # 启动日志追踪
-    local tail_pid=$(tail_log "$log_file" "$pkg_name")
-    
     # 执行编译
     set +e
     compile_with_monitor "$pkg" "$log_file" "$MAX_JOBS"
     local exit_code=$?
     set -e
-    
-    # 停止日志追踪
-    kill $tail_pid 2>/dev/null || true
     
     if [ $exit_code -eq 0 ]; then
       log "$pkg_name 编译成功"
@@ -251,9 +289,10 @@ main() {
   log "编译日志已保存到: ${LOG_DIR}"
   
   # 显示资源使用报告
-  echo -e "\n${CYAN}======= 最终资源使用报告 =======${NC}"
-  grep "系统负载" ${LOG_DIR}/*.monitor | tail -n 5
-  echo -e "${CYAN}================================${NC}"
+  echo -e "\n${CYAN}======= 资源使用报告 =======${NC}"
+  echo "内存峰值: $(grep '内存使用' ${LOG_DIR}/*.monitor | awk -F'%' '{print $1}' | sort -nr | head -1)%"
+  echo "磁盘剩余: $(df -h . | awk 'NR==2 {print $4}')"
+  echo -e "${CYAN}===========================${NC}"
 }
 
 # 执行主程序
