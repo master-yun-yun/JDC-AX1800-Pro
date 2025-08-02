@@ -30,9 +30,10 @@
 
 ##echo ">>> gettext-full host 修复完成！"
 
-# --------------------deepseek优化版本---------------------------- 3
+# --------------------deepseek优化版本---------------------------- #
+
 #!/usr/bin/env bash
-# fix_gettext_full.sh - 修复 OpenWRT host 依赖构建问题（完整优化版）
+# fix_gettext_full.sh - 修复 OpenWRT host 依赖构建问题（实时日志输出版）
 
 set -euo pipefail
 
@@ -42,7 +43,7 @@ TOOLCHAIN_JOBS=${TOOLCHAIN_JOBS:-1}          # 工具链编译使用串行
 LOG_DIR="${LOG_DIR:-logs}"                    # 日志存储目录
 ERROR_SUMMARY_LINES=30                       # 错误摘要显示行数
 DOWNLOAD_TIMEOUT=300                         # 下载超时5分钟
-MIN_DISK_SPACE=20000000                      # 最小磁盘空间 20GB
+MIN_DISK_SPACE=10000000                      # 最小磁盘空间 10GB
 # ============================================
 
 # ============== 颜色输出 ==============
@@ -84,56 +85,24 @@ show_error_summary() {
   echo -e "${YELLOW}=======================${NC}\n"
 }
 
-# 编译工具链函数（添加进度监控）
-compile_toolchain() {
+# 带实时日志输出的编译函数
+compile_with_realtime_log() {
   local target=$1
   local log_file="${LOG_DIR}/${target//\//_}.log"
+  local job_count=${2:-1}
   
   mkdir -p "$(dirname "$log_file")"
   [ -f "$log_file" ] && mv "$log_file" "${log_file}.old"
   
-  status "编译 $target (并行度: ${TOOLCHAIN_JOBS})"
-  status "日志文件: ${log_file}"
+  status "编译 $target (并行度: ${job_count})"
+  status "实时日志输出已启用"
   
-  # 添加进度监控
-  (
-    while [ ! -f "$log_file" ]; do sleep 5; done
-    local last_size=0
-    local same_count=0
-    
-    while [ $same_count -lt 12 ]; do  # 1分钟无进展则警告
-      sleep 5
-      [ ! -f "$log_file" ] && continue
-      
-      local current_size=$(stat -c%s "$log_file" 2>/dev/null || echo 0)
-      if [ $current_size -eq $last_size ]; then
-        ((same_count++))
-      else
-        same_count=0
-        last_size=$current_size
-      fi
-    done
-    
-    warn "编译进度停滞！当前日志大小: ${last_size} 字节"
-    echo "==== [WARN] 编译进度停滞 ====" >> "$log_file"
-    echo "当前日志大小: ${last_size} 字节" >> "$log_file"
-    echo "==== 活动进程 ====" >> "$log_file"
-    ps auxf >> "$log_file"
-    echo "==== 磁盘空间 ====" >> "$log_file"
-    df -h >> "$log_file"
-    echo "==== 内存使用 ====" >> "$log_file"
-    free -m >> "$log_file"
-  ) &
-  local monitor_pid=$!
-  
-  # 执行编译
+  # 执行编译并实时输出日志
   set +e
-  time make $target -j${TOOLCHAIN_JOBS} V=s > "$log_file" 2>&1
-  local exit_code=$?
+  echo -e "${CYAN}==== 开始编译 $target ====${NC}"
+  time make $target -j${job_count} V=s 2>&1 | tee "$log_file"
+  local exit_code=${PIPESTATUS[0]}
   set -e
-  
-  # 停止监控
-  kill $monitor_pid 2>/dev/null || true
   
   if [ $exit_code -eq 0 ]; then
     log "$target 编译成功"
@@ -144,39 +113,34 @@ compile_toolchain() {
   fi
 }
 
-# 带资源监控的编译函数
-compile_with_monitor() {
+# 带实时输出的关键包编译
+compile_critical_package() {
   local pkg_path=$1
-  local log_file=$2
-  local jobs=$3
+  local pkg_name=$(basename "$pkg_path")
+  local log_file="${LOG_DIR}/${pkg_name}.log"
   
-  # 启动资源监控后台进程
-  local monitor_log="${log_file}.monitor"
-  (
-    echo "==== 开始监控资源使用 ===="
-    while true; do
-      echo "==== [$(date +%H:%M:%S)] ===="
-      echo "内存使用: $(free -m | awk '/Mem:/ {printf "%.1f%% (%dMB free)", $3/$2*100, $4}')"
-      echo "交换空间: $(free -m | awk '/Swap:/ {printf "%.1f%% (%dMB free)", $3/$2*100, $4}')"
-      echo "磁盘空间: $(df -h . | awk 'NR==2 {print $4 " free"}')"
-      echo "负载平均: $(uptime | awk -F'[a-z]:' '{print $2}')"
-      echo "进程状态: $(ps -eo pid,ppid,pcpu,pmem,comm | grep -E 'make|gcc|g\+\+' | grep -v grep || echo '无编译进程')"
-      sleep 10
-    done
-  ) > "$monitor_log" 2>&1 &
-  local monitor_pid=$!
+  mkdir -p "$(dirname "$log_file")"
+  [ -f "$log_file" ] && mv "$log_file" "${log_file}.old"
   
-  # 执行编译
+  status "编译: $pkg_name (并行度: ${MAX_JOBS})"
+  
+  # 清理旧文件
+  make "$pkg_path/clean" >/dev/null 2>&1 || true
+  
+  # 执行编译并实时输出日志
   set +e
-  time make "$pkg_path/clean" >/dev/null 2>&1
-  time make "$pkg_path/compile" -j$jobs V=s >> "$log_file" 2>&1
-  local exit_code=$?
+  echo -e "${CYAN}==== 开始编译 $pkg_name ====${NC}"
+  time make "$pkg_path/compile" -j${MAX_JOBS} V=s 2>&1 | tee "$log_file"
+  local exit_code=${PIPESTATUS[0]}
   set -e
   
-  # 停止监控
-  kill $monitor_pid 2>/dev/null || true
-  
-  return $exit_code
+  if [ $exit_code -eq 0 ]; then
+    log "$pkg_name 编译成功"
+    return 0
+  else
+    show_error_summary "$log_file"
+    die "$pkg_name 编译失败！请查看完整日志: ${log_file}"
+  fi
 }
 
 # ============== 主程序 ==============
@@ -205,14 +169,14 @@ main() {
   # 0. 生成 .config
   if [ ! -f .config ]; then
     status "生成默认 .config ..."
-    make defconfig > "${LOG_DIR}/defconfig.log" 2>&1
+    make defconfig | tee "${LOG_DIR}/defconfig.log"
   fi
 
   # 下载所有依赖源码
   status "下载所有依赖源码 (超时: ${DOWNLOAD_TIMEOUT}s) ..."
   set +e
-  timeout $DOWNLOAD_TIMEOUT make download >> "${LOG_DIR}/download.log" 2>&1
-  local download_status=$?
+  timeout $DOWNLOAD_TIMEOUT make download | tee "${LOG_DIR}/download.log"
+  local download_status=${PIPESTATUS[0]}
   set -e
   
   if [ $download_status -eq 124 ]; then
@@ -225,8 +189,8 @@ main() {
 
   # 1. 预编译 host 工具链（串行）
   status "预编译 host 工具链 (使用串行编译)"
-  compile_toolchain "tools/install"
-  compile_toolchain "toolchain/install"
+  compile_with_realtime_log "tools/install" "$TOOLCHAIN_JOBS"
+  compile_with_realtime_log "toolchain/install" "$TOOLCHAIN_JOBS"
 
   # 2. 清理残留缓存
   status "清理残留缓存 ..."
@@ -251,7 +215,7 @@ main() {
   export LIBINTL=${LIBINTL:-1}
   export PATH="${WRT_DIR}/staging_dir/host/bin:$PATH"
 
-  # 4. 编译关键包（带资源监控）
+  # 4. 编译关键包（实时日志输出）
   status "开始编译关键包 ..."
   critical_packages=(
     "package/libs/gettext-full/host"
@@ -259,40 +223,12 @@ main() {
   )
   
   for pkg in "${critical_packages[@]}"; do
-    local pkg_name=$(basename "$pkg")
-    local log_file="${LOG_DIR}/${pkg_name}.log"
-    
-    mkdir -p "$(dirname "$log_file")"
-    [ -f "$log_file" ] && mv "$log_file" "${log_file}.old"
-    
-    status "编译: $pkg_name (并行度: ${MAX_JOBS})"
-    status "详细日志: ${log_file}"
-    
-    # 执行编译
-    set +e
-    compile_with_monitor "$pkg" "$log_file" "$MAX_JOBS"
-    local exit_code=$?
-    set -e
-    
-    if [ $exit_code -eq 0 ]; then
-      log "$pkg_name 编译成功"
-      # 显示编译时间
-      echo "编译时间: $(grep real "$log_file" | tail -1)"
-    else
-      show_error_summary "$log_file"
-      die "$pkg_name 编译失败！请查看完整日志: ${log_file}"
-    fi
+    compile_critical_package "$pkg"
   done
 
   # 5. 完成提示
   log ">>> host 依赖修复全部完成！"
   log "编译日志已保存到: ${LOG_DIR}"
-  
-  # 显示资源使用报告
-  echo -e "\n${CYAN}======= 资源使用报告 =======${NC}"
-  echo "内存峰值: $(grep '内存使用' ${LOG_DIR}/*.monitor | awk -F'%' '{print $1}' | sort -nr | head -1)%"
-  echo "磁盘剩余: $(df -h . | awk 'NR==2 {print $4}')"
-  echo -e "${CYAN}===========================${NC}"
 }
 
 # 执行主程序
