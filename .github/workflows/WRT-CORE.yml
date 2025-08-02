@@ -92,20 +92,23 @@ jobs:
           echo "WRT_KVER=none" >> $GITHUB_ENV
           echo "WRT_LIST=none" >> $GITHUB_ENV
 
-      - name: Clone Code
-        run: |
-          git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
+# ------------------------0803---以下临时取消---回退到 gettext-full host 可正常构建的版本 ac9a97e 0803------------------ #
+      ##- name: Clone Code
+        ##run: |
+          ##git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
 
-          cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
+          ##cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
+# ------------------------0603---以上临时取消---回退到 gettext-full host 可正常构建的版本 ac9a97e 0803------------------ #
 
-          # ------------------------以下回退到 gettext-full host 可正常构建的版本 ac9a97e 0803------------------ #
-      - name: Revert to Safe Commit for gettext-full
+          # ------------------------0803---以下回退到 gettext-full host 可正常构建的版本 ac9a97e 0803------------------ #
+      - name: Clone Code & Revert to Safe Commit
         run: |
-          chmod +x "$GITHUB_WORKSPACE/Scripts/revert_gettext_safe.sh"
-          "$GITHUB_WORKSPACE/Scripts/revert_gettext_safe.sh"
-          # 回退后重新写一次 HASH，方便 release 信息准确
-          cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
-          # ------------------------以上回退到 gettext-full host 可正常构建的版本 ac9a97e 0803------------------ #
+          git clone --depth=20 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
+          cd ./wrt/
+          # 拉取足够深度后，再回退到安全提交
+          git reset --hard ac9a97e
+          echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV 
+          # ------------------------0803---以上回退到 gettext-full host 可正常构建的版本 ac9a97e 0803------------------ #
 
           # ---------------------------------------------修改软件源为IPK（新增部分）--------------------------------------------------#
           sed -i 's/.apk/.ipk/g' feeds.conf.default
