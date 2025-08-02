@@ -1,7 +1,7 @@
 # 科学插件调整
 CONFIG_PACKAGE_luci-app-homeproxy=y
 
-# 增加插件
+# 增加插件 设置路由器的定时自动重启
 CONFIG_PACKAGE_luci-app-autoreboot=y
 
 # 集客无线AC控制器
@@ -128,38 +128,69 @@ CONFIG_PACKAGE_kmod-usb-xhci=y
 # 支持 WireGuard VPN
 CONFIG_PACKAGE_kmod-wireguard=y
 
-# 组件调整
+# =================组件调整======================= #
+# 功能：提供 OpenWrt 核心自动化脚本（如设备信息检测、系统初始化）。作用：确保系统基础功能正常运行（如自动检测硬件信息）。
 CONFIG_PACKAGE_autocore=y
+# 自动检测设备并分配挂载点
 CONFIG_PACKAGE_automount=y
+# 识别块设备的 UUID 和文件系统类型。作用：用于挂载点配置（如通过 UUID 挂载硬盘）。
 CONFIG_PACKAGE_blkid=y
+# 交互式磁盘分区工具，基于文本界面（类似 DOS 的 fdisk）。支持 MBR（Master Boot Record） 分区表，适用于传统硬盘（容量小于 2TB）
 CONFIG_PACKAGE_cfdisk=y
+# cgdisk 是 cfdisk 的 GPT（GUID Partition Table）版本，支持 大容量磁盘（>2TB）。
 CONFIG_PACKAGE_cgdisk=y
+# 运行 CoreMark 基准测试工具。作用：评估 CPU 性能（常用于性能对比测试）。
 CONFIG_PACKAGE_coremark=y
+# 提供 CPU 频率调整工具（如 cpufreq-set）。作用：动态调整 CPU 频率以优化功耗或性能。
 CONFIG_PACKAGE_cpufreq=y
+# 查看内核环形缓冲区日志（系统启动/硬件事件记录）。作用：排查硬件问题或内核错误（如 USB 设备识别失败）。
 CONFIG_PACKAGE_dmesg=y
+# 磁盘分区工具（MBR/GPT 分区表管理）。作用：创建/删除分区（如扩容硬盘）。
 CONFIG_PACKAGE_fdisk=y
+# GPT 分区表管理工具（支持大容量磁盘）。作用：管理 GPT 分区（如 NVMe SSD）。
 CONFIG_PACKAGE_gdisk=y
+# 交互式进程监控工具（比 top 更直观）。作用：实时查看系统资源占用（如 CPU、内存）。
 CONFIG_PACKAGE_htop=y
+# 网络带宽测试工具。作用：测量网络吞吐量（如 WAN/LAN 速度测试）。
 CONFIG_PACKAGE_iperf3=y
+# 完整的 ip 命令工具集（比 iproute2 更强大）。作用：管理网络接口、路由表、ARP 等。
 CONFIG_PACKAGE_ip-full=y
+# iOS 设备通信库（支持 iPhone 文件传输）。作用：通过 USB 管理 iPhone（如备份文件）。
 CONFIG_PACKAGE_libimobiledevice=y
+# 列出块设备信息（如分区结构、挂载点）。作用：快速查看存储设备状态。
 CONFIG_PACKAGE_lsblk=y
+# LuCI Web 界面基础模块。作用：提供 OpenWrt 的图形化管理界面。
 CONFIG_PACKAGE_luci-base=y
+# 兼容旧版 LuCI 配置的模块。作用：支持旧版 LuCI 插件或配置。
 CONFIG_PACKAGE_luci-compat=y
+# LuCI 基础库（如模板引擎、API 支持）。作用：LuCI 插件依赖的基础库。
 CONFIG_PACKAGE_luci-lib-base=y
+# LuCI 的 opkg 包管理支持。作用：通过 Web 界面安装/卸载软件包。
 CONFIG_PACKAGE_luci-lib-ipkg=y
+# Lua 运行时环境（LuCI 依赖）。作用：支持 LuCI 插件的 Lua 脚本执行。
 CONFIG_PACKAGE_luci-lua-runtime=y
+# LuCI 界面的网络接口绑定支持（如链路聚合）。作用：通过 Web 界面配置多网卡聚合。
 CONFIG_PACKAGE_luci-proto-bonding=y
+# LuCI 界面的网络中继支持（如桥接、VLAN）。作用：通过 Web 界面配置网络中继。
 CONFIG_PACKAGE_luci-proto-relay=y
+# 管理 MMC/eMMC 存储设备（如 SD 卡、嵌入式闪存）。作用：读取/写入 MMC 设备信息（如恢复固件）。
 CONFIG_PACKAGE_mmc-utils=y
+# NAND 闪存管理工具（如擦除、读写操作）。作用：直接操作 NAND 闪存（如修复损坏分区）。
 CONFIG_PACKAGE_nand-utils=y
+# 生成 SSH 密钥对（如 RSA、ECDSA）。作用：支持 SSH 无密码登录或加密通信。
 CONFIG_PACKAGE_openssh-keygen=y
+# 启用 SFTP 服务器功能。作用：通过 SSH 传输文件（比 FTP 更安全）。
 CONFIG_PACKAGE_openssh-sftp-server=y
+# 提供 OpenSSL 工具（如证书生成、加密操作）。作用：支持 TLS/SSL 相关操作（如 HTTPS、VPN）。
 CONFIG_PACKAGE_openssl-util=y
+# 脚本化磁盘分区工具（适合自动化操作）。作用：批量分区或备份分区表。
 CONFIG_PACKAGE_sfdisk=y
+# GPT 分区的脚本化工具（支持大容量磁盘）。作用：自动化 GPT 分区管理（如 NAS 扩容）。
 CONFIG_PACKAGE_sgdisk=y
+# 功能：USBmuxd 守护进程（iOS 设备通信基础）。作用：支持 iPhone USB 通信（依赖 libimobiledevice）。 
 #CONFIG_PACKAGE_usbmuxd=y
-#CONFIG_PACKAGE_usbutils=y
+# USB 设备管理工具（如 lsusb）。作用：查看连接的 USB 设备信息。
+CONFIG_PACKAGE_usbutils=y
 
 #-----------------以下自行增加的插件及组件-----------------#
 # zram-swap内存压缩
