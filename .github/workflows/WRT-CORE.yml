@@ -217,18 +217,12 @@ jobs:
           free -m
     
           # 设置环境变量
-          export MIN_DISK_SPACE=10000000  # 10GB (根据实际情况调整)
           export TOOLCHAIN_JOBS=1
           export MAX_JOBS=1
     
           # 执行修复脚本
           chmod +x "$GITHUB_WORKSPACE/Scripts/fix_gettext_full.sh"
           "$GITHUB_WORKSPACE/Scripts/fix_gettext_full.sh"
-    
-          # 编译完成后显示资源使用摘要
-          echo "==== 资源使用摘要 ===="
-          grep '内存使用' "$GITHUB_WORKSPACE/wrt/logs"/*.monitor | tail -n 5
-          df -h
 
 # ================= 以上修复 gettext-full host 构建失败 2025.08.02 ================= #
 
