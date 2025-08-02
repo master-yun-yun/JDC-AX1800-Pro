@@ -207,6 +207,15 @@ jobs:
           #--------2025.07.10-------------------------------------------------------------#
           ./scripts/feeds install python3-netifaces
 
+# ================= 以下修复 gettext-full host 构建失败 2025.08.02 ================= #
+
+      - name: Fix gettext-full Host Build
+        run: |
+          chmod +x "$GITHUB_WORKSPACE/Scripts/fix_gettext_full.sh"
+          "$GITHUB_WORKSPACE/Scripts/fix_gettext_full.sh"
+
+# ================= 以上修复 gettext-full host 构建失败 2025.08.02 ================= #
+
 # ================= 以下vlmcsd编译修复补丁 2025.07.28 ================= #
       - name: Apply vlmcsd Patch
         run: |
