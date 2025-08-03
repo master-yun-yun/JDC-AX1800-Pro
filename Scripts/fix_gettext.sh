@@ -46,6 +46,10 @@ export BISON_LOCALEDIR=/usr/share/bison
 export PATH=/usr/local/bin:$PATH
 export LIBINTL=libintl.so.8
 export LIBINTL_LDFLAGS="-L/usr/local/lib"
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# 更新动态链接器缓存
+sudo ldconfig /usr/local/lib
 
 # 验证版本匹配
 GETTEXT_VERSION=$(gettext --version | grep -oP '([0-9]+\.){2}[0-9]+') || { echo "获取 gettext 版本失败"; exit 1; }
@@ -55,4 +59,13 @@ AUTOMAKE_VERSION=$(automake --version | grep -oP '([0-9]+\.){2}[0-9]+') || { ech
 echo "当前工具链版本："
 echo "gettext: $GETTEXT_VERSION"
 echo "autoconf: $AUTOCONF_VERSION"
-echo "automake/XMLSchema
+echo "automake: $AUTOMAKE_VERSION"
+
+# 彻底清理 OpenWrt 缓存
+cd $GITHUB_WORKSPACE/wrt || { echo "进入 OpenWrt 目录失败"; exit 1; }
+
+make clean || true
+make dirclean || true
+rm -rf build_dir/ tmp/ dl/ || true
+
+echo "=== gettext 工具链修复完成 ==="
