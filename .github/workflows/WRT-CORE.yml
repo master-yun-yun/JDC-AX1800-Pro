@@ -228,6 +228,7 @@ jobs:
           gettext --version
           echo "PATH: $PATH"
           echo "LIBINTL_LDFLAGS: $LIBINTL_LDFLAGS"
+          echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 # ================= 以上gettext 工具链修复补丁 2025.08.03 ================= #
 
       - name: Custom Packages
