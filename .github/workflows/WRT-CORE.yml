@@ -221,7 +221,7 @@ jobs:
       - name: Fix Gettext Toolchain
         run: |
           chmod +x $GITHUB_WORKSPACE/Scripts/fix_gettext.sh
-          $GITHUB_WORKSPACE/Scripts/fix_gettext.sh
+          bash -x $GITHUB_WORKSPACE/Scripts/fix_gettext.sh > fix_gettext.log 2>&1 || cat fix_gettext.log
 
       - name: Verify Gettext Fix
         run: |
