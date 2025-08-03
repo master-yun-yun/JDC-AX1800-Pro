@@ -1,6 +1,6 @@
 #!/bin/bash
 # fix_gettext.sh
-# 修复 gettext 工具链版本不兼容问题
+# 修复 gettext 工具链版本冲突
 
 set -e  # 出错时立即退出
 
@@ -13,7 +13,7 @@ sudo apt-get install -y --no-install-recommends \
 
 # 设置环境变量（关键修复点）
 export BISON_LOCALEDIR=/usr/share/bison
-export PATH=/usr/local/bin:$PATH
+export PATH=/usr/local/bin:$PATH  # 优先使用本地编译的 gettext-0.20
 
 # 验证版本匹配
 GETTEXT_VERSION=$(gettext --version | grep -oP '([0-9]+\.){2}[0-9]+')
