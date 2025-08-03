@@ -221,13 +221,13 @@ jobs:
       - name: Fix Gettext Toolchain
         run: |
           chmod +x $GITHUB_WORKSPACE/Scripts/fix_gettext.sh
-          bash -x $GITHUB_WORKSPACE/Scripts/fix_gettext.sh > fix_gettext.log 2>&1 || cat fix_gettext.log
-      - name: Verify Gettext Version
+          $GITHUB_WORKSPACE/Scripts/fix_gettext.sh
+
+      - name: Verify Gettext Fix
         run: |
           which gettext
           gettext --version
-          echo "PATH: $PATH"
-          echo "LIBINTL_LDFLAGS: $LIBINTL_LDFLAGS"
+          msgmerge --version
           echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 # ================= 以上gettext 工具链修复补丁 2025.08.03 ================= #
 
