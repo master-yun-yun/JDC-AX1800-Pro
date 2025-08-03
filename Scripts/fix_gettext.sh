@@ -73,6 +73,13 @@ echo "=== 配置 gettext ==="
 # === 4. 编译并安装 ===
 echo "=== 编译并安装 gettext ==="
 make -j$(nproc) || { echo "❌ 编译失败"; exit 1; }
+
+# 手动检查 libintl.so.8 是否生成
+if [ ! -f "gettext-runtime/lib/libintl.so.8" ]; then
+  echo "❌ 编译后未生成 libintl.so.8，检查编译日志"
+  exit 1
+fi
+
 sudo make install || { echo "❌ 安装失败"; exit 1; }
 
 # === 5. 强制覆盖系统命令（确保使用新版本）===
@@ -83,19 +90,24 @@ sudo ln -sf /usr/local/bin/xgettext /usr/bin/xgettext
 sudo ln -sf /usr/local/bin/msgfmt /usr/bin/msgfmt
 sudo ln -sf /usr/local/bin/msgmerge /usr/bin/msgmerge
 
-# === 6. 设置运行时环境变量 ===
+# === 6. 创建缺失的符号链接 ===
+echo "=== 创建缺失的符号链接 ==="
+sudo ln -sf /usr/local/lib/libintl.so.8 /usr/local/lib/libintl.so.8.0
+sudo ln -sf /usr/local/lib/libintl.so.8 /usr/local/lib/libintl.so
+
+# === 7. 设置运行时环境变量 ===
 export PATH="/usr/local/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 export LIBINTL="libintl.so.8"
 export LIBINTL_LDFLAGS="-L/usr/local/lib -lintl"
 export BISON_LOCALEDIR="/usr/share/bison"
 
-# === 7. 刷新动态链接器缓存（关键）===
+# === 8. 刷新动态链接器缓存（关键）===
 echo "=== 刷新动态链接器缓存 ==="
 echo '/usr/local/lib' | sudo tee /etc/ld.so.conf.d/99-gettext.conf > /dev/null || true
 sudo ldconfig || { echo "⚠️ ldconfig 警告，但通常不影响结果"; }
 
-# === 8. 验证安装结果 ===
+# === 9. 验证安装结果 ===
 echo "=== 验证安装结果 ==="
 if ! command -v gettext >/dev/null 2>&1; then
   echo "❌ gettext 命令不可用"
@@ -116,14 +128,14 @@ if [ ! -f "/usr/local/lib/libintl.so.8" ]; then
   exit 1
 fi
 
-# === 9. 写入 GitHub 环境变量（确保后续步骤可用）===
+# === 10. 写入 GitHub 环境变量（确保后续步骤可用）===
 echo "=== 写入环境变量到 GitHub 环境 ==="
 echo "PATH=/usr/local/bin:$PATH" >> $GITHUB_ENV
 echo "LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 echo "LIBINTL_LDFLAGS=-L/usr/local/lib -lintl" >> $GITHUB_ENV
 echo "BISON_LOCALEDIR=/usr/share/bison" >> $GITHUB_ENV
 
-# === 10. 清理 OpenWrt 缓存（防止旧环境干扰）===
+# === 11. 清理 OpenWrt 缓存（防止旧环境干扰）===
 echo "=== 清理 OpenWrt 构建缓存 ==="
 cd "$GITHUB_WORKSPACE/wrt" 2>/dev/null || cd "$GITHUB_WORKSPACE/openwrt" 2>/dev/null || {
   echo "⚠️ 未找到 OpenWrt 目录，跳过清理"
@@ -134,19 +146,20 @@ make clean || true
 make dirclean || true
 rm -rf build_dir/ tmp/ staging_dir/ || true
 
-# === 11. 显式导出环境变量到当前 shell ===
+# === 12. 显式导出环境变量到当前 shell ===
 export PATH="/usr/local/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 export LIBINTL="libintl.so.8"
 export LIBINTL_LDFLAGS="-L/usr/local/lib -lintl"
 export BISON_LOCALEDIR="/usr/share/bison"
 
-# === 12. 最终验证 ===
+# === 13. 最终验证 ===
 echo "=== 最终验证 ==="
 which gettext
 gettext --version || { echo "❌ gettext 命令无法执行"; exit 1; }
 msgmerge --version || { echo "❌ msgmerge 命令无法执行"; exit 1; }
 echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+echo "libintl.so.8 路径: $(find /usr/local/lib -name 'libintl.so.8')"
 
 echo "=== ✅ gettext 工具链修复完成 ==="
 echo "所有命令已就绪，环境变量已写入，可开始构建 OpenWrt 固件。"
