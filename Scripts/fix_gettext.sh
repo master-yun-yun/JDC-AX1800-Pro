@@ -1,19 +1,41 @@
 #!/bin/bash
 # fix_gettext.sh
-# 修复 gettext 工具链版本冲突
+# 一体化修复 gettext 工具链版本冲突（适用于云编译环境）
 
 set -e  # 出错时立即退出
+set -x  # 显示执行命令（便于调试）
 
 echo "=== 开始修复 gettext 工具链版本冲突 ==="
 
-# 安装必要依赖
-sudo apt-get update
+# === 第一步：安装依赖 ===
+sudo apt-get update || true  # 忽略 apt 失败（云编译可能已预装）
 sudo apt-get install -y --no-install-recommends \
-  bison flex libtool autoconf automake m4
+  build-essential flex bison libtool autoconf automake m4 || true
 
-# 设置环境变量（关键修复点）
+# === 第二步：下载并编译 gettext-0.20.1 ===
+GETTEXT_VERSION="0.20.1"
+GETTEXT_DIR="/tmp/gettext-${GETTEXT_VERSION}"
+GETTEXT_URL="https://ftp.gnu.org/gnu/gettext/gettext-${GETTEXT_VERSION}.tar.gz"
+
+# 创建临时目录
+mkdir -p "$GETTEXT_DIR"
+cd "$GETTEXT_DIR"
+
+# 下载源码
+wget -q "$GETTEXT_URL" || { echo "下载 gettext 源码失败"; exit 1; }
+
+# 解压并编译
+tar -xf "gettext-${GETTEXT_VERSION}.tar.gz"
+cd "gettext-${GETTEXT_VERSION}"
+./configure --prefix=/usr/local || { echo "配置失败"; exit 1; }
+make -j$(nproc) || { echo "编译失败"; exit 1; }
+sudo make install || { echo "安装失败"; exit 1; }
+
+# === 第三步：设置环境变量 ===
 export BISON_LOCALEDIR=/usr/share/bison
-export PATH=/usr/local/bin:$PATH  # 优先使用本地编译的 gettext-0.20
+export PATH=/usr/local/bin:$PATH
+export LIBINTL=libintl.so.8
+export LIBINTL_LDFLAGS="-L/usr/local/lib"
 
 # 验证版本匹配
 GETTEXT_VERSION=$(gettext --version | grep -oP '([0-9]+\.){2}[0-9]+')
@@ -25,9 +47,11 @@ echo "gettext: $GETTEXT_VERSION"
 echo "autoconf: $AUTOCONF_VERSION"
 echo "automake: $AUTOMAKE_VERSION"
 
-# 强制清理缓存
-cd $GITHUB_WORKSPACE/wrt
-make clean
-make dirclean
+# === 第四步：强制清理缓存 ===
+cd $GITHUB_WORKSPACE/wrt || { echo "进入 OpenWrt 目录失败"; exit 1; }
+
+make clean || true
+make dirclean || true
+rm -rf build_dir/ tmp/ || true
 
 echo "=== gettext 工具链修复完成 ==="
