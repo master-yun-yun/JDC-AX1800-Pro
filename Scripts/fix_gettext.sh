@@ -1,6 +1,6 @@
 #!/bin/bash
 # fix_gettext.sh
-# 一体化修复 gettext 工具链版本冲突（适用于云编译环境）
+# 强制覆盖 gettext 工具链版本（适用于云编译环境）
 
 set -e  # 出错时立即退出
 set -x  # 显示执行命令（便于调试）
@@ -8,7 +8,7 @@ set -x  # 显示执行命令（便于调试）
 echo "=== 开始修复 gettext 工具链版本冲突 ==="
 
 # === 第一步：安装依赖 ===
-sudo apt-get update || true  # 忽略 apt 失败（云编译可能已预装）
+sudo apt-get update || true
 sudo apt-get install -y --no-install-recommends \
   build-essential flex bison libtool autoconf automake m4 || true
 
@@ -31,7 +31,18 @@ cd "gettext-${GETTEXT_VERSION}"
 make -j$(nproc) || { echo "编译失败"; exit 1; }
 sudo make install || { echo "安装失败"; exit 1; }
 
-# === 第三步：设置环境变量 ===
+# === 第三步：强制覆盖系统路径 ===
+# 删除旧版本
+sudo rm -f /usr/bin/gettext /usr/bin/xgettext
+sudo rm -f /usr/bin/msgfmt /usr/bin/msgmerge
+
+# 创建符号链接到新版本
+sudo ln -sf /usr/local/bin/gettext /usr/bin/gettext
+sudo ln -sf /usr/local/bin/xgettext /usr/bin/xgettext
+sudo ln -sf /usr/local/bin/msgfmt /usr/bin/msgfmt
+sudo ln -sf /usr/local/bin/msgmerge /usr/bin/msgmerge
+
+# === 第四步：设置环境变量 ===
 export BISON_LOCALEDIR=/usr/share/bison
 export PATH=/usr/local/bin:$PATH
 export LIBINTL=libintl.so.8
@@ -47,7 +58,7 @@ echo "gettext: $GETTEXT_VERSION"
 echo "autoconf: $AUTOCONF_VERSION"
 echo "automake: $AUTOMAKE_VERSION"
 
-# === 第四步：强制清理缓存 ===
+# === 第五步：强制清理 OpenWrt 缓存 ===
 cd $GITHUB_WORKSPACE/wrt || { echo "进入 OpenWrt 目录失败"; exit 1; }
 
 make clean || true
