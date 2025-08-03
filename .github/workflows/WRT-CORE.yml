@@ -92,23 +92,12 @@ jobs:
           echo "WRT_KVER=none" >> $GITHUB_ENV
           echo "WRT_LIST=none" >> $GITHUB_ENV
 
-# ------------------------0803---以下临时取消---回退到 gettext-full host 可正常构建的版本 ac9a97e 0803------------------ #
-      ##- name: Clone Code
-        ##run: |
-          ##git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
-
-          ##cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
-# ------------------------0603---以上临时取消---回退到 gettext-full host 可正常构建的版本 ac9a97e 0803------------------ #
-
-          # ------------------------0803---以下回退到 gettext-full host 可正常构建的版本 ac9a97e 0803------------------ #
-      - name: Clone Code & Revert to Safe Commit
+      - name: Clone Code
         run: |
-          git clone --depth=20 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
-          cd ./wrt/
-          # 拉取足够深度后，再回退到安全提交
-          git reset --hard ac9a97e
-          echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV 
-          # ------------------------0803---以上回退到 gettext-full host 可正常构建的版本 ac9a97e 0803------------------ #
+          git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
+
+          cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
+
 
           # ---------------------------------------------修改软件源为IPK（新增部分）--------------------------------------------------#
           sed -i 's/.apk/.ipk/g' feeds.conf.default
@@ -218,25 +207,6 @@ jobs:
           ./scripts/feeds install -a
           #--------2025.07.10-------------------------------------------------------------#
           ./scripts/feeds install python3-netifaces
-
-# ================= 以下修复 gettext-full host 构建失败 2025.08.02 ================= #
-
-      ##- name: Fix gettext-full Host Build
-        ##timeout-minutes: 180  # 3小时超时
-        ##run: |
-          ### 显示初始资源状态
-          ##df -h
-          ##free -m
-    
-          ### 设置环境变量
-          ##export TOOLCHAIN_JOBS=1
-          ##export MAX_JOBS=1
-    
-          ### 执行修复脚本
-          ##chmod +x "$GITHUB_WORKSPACE/Scripts/fix_gettext_full.sh"
-          ##"$GITHUB_WORKSPACE/Scripts/fix_gettext_full.sh"
-
-# ================= 以上修复 gettext-full host 构建失败 2025.08.02 ================= #
 
 # ================= 以下vlmcsd编译修复补丁 2025.07.28 ================= #
       - name: Apply vlmcsd Patch
