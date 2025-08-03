@@ -222,6 +222,12 @@ jobs:
         run: |
           chmod +x $GITHUB_WORKSPACE/Scripts/fix_gettext.sh
           $GITHUB_WORKSPACE/Scripts/fix_gettext.sh
+      - name: Verify Gettext Version
+        run: |
+          which gettext
+          gettext --version
+          echo "PATH: $PATH"
+          echo "LIBINTL_LDFLAGS: $LIBINTL_LDFLAGS"
 # ================= 以上gettext 工具链修复补丁 2025.08.03 ================= #
 
       - name: Custom Packages
