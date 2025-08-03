@@ -164,3 +164,11 @@ gettext --version || { echo "❌ gettext 命令无法执行"; exit 1; }
 msgmerge --version || { echo "❌ msgmerge 命令无法执行"; exit 1; }
 echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 echo "libintl.so.8 路径: $(find /usr/local/lib -name 'libintl.so.8')"
+
+# === 13. 检查符号链接和权限 ===
+echo "=== 检查符号链接和权限 ==="
+ls -l /usr/local/lib/libintl.so*
+chmod 644 /usr/local/lib/libintl.so* || { echo "⚠️ 权限调整失败"; }
+
+echo "=== ✅ gettext 工具链修复完成 ==="
+echo "所有命令已就绪，环境变量已写入，可开始构建 OpenWrt 固件。"
