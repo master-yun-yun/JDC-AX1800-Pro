@@ -129,5 +129,12 @@ make clean || true
 make dirclean || true
 rm -rf build_dir/ tmp/ staging_dir/ || true
 
+# === 11. 强制导出环境变量到当前 shell ===
+export PATH="/usr/local/bin:$PATH"
+export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+export LIBINTL="libintl.so.8"
+export LIBINTL_LDFLAGS="-L/usr/local/lib -lintl"
+export BISON_LOCALEDIR="/usr/share/bison"
+
 echo "=== ✅ gettext 工具链修复完成 ==="
 echo "所有命令已就绪，环境变量已写入，可开始构建 OpenWrt 固件。"
