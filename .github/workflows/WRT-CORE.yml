@@ -217,21 +217,6 @@ jobs:
           echo "vlmcsd编译补丁已成功应用"   
 # ================= 以上vlmcsd编译修复补丁 2025.07.28 ================= #
 
-# ================= 以下gettext 工具链修复补丁 2025.08.03 ================= #
-      #- name: Fix Gettext Toolchain
-        #run: |
-          #chmod +x $GITHUB_WORKSPACE/Scripts/fix_gettext.sh
-          #bash -x $GITHUB_WORKSPACE/Scripts/fix_gettext.sh > fix_gettext.log 2>&1 || cat fix_gettext.log
-
-      #- name: Verify Gettext Fix
-        #run: |
-          #which gettext
-          #gettext --version
-          #msgmerge --version
-          #echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
-          #find /usr/local/lib -name 'libintl.so*'
-# ================= 以上gettext 工具链修复补丁 2025.08.03 ================= #
-
       - name: Custom Packages
         run: |
           cd ./wrt/package/
