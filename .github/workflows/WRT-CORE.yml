@@ -209,12 +209,12 @@ jobs:
           ./scripts/feeds install python3-netifaces
 
 # ================= 以下vlmcsd编译修复补丁 2025.07.28 ================= #
-      - name: Apply vlmcsd Patch
-        run: |
-          mkdir -p ./wrt/feeds/packages/net/vlmcsd/patches
-          cp -f $GITHUB_WORKSPACE/Scripts/fix_vlmcsd_compile.patch \
-               ./wrt/feeds/packages/net/vlmcsd/patches/
-          echo "vlmcsd编译补丁已成功应用"   
+      ##- name: Apply vlmcsd Patch
+        ##run: |
+          ##mkdir -p ./wrt/feeds/packages/net/vlmcsd/patches
+          ##cp -f $GITHUB_WORKSPACE/Scripts/fix_vlmcsd_compile.patch \
+               ##./wrt/feeds/packages/net/vlmcsd/patches/
+          ##echo "vlmcsd编译补丁已成功应用"   
 # ================= 以上vlmcsd编译修复补丁 2025.07.28 ================= #
 
       - name: Custom Packages
