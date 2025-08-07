@@ -209,8 +209,8 @@ UPDATE_PACKAGE "verysync" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-verysync" "kiddin9/kwrt-packages" "main" "pkg"
 
 # Vlmcsd KMS 服务器
-#UPDATE_PACKAGE "vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "luci-app-vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
 
 # SunPanel导航页
 UPDATE_PACKAGE "sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
