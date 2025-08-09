@@ -204,7 +204,7 @@ CONFIG_PACKAGE_libfuse1=y
 CONFIG_PACKAGE_libfuse3-3=y
 
 # 动态域名解析
-CONFIG_PACKAGE_luci-app-ddns=y
+#CONFIG_PACKAGE_luci-app-ddns=y
 CONFIG_PACKAGE_luci-app-ddns-go=y
 
 # 微力同步
