@@ -360,7 +360,7 @@ CONFIG_PACKAGE_luci-app-memos=y
 
 # 主题界面luci-theme-kucat
 CONFIG_PACKAGE_luci-theme-kucat=y
-CONFIG_PACKAGE_luci-app-kucat-config=y
+CONFIG_PACKAGE_luci-app-kucat=y
 
 # luci-app-advancedplus 新版进价设置，集成酷猫主题，可以编译保存系统、网络、防火墙、DHCP、家长控制、网络唤醒、端口转发、DDNS-GO、SMARTDNS、BYPASS、OPENCLASH、NGINX、DNSMASQ、DDNS等10多个常用功能的配置文件。
 CONFIG_PACKAGE_luci-app-advancedplus=y
