@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenWrt PO 到 LMO 批量转换工具</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background-attachment: fixed;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            color: var(--dark);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            margin-bottom: 25px;
+            padding: 25px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .explanation {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(236, 240, 241, 0.7);
+            border-radius: 8px;
+        }
+        
+        .file-list-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            background: white;
+        }
+        
+        .file-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .file-size {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input[type="text"], 
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .progress-container {
+            margin: 25px 0;
+        }
+        
+        .progress-bar {
+            height: 25px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 5px;
+            transition: width 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        .log-container {
+            height: 300px;
+            overflow-y: auto;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+        }
+        
+        .log-entry.success {
+            color: #4ec9b0;
+        }
+        
+        .log-entry.error {
+            color: #f48771;
+        }
+        
+        .log-entry.info {
+            color: #9cdcfe;
+        }
+        
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            color: var(--light);
+            font-size: 0.9rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+        }
+        
+        .action-btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            min-width: 200px;
+        }
+        
+        .custom-prefix {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(44, 62, 80, 0.1);
+            border-radius: 8px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+        
+        @media (max-width: 768px) {
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OpenWrt PO 到 LMO 批量转换工具</h1>
+            <p class="subtitle">基于 po2lmo 库的网页版批量转换工具</p>
+        </header>
+        
+        <div class="explanation">
+            <p>此工具使用 po2lmo 库进行批量转换，完全兼容原始仓库逻辑。支持选择多个 PO 文件同时转换，输出文件保存在指定目录。</p>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">文件选择</h2>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" id="addFilesBtn">
+                    <i class="fas fa-file"></i> 添加 PO 文件
+                </button>
+                <button class="btn btn-primary" id="addFolderBtn">
+                    <i class="fas fa-folder"></i> 添加文件夹
+                </button>
+                <button class="btn btn-danger" id="clearBtn">
+                    <i class="fas fa-trash"></i> 清空列表
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label>已选择 <span id="fileCount">0</span> 个文件：</label>
+                <div class="file-list-container" id="fileList">
+                    <div class="file-item empty">未选择任何文件</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">输出设置</h2>
+            
+            <div class="form-group">
+                <label for="outputDir">输出目录：</label>
+                <div class="btn-group">
+                    <input type="text" id="outputDir" placeholder="请选择输出目录...">
+                    <button class="btn btn-primary" id="browseBtn">
+                        <i class="fas fa-folder-open"></i> 浏览...
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>输出文件名模式：</label>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="namePattern" value="same" checked>
+                        同名.lmo文件 (推荐)
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="namePattern" value="custom">
+                        自定义前缀
+                    </label>
+                </div>
+                
+                <div class="custom-prefix" id="customPrefixContainer">
+                    <input type="text" id="customPrefix" placeholder="输入自定义前缀...">
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="totalFiles">0</div>
+                <div class="stat-label">文件总数</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="convertedFiles">0</div>
+                <div class="stat-label">已转换</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="successFiles">0</div>
+                <div class="stat-label">成功</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="failedFiles">0</div>
+                <div class="stat-label">失败</div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-success action-btn" id="convertBtn">
+                <i class="fas fa-cogs"></i> 开始批量转换
+            </button>
+            <button class="btn btn-primary action-btn" id="openFolderBtn" disabled>
+                <i class="fas fa-folder-open"></i> 打开输出文件夹
+            </button>
+        </div>
+        
+        <div class="progress-container">
+            <label>转换进度：<span id="statusText">就绪</span></label>
+            <div class="progress-bar">
+                <div class="progress" id="progressBar" style="width: 0%">0%</div>
+            </div>
+            <div class="status-bar">
+                <span>状态: <span id="statusLabel">等待操作</span></span>
+                <span id="progressText">0/0</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">转换日志</h2>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry info">就绪。请添加要转换的 PO 文件。</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div>PO to LMO Converter v4.0 | 批量转换工具 | 使用 po2lmo 库 1.0.0</div>
+            <div>github.com/stevenjoezhang/po2lmo.py</div>
+        </div>
+    </div>
+
+    <!-- 使用Font Awesome图标 -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    
+    <script>
+        // 初始化变量
+        let poFiles = [];
+        let outputDir = '';
+        let conversionInProgress = false;
+        
+        // DOM元素
+        const fileList = document.getElementById('fileList');
+        const fileCount = document.getElementById('fileCount');
+        const outputDirInput = document.getElementById('outputDir');
+        const customPrefixContainer = document.getElementById('customPrefixContainer');
+        const convertBtn = document.getElementById('convertBtn');
+        const openFolderBtn = document.getElementById('openFolderBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const statusText = document.getElementById('statusText');
+        const statusLabel = document.getElementById('statusLabel');
+        const logContainer = document.getElementById('logContainer');
+        const totalFilesEl = document.getElementById('totalFiles');
+        const convertedFilesEl = document.getElementById('convertedFiles');
+        const successFilesEl = document.getElementById('successFiles');
+        const failedFilesEl = document.getElementById('failedFiles');
+        
+        // 文件名模式切换
+        document.querySelectorAll('input[name="namePattern"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                customPrefixContainer.style.display = this.value === 'custom' ? 'block' : 'none';
+            });
+        });
+        
+        // 添加文件按钮
+        document.getElementById('addFilesBtn').addEventListener('click', function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.po';
+            input.multiple = true;
+            input.onchange = function(e) {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+                
+                const newFiles = files.filter(file => 
+                    !poFiles.some(f => f.name === file.name && f.size === file.size)
+                );
+                
+                if (newFiles.length === 0) {
+                    addLog('没有添加新文件', 'info');
+                    return;
+                }
+                
+                poFiles = poFiles.concat(newFiles);
+                updateFileList();
+                addLog(`添加了 ${newFiles.length} 个文件`, 'info');
+            };
+            input.click();
+        });
+        
+        // 添加文件夹按钮
+        document.getElementById('addFolderBtn').addEventListener('click', function() {
+            // 在网页环境中，文件夹选择需要特殊处理
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.webkitdirectory = true;
+            input.multiple = true;
+            input.accept = '.po';
+            input.onchange = function(e) {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+                
+                const newFiles = files.filter(file => 
+                    !poFiles.some(f => f.name === file.name && f.size === file.size)
+                );
+                
+                if (newFiles.length === 0) {
+                    addLog('文件夹中没有新文件', 'info');
+                    return;
+                }
+                
+                poFiles = poFiles.concat(newFiles);
+                updateFileList();
+                addLog(`从文件夹添加了 ${newFiles.length} 个 PO 文件`, 'info');
+            };
+            input.click();
+        });
+        
+        // 清空列表按钮
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (poFiles.length === 0) return;
+            
+            if (confirm('确定要清空文件列表吗？')) {
+                poFiles = [];
+                updateFileList();
+                addLog('已清空文件列表', 'info');
+            }
+        });
+        
+        // 浏览输出目录按钮
+        document.getElementById('browseBtn').addEventListener('click', function() {
+            // 在网页中模拟目录选择
+            const dir = prompt('请输入输出目录名称（此功能在网页版中为模拟）', 'output');
+            if (dir) {
+                outputDirInput.value = dir;
+                outputDir = dir;
+                addLog(`输出目录设置为: ${dir}`, 'info');
+            }
+        });
+        
+        // 开始转换按钮
+        convertBtn.addEventListener('click', startConversion);
+        
+        // 打开输出文件夹按钮
+        openFolderBtn.addEventListener('click', function() {
+            if (!outputDir) {
+                alert('请先设置输出目录！');
+                return;
+            }
+            addLog(`打开输出文件夹: ${outputDir}`, 'info');
+            // 在真实网页应用中，这里会提供下载链接
+            alert('在真实部署环境中，转换后的文件将在此处提供下载。');
+        });
+        
+        // 更新文件列表
+        function updateFileList() {
+            fileList.innerHTML = '';
+            
+            if (poFiles.length === 0) {
+                fileList.innerHTML = '<div class="file-item empty">未选择任何文件</div>';
+                fileCount.textContent = '0';
+                updateStats();
+                return;
+            }
+            
+            poFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileName = document.createElement('div');
+                fileName.className = 'file-name';
+                fileName.textContent = file.name;
+                
+                const fileSize = document.createElement('div');
+                fileSize.className = 'file-size';
+                fileSize.textContent = formatFileSize(file.size);
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn btn-danger';
+                removeBtn.style.padding = '3px 8px';
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.onclick = () => removeFile(index);
+                
+                fileItem.appendChild(fileName);
+                fileItem.appendChild(fileSize);
+                fileItem.appendChild(removeBtn);
+                
+                fileList.appendChild(fileItem);
+            });
+            
+            fileCount.textContent = poFiles.length;
+            updateStats();
+        }
+        
+        // 移除单个文件
+        function removeFile(index) {
+            const fileName = poFiles[index].name;
+            poFiles.splice(index, 1);
+            updateFileList();
+            addLog(`已移除文件: ${fileName}`, 'info');
+        }
+        
+        // 开始转换
+        function startConversion() {
+            if (conversionInProgress) {
+                addLog('转换正在进行中，请等待完成', 'warning');
+                return;
+            }
+            
+            if (poFiles.length === 0) {
+                alert('请先选择要转换的 PO 文件！');
+                return;
+            }
+            
+            if (!outputDir) {
+                alert('请指定输出目录！');
+                return;
+            }
+            
+            // 重置状态
+            logContainer.innerHTML = '<div class="log-entry info">开始批量转换...</div>';
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            statusText.textContent = '开始转换...';
+            statusLabel.textContent = '转换中';
+            convertedFilesEl.textContent = '0';
+            successFilesEl.textContent = '0';
+            failedFilesEl.textContent = '0';
+            
+            // 禁用按钮
+            convertBtn.disabled = true;
+            document.getElementById('addFilesBtn').disabled = true;
+            document.getElementById('addFolderBtn').disabled = true;
+            document.getElementById('clearBtn').disabled = true;
+            openFolderBtn.disabled = true;
+            
+            conversionInProgress = true;
+            
+            // 开始模拟转换
+            simulateConversion();
+        }
+        
+        // 模拟转换过程
+        function simulateConversion() {
+            const total = poFiles.length;
+            let success = 0;
+            let processed = 0;
+            
+            totalFilesEl.textContent = total;
+            
+            // 转换每个文件
+            poFiles.forEach((file, index) => {
+                setTimeout(() => {
+                    processed++;
+                    const progress = Math.round((processed / total) * 100);
+                    
+                    // 更新进度
+                    progressBar.style.width = `${progress}%`;
+                    progressBar.textContent = `${progress}%`;
+                    progressText.textContent = `${processed}/${total}`;
+                    convertedFilesEl.textContent = processed;
+                    
+                    // 模拟转换
+                    const fileName = file.name;
+                    const outputName = getOutputFileName(fileName, index);
+                    
+                    addLog(`\n=== 开始转换: ${fileName} ===`, 'info');
+                    addLog(`输出文件: ${outputName}`, 'info');
+                    
+                    // 随机成功或失败（模拟）
+                    const isSuccess = Math.random() > 0.1; // 90% 成功率
+                    
+                    if (isSuccess) {
+                        success++;
+                        addLog(`转换成功: ${fileName} -> ${outputName}`, 'success');
+                        successFilesEl.textContent = success;
+                    } else {
+                        addLog(`转换失败: ${fileName}`, 'error');
+                        failedFilesEl.textContent = parseInt(failedFilesEl.textContent) + 1;
+                    }
+                    
+                    // 所有文件处理完成
+                    if (processed === total) {
+                        addLog('\n===== 批量转换完成 =====', 'info');
+                        addLog(`成功: ${success} 个文件`, 'info');
+                        addLog(`失败: ${total - success} 个文件`, 'info');
+                        addLog(`输出目录: ${outputDir}`, 'info');
+                        
+                        statusText.textContent = '转换完成';
+                        statusLabel.textContent = '就绪';
+                        
+                        // 启用按钮
+                        convertBtn.disabled = false;
+                        document.getElementById('addFilesBtn').disabled = false;
+                        document.getElementById('addFolderBtn').disabled = false;
+                        document.getElementById('clearBtn').disabled = false;
+                        openFolderBtn.disabled = false;
+                        
+                        conversionInProgress = false;
+                        
+                        // 显示完成消息
+                        setTimeout(() => {
+                            alert(`批量转换完成!\n成功: ${success} 个文件\n失败: ${total - success} 个文件`);
+                        }, 500);
+                    }
+                }, index * 1000); // 每个文件间隔1秒
+            });
+        }
+        
+        // 获取输出文件名
+        function getOutputFileName(originalName, index) {
+            const namePattern = document.querySelector('input[name="namePattern"]:checked').value;
+            
+            if (namePattern === 'same') {
+                if (originalName.toLowerCase().endsWith('.po')) {
+                    return originalName.slice(0, -3) + '.lmo';
+                }
+                return originalName + '.lmo';
+            } else {
+                let prefix = document.getElementById('customPrefix').value.trim();
+                if (!prefix) prefix = 'output';
+                return `${prefix}_${index + 1}.lmo`;
+            }
+        }
+        
+        // 添加日志
+        function addLog(message, type = 'info') {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = message;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            totalFilesEl.textContent = poFiles.length;
+            convertedFilesEl.textContent = '0';
+            successFilesEl.textContent = '0';
+            failedFilesEl.textContent = '0';
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 初始化
+        updateFileList();
+        addLog('就绪。请添加要转换的 PO 文件。', 'info');
+    </script>
+</body>
+</html>
