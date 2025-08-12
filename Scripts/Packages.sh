@@ -63,6 +63,7 @@ UPDATE_PACKAGE "theme-kucat" "sirpdboy/luci-theme-kucat" "js"
 UPDATE_PACKAGE "luci-app-kucat" "sirpdboy/luci-app-kucat-config" "main"
 
 UPDATE_PACKAGE "homeproxy" "VIKINGYFY/homeproxy" "main"
+UPDATE_PACKAGE "momo" "nikkinikki-org/OpenWrt-momo" "main"
 UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
 UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "dev" "pkg"
 UPDATE_PACKAGE "passwall" "xiaorouji/openwrt-passwall" "main" "pkg"
