@@ -380,7 +380,7 @@ CONFIG_PACKAGE_luci-app-kucat=y
 CONFIG_PACKAGE_luci-app-advancedplus=y
 
 # quickfile 文件管理器
-CONFIG_PACKAGE_luci-app-quickfile=y
+#CONFIG_PACKAGE_luci-app-quickfile=y
 
 #-------------------2025.07.07-测试-----------------#
 
