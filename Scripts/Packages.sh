@@ -223,6 +223,9 @@ UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
 # Memos知识管理
 UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
 
+# --------2025.10.20-应用过滤----------- #
+UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master"
+
 # 原高级设置升级版本
 UPDATE_PACKAGE "luci-app-advancedplus" "sirpdboy/luci-app-advancedplus" "main"
 
