@@ -224,16 +224,24 @@ UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
 
 # --------以下2025.10.20-应用过滤----------- #
-# 先下载整个仓库
 UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master"
 
-# 然后手动确保三个组件可用
+# 修复递归依赖问题
 if [ -d "OpenAppFilter" ]; then
+    echo "Fixing OpenAppFilter recursive dependency..."
+    
     # 确保组件目录存在
     [ -d "luci-app-oaf" ] || ln -sf OpenAppFilter/luci-app-oaf .
     [ -d "oaf" ] || ln -sf OpenAppFilter/oaf .
     [ -d "open-app-filter" ] || ln -sf OpenAppFilter/open-app-filter .
-    echo "OpenAppFilter components linked successfully."
+    
+    # 修复 oaf 包的 Config.in 文件（如果存在循环依赖）
+    if [ -f "OpenAppFilter/oaf/Config.in" ]; then
+        sed -i 's/select PACKAGE_kmod-oaf//g' OpenAppFilter/oaf/Config.in
+        sed -i 's/depends on PACKAGE_kmod-oaf//g' OpenAppFilter/oaf/Config.in
+    fi
+    
+    echo "OpenAppFilter components linked and fixed."
 fi
 # --------以上2025.10.20-应用过滤----------- #
 
