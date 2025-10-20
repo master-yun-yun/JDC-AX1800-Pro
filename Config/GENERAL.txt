@@ -392,3 +392,8 @@ CONFIG_PACKAGE_ntfs3-mount=n
 CONFIG_PACKAGE_kmod-fs-ntfs3=y
 
 #-------------------2025.07.07-测试-----------------#
+
+# 应用过滤----2025.10.20---- #
+CONFIG_PACKAGE_oaf=y
+CONFIG_PACKAGE_open-app-filter=y
+CONFIG_PACKAGE_luci-app-oaf=y
