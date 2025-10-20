@@ -224,9 +224,10 @@ UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
 
 # --------2025.10.20-应用过滤----------- #
-UPDATE_PACKAGE "luci-app-oaf" "destan19/OpenAppFilter" "master" "luci-app-oaf"
-UPDATE_PACKAGE "oaf" "destan19/OpenAppFilter" "master" "oaf"
-UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "open-app-filter"
+#UPDATE_PACKAGE "luci-app-oaf" "destan19/OpenAppFilter" "master" "luci-app-oaf"
+#UPDATE_PACKAGE "oaf" "destan19/OpenAppFilter" "master" "oaf"
+#UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "open-app-filter"
+UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master"
 
 # 原高级设置升级版本
 UPDATE_PACKAGE "luci-app-advancedplus" "sirpdboy/luci-app-advancedplus" "main"
