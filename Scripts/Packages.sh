@@ -223,11 +223,19 @@ UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
 # Memos知识管理
 UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
 
-# --------2025.10.20-应用过滤----------- #
-#UPDATE_PACKAGE "luci-app-oaf" "destan19/OpenAppFilter" "master" "luci-app-oaf"
-#UPDATE_PACKAGE "oaf" "destan19/OpenAppFilter" "master" "oaf"
-#UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "open-app-filter"
+# --------以下2025.10.20-应用过滤----------- #
+# 先下载整个仓库
 UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master"
+
+# 然后手动确保三个组件可用
+if [ -d "OpenAppFilter" ]; then
+    # 确保组件目录存在
+    [ -d "luci-app-oaf" ] || ln -sf OpenAppFilter/luci-app-oaf .
+    [ -d "oaf" ] || ln -sf OpenAppFilter/oaf .
+    [ -d "open-app-filter" ] || ln -sf OpenAppFilter/open-app-filter .
+    echo "OpenAppFilter components linked successfully."
+fi
+# --------以上2025.10.20-应用过滤----------- #
 
 # 原高级设置升级版本
 UPDATE_PACKAGE "luci-app-advancedplus" "sirpdboy/luci-app-advancedplus" "main"
