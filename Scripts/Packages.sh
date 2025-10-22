@@ -224,23 +224,9 @@ UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
 
 # --------以下2025.10.20-应用过滤----------- #
-# 完全手动处理，绕过所有自动配置系统
-
-# 1. 清理现有配置
-cd ./wrt/
-rm -rf tmp/ .config
-make defconfig
-
-# 2. 手动下载源码（不使用UPDATE_PACKAGE）
-if [ ! -d "package/OpenAppFilter" ]; then
-    git clone https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
-fi
-
-# 3. 只添加luci-app-oaf到配置，让系统自动处理依赖
-echo "CONFIG_PACKAGE_luci-app-oaf=y" >> .config
-
-# 4. 尝试让系统自动解析依赖
-make defconfig
+UPDATE_PACKAGE "open-app-filter" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "oaf" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-oaf" "kiddin9/kwrt-packages" "main" "pkg"
 # --------以上2025.10.20-应用过滤----------- #
 
 # 原高级设置升级版本
