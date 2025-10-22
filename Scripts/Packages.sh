@@ -224,25 +224,23 @@ UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
 
 # --------以下2025.10.20-应用过滤----------- #
-UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master"
+# 完全手动处理，绕过所有自动配置系统
 
-# 修复递归依赖问题
-if [ -d "OpenAppFilter" ]; then
-    echo "Fixing OpenAppFilter recursive dependency..."
-    
-    # 确保组件目录存在
-    [ -d "luci-app-oaf" ] || ln -sf OpenAppFilter/luci-app-oaf .
-    [ -d "oaf" ] || ln -sf OpenAppFilter/oaf .
-    [ -d "open-app-filter" ] || ln -sf OpenAppFilter/open-app-filter .
-    
-    # 修复 oaf 包的 Config.in 文件（如果存在循环依赖）
-    if [ -f "OpenAppFilter/oaf/Config.in" ]; then
-        sed -i 's/select PACKAGE_kmod-oaf//g' OpenAppFilter/oaf/Config.in
-        sed -i 's/depends on PACKAGE_kmod-oaf//g' OpenAppFilter/oaf/Config.in
-    fi
-    
-    echo "OpenAppFilter components linked and fixed."
+# 1. 清理现有配置
+cd ./wrt/
+rm -rf tmp/ .config
+make defconfig
+
+# 2. 手动下载源码（不使用UPDATE_PACKAGE）
+if [ ! -d "package/OpenAppFilter" ]; then
+    git clone https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
 fi
+
+# 3. 只添加luci-app-oaf到配置，让系统自动处理依赖
+echo "CONFIG_PACKAGE_luci-app-oaf=y" >> .config
+
+# 4. 尝试让系统自动解析依赖
+make defconfig
 # --------以上2025.10.20-应用过滤----------- #
 
 # 原高级设置升级版本
