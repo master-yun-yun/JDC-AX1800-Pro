@@ -311,7 +311,7 @@ CONFIG_PACKAGE_luci-app-watchcat=y
 CONFIG_PACKAGE_luci-app-ksmbd=y
 
 # argon主题配置
-CONFIG_PACKAGE_luci-app-argon-config=y
+#CONFIG_PACKAGE_luci-app-argon-config=y
 
 # 端口转发socat
 #CONFIG_PACKAGE_socat=y
