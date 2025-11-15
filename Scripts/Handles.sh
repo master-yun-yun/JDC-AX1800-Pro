@@ -86,3 +86,49 @@ if [ -f "$DM_FILE" ]; then
 
 	cd $PKG_PATH && echo "diskman has been fixed!"
 fi
+
+# -----------------2025.11.15--在 handles.sh 文件末尾添加以下代码-------------： #
+
+# 修复 PHP8 目录缺失问题（防止编译失败）
+if [ -d "php8" ] || [ -f "../feeds/packages/lang/php8/Makefile" ]; then
+    echo " "
+    echo "修复 PHP8 目录缺失问题..."
+    
+    # 查找 php8 Makefile 的位置
+    PHP_MAKEFILE=""
+    if [ -f "php8/Makefile" ]; then
+        PHP_MAKEFILE="php8/Makefile"
+    elif [ -f "../feeds/packages/lang/php8/Makefile" ]; then
+        PHP_MAKEFILE="../feeds/packages/lang/php8/Makefile"
+    else
+        # 尝试通过 find 查找
+        PHP_MAKEFILE=$(find ../feeds/packages/ -name "php8" -type d 2>/dev/null | head -1)/Makefile
+        if [ ! -f "$PHP_MAKEFILE" ]; then
+            PHP_MAKEFILE=$(find . -name "php8" -type d 2>/dev/null | head -1)/Makefile
+        fi
+    fi
+    
+    if [ -f "$PHP_MAKEFILE" ]; then
+        echo "找到 php8 Makefile: $PHP_MAKEFILE"
+        
+        # 备份原文件
+        cp "$PHP_MAKEFILE" "${PHP_MAKEFILE}.bak"
+        
+        # 检查是否已经存在目录创建命令
+        if ! grep -q "\$(INSTALL_DIR).*\/etc\/php8" "$PHP_MAKEFILE"; then
+            # 在 install 部分添加目录创建命令
+            sed -i '/define Package\/php8\/install/,/endef/{
+                /define Package\/php8\/install/a\
+\t$(INSTALL_DIR) $(1)/etc/php8\n\t$(INSTALL_DIR) $(1)/usr/bin
+            }' "$PHP_MAKEFILE"
+            echo "已添加 PHP8 目录创建命令"
+        else
+            echo "PHP8 目录创建命令已存在"
+        fi
+    else
+        echo "未找到 php8 Makefile，跳过修复"
+    fi
+    
+    cd $PKG_PATH && echo "PHP8 目录修复完成!"
+fi
+# -----------------2025.11.15--在 handles.sh 文件末尾添加以上代码-------------： #
