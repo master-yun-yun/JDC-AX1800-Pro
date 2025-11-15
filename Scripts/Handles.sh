@@ -2,6 +2,23 @@
 
 PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 
+# ----------------- 新增：2025-11-15 - 安装 scripts/rstrip.sh 到 wrt/scripts（必须） -------------
+# 说明：
+#  - OpenWrt 打包阶段会调用 /mnt/build_wrt/scripts/rstrip.sh
+#  - 在 CI 中 ./wrt 被挂载为 /mnt/build_wrt，因此我们需要把仓库根的 scripts/rstrip.sh 复制到 ./wrt/scripts/rstrip.sh
+#  - 该复制必须在 make（Compile Firmware）之前完成；Handles.sh 在 Custom Packages 步骤运行，满足时序
+if [ -f "$GITHUB_WORKSPACE/scripts/rstrip.sh" ]; then
+    echo "安装 scripts/rstrip.sh 到 wrt/scripts/ ..."
+    mkdir -p "$GITHUB_WORKSPACE/wrt/scripts"
+    cp -f "$GITHUB_WORKSPACE/scripts/rstrip.sh" "$GITHUB_WORKSPACE/wrt/scripts/rstrip.sh"
+    chmod +x "$GITHUB_WORKSPACE/wrt/scripts/rstrip.sh"
+    echo "已安装: $GITHUB_WORKSPACE/wrt/scripts/rstrip.sh"
+else
+    echo "未找到仓库根 scripts/rstrip.sh，跳过安装（如果已在 wrt 中存在则无影响）"
+fi
+# ----------------- 新增结束 ----------------------------------------------------------------------
+
+
 #预置HomeProxy数据
 if [ -d *"homeproxy"* ]; then
 	echo " "
@@ -87,11 +104,9 @@ if [ -f "$DM_FILE" ]; then
 	cd $PKG_PATH && echo "diskman has been fixed!"
 fi
 
-# -----------------2025.11.15--在 handles.sh 文件末尾添加以下代码-------------： #
-
-# 修复 PHP8 目录缺失问题（防止编译失败）
-# 这个块会查找常见位置的 php8 Makefile（./php8/Makefile、../feeds/packages/lang/php8/Makefile 以及在 ../feeds 下查找）
-# 对每个找到的 Makefile：备份 -> 检查是否已包含 $(INSTALL_DIR) $(1)/etc/php8 -> 若没有则在 install 区块 endef 前插入创建目录的命令
+# -----------------2025.11.15--在 handles.sh 文件末尾添加以下代码（PHP8 目录修复）-------------： #
+# 新增：更稳健的 PHP8 目录缺失修复逻辑（会备份 Makefile 并在 install 区块插入目录创建命令）
+# 目的：避免在 ipkg 打包阶段由于 etc/php8 缺失导致的 "No such file or directory" 错误
 echo " "
 echo "尝试修复 PHP8 目录缺失问题...（搜索 php8 Makefile）"
 
@@ -127,7 +142,7 @@ else
         cp -a "$mk" "${mk}.bak" && echo "备份已保存为 ${mk}.bak"
 
         # 如果已存在创建 etc/php8 的命令，则跳过
-        if grep -q '\\$(INSTALL_DIR)[[:space:]]*\\$(1)\\/etc\\/php8' "$mk" 2>/dev/null || grep -q '\$(INSTALL_DIR)[[:space:]]*$(1)/etc/php8' "$mk" 2>/dev/null || grep -q '\$(INSTALL_DIR)[[:space:]]*$(1)\/etc\/php8' "$mk" 2>/dev/null; then
+        if grep -q '\$(INSTALL_DIR)[[:space:]]*$(1)/etc/php8' "$mk" 2>/dev/null || grep -q '\$(INSTALL_DIR)[[:space:]]*\$(1)/etc/php8' "$mk" 2>/dev/null || grep -q '\$(INSTALL_DIR)[[:space:]]*$(1)\/etc\/php8' "$mk" 2>/dev/null; then
             echo "PHP8 目录创建命令已存在于 $mk，跳过插入"
             continue
         fi
