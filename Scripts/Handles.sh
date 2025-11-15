@@ -90,45 +90,67 @@ fi
 # -----------------2025.11.15--在 handles.sh 文件末尾添加以下代码-------------： #
 
 # 修复 PHP8 目录缺失问题（防止编译失败）
-if [ -d "php8" ] || [ -f "../feeds/packages/lang/php8/Makefile" ]; then
-    echo " "
-    echo "修复 PHP8 目录缺失问题..."
-    
-    # 查找 php8 Makefile 的位置
-    PHP_MAKEFILE=""
-    if [ -f "php8/Makefile" ]; then
-        PHP_MAKEFILE="php8/Makefile"
-    elif [ -f "../feeds/packages/lang/php8/Makefile" ]; then
-        PHP_MAKEFILE="../feeds/packages/lang/php8/Makefile"
-    else
-        # 尝试通过 find 查找
-        PHP_MAKEFILE=$(find ../feeds/packages/ -name "php8" -type d 2>/dev/null | head -1)/Makefile
-        if [ ! -f "$PHP_MAKEFILE" ]; then
-            PHP_MAKEFILE=$(find . -name "php8" -type d 2>/dev/null | head -1)/Makefile
-        fi
-    fi
-    
-    if [ -f "$PHP_MAKEFILE" ]; then
-        echo "找到 php8 Makefile: $PHP_MAKEFILE"
-        
-        # 备份原文件
-        cp "$PHP_MAKEFILE" "${PHP_MAKEFILE}.bak"
-        
-        # 检查是否已经存在目录创建命令
-        if ! grep -q "\$(INSTALL_DIR).*\/etc\/php8" "$PHP_MAKEFILE"; then
-            # 在 install 部分添加目录创建命令
-            sed -i '/define Package\/php8\/install/,/endef/{
-                /define Package\/php8\/install/a\
-\t$(INSTALL_DIR) $(1)/etc/php8\n\t$(INSTALL_DIR) $(1)/usr/bin
-            }' "$PHP_MAKEFILE"
-            echo "已添加 PHP8 目录创建命令"
-        else
-            echo "PHP8 目录创建命令已存在"
-        fi
-    else
-        echo "未找到 php8 Makefile，跳过修复"
-    fi
-    
-    cd $PKG_PATH && echo "PHP8 目录修复完成!"
+# 这个块会查找常见位置的 php8 Makefile（./php8/Makefile、../feeds/packages/lang/php8/Makefile 以及在 ../feeds 下查找）
+# 对每个找到的 Makefile：备份 -> 检查是否已包含 $(INSTALL_DIR) $(1)/etc/php8 -> 若没有则在 install 区块 endef 前插入创建目录的命令
+echo " "
+echo "尝试修复 PHP8 目录缺失问题...（搜索 php8 Makefile）"
+
+# 收集可能的 php8 Makefile 列表
+PHP_MAKEFILES=""
+[ -f "./php8/Makefile" ] && PHP_MAKEFILES="$PHP_MAKEFILES ./php8/Makefile"
+[ -f "../feeds/packages/lang/php8/Makefile" ] && PHP_MAKEFILES="$PHP_MAKEFILES ../feeds/packages/lang/php8/Makefile"
+
+# 在 ../feeds 下查找 php8/Makefile（深度限制为 5，避免遍历过深）
+FOUND=$(find ../feeds -maxdepth 5 -type f -path "*/php8/Makefile" -print -quit 2>/dev/null)
+if [ -n "$FOUND" ]; then
+    PHP_MAKEFILES="$PHP_MAKEFILES $FOUND"
 fi
+
+# 如果没有找到任何 Makefile，则尝试再在仓库的其他位置查找一次
+if [ -z "$PHP_MAKEFILES" ]; then
+    FALLBACK=$(find . -maxdepth 6 -type f -path "*/php8/Makefile" -print -quit 2>/dev/null)
+    [ -n "$FALLBACK" ] && PHP_MAKEFILES="$FALLBACK"
+fi
+
+if [ -z "$PHP_MAKEFILES" ]; then
+    echo "未找到 php8 Makefile，跳过 PHP8 目录修复"
+else
+    for mk in $PHP_MAKEFILES; do
+        [ -z "$mk" ] && continue
+        if [ ! -f "$mk" ]; then
+            echo "文件不存在，跳过：$mk"
+            continue
+        fi
+
+        echo "处理 php8 Makefile: $mk"
+        # 备份
+        cp -a "$mk" "${mk}.bak" && echo "备份已保存为 ${mk}.bak"
+
+        # 如果已存在创建 etc/php8 的命令，则跳过
+        if grep -q '\\$(INSTALL_DIR)[[:space:]]*\\$(1)\\/etc\\/php8' "$mk" 2>/dev/null || grep -q '\$(INSTALL_DIR)[[:space:]]*$(1)/etc/php8' "$mk" 2>/dev/null || grep -q '\$(INSTALL_DIR)[[:space:]]*$(1)\/etc\/php8' "$mk" 2>/dev/null; then
+            echo "PHP8 目录创建命令已存在于 $mk，跳过插入"
+            continue
+        fi
+
+        # 使用 awk 在 define Package/php8/install ... endef 区块的 endef 前插入创建目录命令
+        awk '
+        BEGIN { in_install=0; inserted=0 }
+        /define[[:space:]]+Package\/php8\/install/ { print; in_install=1; next }
+        in_install && /^endef/ {
+            if (!inserted) {
+                print "\t$(INSTALL_DIR) $(1)/etc/php8"
+                print "\t$(INSTALL_DIR) $(1)/usr/bin"
+                inserted=1
+            }
+            print
+            in_install=0
+            next
+        }
+        { print }
+        ' "$mk" > "${mk}.tmp" && mv "${mk}.tmp" "$mk" && echo "已插入 PHP8 目录创建命令到 $mk"
+    done
+    echo "PHP8 目录修复完成（已对找到的 Makefile 做处理，备份为 *.bak）"
+fi
+
+cd $PKG_PATH && echo "PHP8 目录修复完成!"
 # -----------------2025.11.15--在 handles.sh 文件末尾添加以上代码-------------： #
