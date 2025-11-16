@@ -169,3 +169,11 @@ fi
 
 cd $PKG_PATH && echo "PHP8 目录修复完成!"
 # -----------------2025.11.15--在 handles.sh 文件末尾添加以上代码-------------： #
+# -----------------2025.11.16---------------------------------------------------#
+#移除luci-app-attendedsysupgrade概览页面
+ASU_FILE=$(find ../feeds/luci/applications/luci-app-attendedsysupgrade/ -type f -name "11_upgrades.js")
+if [ -f "$ASU_FILE" ]; then
+	echo " "
+	rm -rf $ASU_FILE
+	cd $PKG_PATH && echo "attendedsysupgrade has been fixed!"
+fi
