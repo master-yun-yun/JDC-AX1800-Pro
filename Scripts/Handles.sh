@@ -5,16 +5,27 @@ PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 # ----------------- 新增：2025-11-15 - 安装 scripts/rstrip.sh 到 wrt/scripts（必须） -------------
 # 说明：
 #  - OpenWrt 打包阶段会调用 /mnt/build_wrt/scripts/rstrip.sh
-#  - 在 CI 中 ./wrt 被挂载为 /mnt/build_wrt，因此我们需要把仓库根的 scripts/rstrip.sh 复制到 ./wrt/scripts/rstrip.sh
-#  - 该复制必须在 make（Compile Firmware）之前完成；Handles.sh 在 Custom Packages 步骤运行，满足时序
+#  - 在 CI 中 ./wrt 被挂载为 /mnt/build_wrt，因此我们需要把仓库中的 rstrip.sh 复制到 ./wrt/scripts/rstrip.sh
+#  - 修复点：支持在仓库中 Scripts/ 和 scripts/ 两个常见路径（大小写），并打印出拷贝来源以便日志验证
+RSRC=""
 if [ -f "$GITHUB_WORKSPACE/scripts/rstrip.sh" ]; then
-    echo "安装 scripts/rstrip.sh 到 wrt/scripts/ ..."
+    RSRC="$GITHUB_WORKSPACE/scripts/rstrip.sh"
+elif [ -f "$GITHUB_WORKSPACE/Scripts/rstrip.sh" ]; then
+    RSRC="$GITHUB_WORKSPACE/Scripts/rstrip.sh"
+else
+    # 兜底查找：仓库任意位置查找 rstrip.sh（只取第一个匹配）
+    FOUND=$(find "$GITHUB_WORKSPACE" -maxdepth 3 -type f -iname "rstrip.sh" -print -quit 2>/dev/null)
+    [ -n "$FOUND" ] && RSRC="$FOUND"
+fi
+
+if [ -n "$RSRC" ] && [ -f "$RSRC" ]; then
+    echo "安装 scripts/rstrip.sh 到 wrt/scripts/，来源：$RSRC"
     mkdir -p "$GITHUB_WORKSPACE/wrt/scripts"
-    cp -f "$GITHUB_WORKSPACE/scripts/rstrip.sh" "$GITHUB_WORKSPACE/wrt/scripts/rstrip.sh"
+    cp -f "$RSRC" "$GITHUB_WORKSPACE/wrt/scripts/rstrip.sh"
     chmod +x "$GITHUB_WORKSPACE/wrt/scripts/rstrip.sh"
     echo "已安装: $GITHUB_WORKSPACE/wrt/scripts/rstrip.sh"
 else
-    echo "未找到仓库根 scripts/rstrip.sh，跳过安装（如果已在 wrt 中存在则无影响）"
+    echo "未找到仓库中的 rstrip.sh，跳过安装（如果 wrt/scripts 中已有脚本则无影响）"
 fi
 # ----------------- 新增结束 ----------------------------------------------------------------------
 
