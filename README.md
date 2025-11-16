@@ -17,6 +17,11 @@ https://github.com/VIKINGYFY/immortalwrt.git
 固件信息里的时间为编译开始的时间，方便核对上游源码提交时间。
 
 MEDIATEK系列（不编译）、QUALCOMMAX系列（仅编译RE-SS-01-亚瑟-wifi、RE-CS-02-雅典娜-wifi）、ROCKCHIP系列（不编译）、X86系列。
+# U-BOOT
+高通版：
+https://github.com/chenxin527/uboot-ipq60xx-emmc-build
+联发科版：
+https://drive.wrt.moe/uboot/mediatek
 
 # 目录简要说明：
 
