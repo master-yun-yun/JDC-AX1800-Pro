@@ -61,7 +61,7 @@ UPDATE_PACKAGE() {
 #UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-24.10"
 UPDATE_PACKAGE "luci-theme-argon" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "theme-kucat" "sirpdboy/luci-theme-kucat" "master"
-UPDATE_PACKAGE "luci-app-kucat" "sirpdboy/luci-app-kucat-config" "main"
+UPDATE_PACKAGE "luci-app-kucat" "sirpdboy/luci-app-kucat-config" "master"
 
 UPDATE_PACKAGE "homeproxy" "VIKINGYFY/homeproxy" "main"
 UPDATE_PACKAGE "momo" "nikkinikki-org/OpenWrt-momo" "main"
