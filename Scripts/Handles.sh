@@ -2,34 +2,6 @@
 
 PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 
-# ----------------- 新增：2025-11-15 - 安装 scripts/rstrip.sh 到 wrt/scripts（必须） -------------
-# 说明：
-#  - OpenWrt 打包阶段会调用 /mnt/build_wrt/scripts/rstrip.sh
-#  - 在 CI 中 ./wrt 被挂载为 /mnt/build_wrt，因此我们需要把仓库中的 rstrip.sh 复制到 ./wrt/scripts/rstrip.sh
-#  - 修复点：支持在仓库中 Scripts/ 和 scripts/ 两个常见路径（大小写），并打印出拷贝来源以便日志验证
-RSRC=""
-if [ -f "$GITHUB_WORKSPACE/scripts/rstrip.sh" ]; then
-    RSRC="$GITHUB_WORKSPACE/scripts/rstrip.sh"
-elif [ -f "$GITHUB_WORKSPACE/Scripts/rstrip.sh" ]; then
-    RSRC="$GITHUB_WORKSPACE/Scripts/rstrip.sh"
-else
-    # 兜底查找：仓库任意位置查找 rstrip.sh（只取第一个匹配）
-    FOUND=$(find "$GITHUB_WORKSPACE" -maxdepth 3 -type f -iname "rstrip.sh" -print -quit 2>/dev/null)
-    [ -n "$FOUND" ] && RSRC="$FOUND"
-fi
-
-if [ -n "$RSRC" ] && [ -f "$RSRC" ]; then
-    echo "安装 scripts/rstrip.sh 到 wrt/scripts/，来源：$RSRC"
-    mkdir -p "$GITHUB_WORKSPACE/wrt/scripts"
-    cp -f "$RSRC" "$GITHUB_WORKSPACE/wrt/scripts/rstrip.sh"
-    chmod +x "$GITHUB_WORKSPACE/wrt/scripts/rstrip.sh"
-    echo "已安装: $GITHUB_WORKSPACE/wrt/scripts/rstrip.sh"
-else
-    echo "未找到仓库中的 rstrip.sh，跳过安装（如果 wrt/scripts 中已有脚本则无影响）"
-fi
-# ----------------- 新增结束 ----------------------------------------------------------------------
-
-
 #预置HomeProxy数据
 if [ -d *"homeproxy"* ]; then
 	echo " "
@@ -114,69 +86,3 @@ if [ -f "$DM_FILE" ]; then
 
 	cd $PKG_PATH && echo "diskman has been fixed!"
 fi
-
-# -----------------2025.11.15--在 handles.sh 文件末尾添加以下代码（PHP8 目录修复）-------------： #
-# 新增：更稳健的 PHP8 目录缺失修复逻辑（会备份 Makefile 并在 install 区块插入目录创建命令）
-# 目的：避免在 ipkg 打包阶段由于 etc/php8 缺失导致的 "No such file or directory" 错误
-echo " "
-echo "尝试修复 PHP8 目录缺失问题...（搜索 php8 Makefile）"
-
-# 收集可能的 php8 Makefile 列表
-PHP_MAKEFILES=""
-[ -f "./php8/Makefile" ] && PHP_MAKEFILES="$PHP_MAKEFILES ./php8/Makefile"
-[ -f "../feeds/packages/lang/php8/Makefile" ] && PHP_MAKEFILES="$PHP_MAKEFILES ../feeds/packages/lang/php8/Makefile"
-
-# 在 ../feeds 下查找 php8/Makefile（深度限制为 5，避免遍历过深）
-FOUND=$(find ../feeds -maxdepth 5 -type f -path "*/php8/Makefile" -print -quit 2>/dev/null)
-if [ -n "$FOUND" ]; then
-    PHP_MAKEFILES="$PHP_MAKEFILES $FOUND"
-fi
-
-# 如果没有找到任何 Makefile，则尝试再在仓库的其他位置查找一次
-if [ -z "$PHP_MAKEFILES" ]; then
-    FALLBACK=$(find . -maxdepth 6 -type f -path "*/php8/Makefile" -print -quit 2>/dev/null)
-    [ -n "$FALLBACK" ] && PHP_MAKEFILES="$FALLBACK"
-fi
-
-if [ -z "$PHP_MAKEFILES" ]; then
-    echo "未找到 php8 Makefile，跳过 PHP8 目录修复"
-else
-    for mk in $PHP_MAKEFILES; do
-        [ -z "$mk" ] && continue
-        if [ ! -f "$mk" ]; then
-            echo "文件不存在，跳过：$mk"
-            continue
-        fi
-
-        echo "处理 php8 Makefile: $mk"
-        # 备份
-        cp -a "$mk" "${mk}.bak" && echo "备份已保存为 ${mk}.bak"
-
-        # 如果已存在创建 etc/php8 的命令，则跳过
-        if grep -q '\$(INSTALL_DIR)[[:space:]]*$(1)/etc/php8' "$mk" 2>/dev/null || grep -q '\$(INSTALL_DIR)[[:space:]]*\$(1)/etc/php8' "$mk" 2>/dev/null || grep -q '\$(INSTALL_DIR)[[:space:]]*$(1)\/etc\/php8' "$mk" 2>/dev/null; then
-            echo "PHP8 目录创建命令已存在于 $mk，跳过插入"
-            continue
-        fi
-
-        # 使用 awk 在 define Package/php8/install ... endef 区块的 endef 前插入创建目录命令
-        awk '
-        BEGIN { in_install=0; inserted=0 }
-        /define[[:space:]]+Package\/php8\/install/ { print; in_install=1; next }
-        in_install && /^endef/ {
-            if (!inserted) {
-                print "\t$(INSTALL_DIR) $(1)/etc/php8"
-                print "\t$(INSTALL_DIR) $(1)/usr/bin"
-                inserted=1
-            }
-            print
-            in_install=0
-            next
-        }
-        { print }
-        ' "$mk" > "${mk}.tmp" && mv "${mk}.tmp" "$mk" && echo "已插入 PHP8 目录创建命令到 $mk"
-    done
-    echo "PHP8 目录修复完成（已对找到的 Makefile 做处理，备份为 *.bak）"
-fi
-
-cd $PKG_PATH && echo "PHP8 目录修复完成!"
-# -----------------2025.11.15--在 handles.sh 文件末尾添加以上代码-------------： #
