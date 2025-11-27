@@ -403,19 +403,19 @@ CONFIG_PACKAGE_open-app-filter=y
 
 # ---------------以下2025.11.23--增加--------------- #
 # 事件循环处理
-#CONFIG_PACKAGE_libev=y
+CONFIG_PACKAGE_libev=y
 # 传感器数据读取
-#CONFIG_PACKAGE_lm-sensors=y
+CONFIG_PACKAGE_lm-sensors=y
 # 用户认证管理
-#CONFIG_PACKAGE_libpam=y
+CONFIG_PACKAGE_libpam=y
 # 网络设备监控
-#CONFIG_PACKAGE_libnetsnmp=y
+CONFIG_PACKAGE_libnetsnmp=y
 # GPIO 引脚控制
-#CONFIG_PACKAGE_libgpiod=y
+CONFIG_PACKAGE_libgpiod=y
 # 核心工具函数
-#CONFIG_PACKAGE_glib2=y
+CONFIG_PACKAGE_glib2=y
 # CSS 压缩优化
-#CONFIG_PACKAGE_csstidy=y
+CONFIG_PACKAGE_csstidy=y
 # Lua 代码压缩
-#CONFIG_PACKAGE_luasrcdiet=y
+CONFIG_PACKAGE_luasrcdiet=y
 # ---------------以上2025.11.23--增加--------------- #
