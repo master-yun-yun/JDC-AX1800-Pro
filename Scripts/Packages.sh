@@ -51,6 +51,7 @@ UPDATE_PACKAGE() {
   	  # 原逻辑：直接重命名仓库目录（适用于插件与仓库同名的情况）
   	  mv -f $REPO_NAME $PKG_NAME
 	fi
+}
 
 
 # UPDATE_PACKAGE "包名" "项目地址" "项目分支" "pkg/name，可选，pkg为从大杂烩中单独提取包名插件；name为重命名为包名"
