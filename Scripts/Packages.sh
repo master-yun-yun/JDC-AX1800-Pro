@@ -51,11 +51,7 @@ UPDATE_PACKAGE() {
   	  # 原逻辑：直接重命名仓库目录（适用于插件与仓库同名的情况）
   	  mv -f $REPO_NAME $PKG_NAME
 	fi
-}
 
-# 调用示例
-# UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "" "custom_name1 custom_name2"
-# UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "" "luci-app-appfilter oaf" 这样会把原有的open-app-filter，luci-app-appfilter，oaf相关组件删除，不会出现coremark错误。
 
 # UPDATE_PACKAGE "包名" "项目地址" "项目分支" "pkg/name，可选，pkg为从大杂烩中单独提取包名插件；name为重命名为包名"
 #UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-24.10"
@@ -228,11 +224,6 @@ UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "quectel-CM-5G" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "quectel_cm_5G" "kiddin9/kwrt-packages" "main" "pkg"
 
-# --------以下2025.10.20-应用过滤----------- #
-UPDATE_PACKAGE "open-app-filter" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "oaf" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "luci-app-oaf" "kiddin9/kwrt-packages" "main" "pkg"
-# --------以上2025.10.20-应用过滤----------- #
 
 # 原高级设置升级版本
 UPDATE_PACKAGE "luci-app-advancedplus" "sirpdboy/luci-app-advancedplus" "main"
@@ -248,3 +239,5 @@ if [ -d "luci-app-athena-led" ]; then
     echo "Added execute permissions for athena_led files."
 fi
 #-------------------2025.05.31-测试-----------------#
+rm -rf feeds/packages/net/open-app-filter
+git clone --depth=1 https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
