@@ -228,6 +228,8 @@ UPDATE_PACKAGE "quectel_cm_5G" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "oaf" "kenzok8/small-package" "main" "pkg"
 UPDATE_PACKAGE "open-app-filter" "kenzok8/small-package" "main" "pkg"
 UPDATE_PACKAGE "luci-app-oaf" "kenzok8/small-package" "main" "pkg"
+UPDATE_PACKAGE "luci-app-adguardhome" "kenzok8/small-package" "main" "pkg"
+UPDATE_PACKAGE "adguardhome" "kenzok8/small-package" "main" "pkg"
 
 
 # 原高级设置升级版本
@@ -244,5 +246,3 @@ if [ -d "luci-app-athena-led" ]; then
     echo "Added execute permissions for athena_led files."
 fi
 #-------------------2025.05.31-测试-----------------#
-rm -rf feeds/packages/net/open-app-filter
-git clone --depth=1 https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
