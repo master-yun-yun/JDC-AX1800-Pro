@@ -83,6 +83,8 @@ UPDATE_PACKAGE "qmodem" "FUjr/QModem" "main"
 UPDATE_PACKAGE "quickfile" "sbwml/luci-app-quickfile" "main"
 UPDATE_PACKAGE "viking" "VIKINGYFY/packages" "main" "" "luci-app-timewol luci-app-wolplus"
 UPDATE_PACKAGE "vnt" "lmq8267/luci-app-vnt" "main"
+UPDATE_PACKAGE "luci-app-adguardhome" "kenzok8/small-package" "main" "pkg"
+UPDATE_PACKAGE "adguardhome" "kenzok8/small-package" "main" "pkg"
 
 #更新软件包版本
 UPDATE_VERSION() {
@@ -228,8 +230,6 @@ UPDATE_PACKAGE "quectel_cm_5G" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "oaf" "kenzok8/small-package" "main" "pkg"
 UPDATE_PACKAGE "open-app-filter" "kenzok8/small-package" "main" "pkg"
 UPDATE_PACKAGE "luci-app-oaf" "kenzok8/small-package" "main" "pkg"
-UPDATE_PACKAGE "luci-app-adguardhome" "kenzok8/small-package" "main" "pkg"
-UPDATE_PACKAGE "adguardhome" "kenzok8/small-package" "main" "pkg"
 
 
 # 原高级设置升级版本
