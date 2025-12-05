@@ -140,7 +140,7 @@ CONFIG_PACKAGE_kmod-usb-xhci=y
 # 支持 WireGuard VPN
 CONFIG_PACKAGE_kmod-wireguard=y
 # 支持基于 MHI（Multi-Host Interface）总线的 WWAN（Wireless Wide Area Network，无线广域网）设备
-CONFIG_PACKAGE_kmod-mhi-wwan=y
+CONFIG_PACKAGE_kmod-mhi-wwan=n
 
 # =================组件调整======================= #
 # 功能：提供 OpenWrt 核心自动化脚本（如设备信息检测、系统初始化）。作用：确保系统基础功能正常运行（如自动检测硬件信息）。
