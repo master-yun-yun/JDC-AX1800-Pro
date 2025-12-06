@@ -1,6 +1,6 @@
 # 科学插件调整
 CONFIG_PACKAGE_luci-app-homeproxy=y
-CONFIG_PACKAGE_luci-app-openclash=y
+CONFIG_PACKAGE_luci-app-openclash=n
 # 增加插件 设置路由器的定时自动重启
 CONFIG_PACKAGE_luci-app-autoreboot=y
 
