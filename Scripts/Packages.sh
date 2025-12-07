@@ -229,12 +229,12 @@ UPDATE_PACKAGE "quectel-CM-5G" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "quectel_cm_5G" "kiddin9/kwrt-packages" "main" "pkg"
 
 # --------以下2025.10.20-应用过滤----------- #
-#UPDATE_PACKAGE "open-app-filter" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "oaf" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "luci-app-oaf" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "open-app-filter" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "oaf" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-oaf" "kiddin9/kwrt-packages" "main" "pkg"
 #UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master"
 #UPDATE_PACKAGE "oaf" "destan19/OpenAppFilter" "master"
-UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "open-app-filter oaf luci-app-oaf"
+#UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "open-app-filter oaf luci-app-oaf"
 # --------以上2025.10.20-应用过滤----------- #
 
 # 原高级设置升级版本
