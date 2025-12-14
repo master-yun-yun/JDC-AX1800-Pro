@@ -1,14 +1,13 @@
 # 科学插件调整
 CONFIG_PACKAGE_luci-app-homeproxy=y
-CONFIG_PACKAGE_luci-app-openclash=n
+CONFIG_PACKAGE_luci-app-openclash=y
 # 增加插件 设置路由器的定时自动重启
 CONFIG_PACKAGE_luci-app-autoreboot=y
 
 # 集客无线AC控制器
-#CONFIG_PACKAGE_luci-app-gecoosac=y
+CONFIG_PACKAGE_luci-app-gecoosac=y
 
-# 网络测速插件，支持内网网页测速（基于 homebox）、内网 iperf3 吞吐测试、外网 speedtest.net 测速（基于 speedtest-cli），以及特定服务器的端口延迟测试 
-CONFIG_PACKAGE_luci-app-netspeedtest=y
+
 
 # 分区扩容与挂载 （在自定义）
 CONFIG_PACKAGE_luci-app-partexp=y
@@ -16,17 +15,11 @@ CONFIG_PACKAGE_luci-app-partexp=y
 # samba4文件共享
 CONFIG_PACKAGE_luci-app-samba4=y
 
-# 虚拟组网tailscale
-CONFIG_PACKAGE_luci-app-tailscale=y
+
 
 # 通用即插即用（在自定义）
 CONFIG_PACKAGE_luci-app-upnp=y
 
-# 网络唤醒支持 Wake-on-LAN
-CONFIG_PACKAGE_luci-app-wolplus=y
-
-# 删除插件 --- 网络唤醒
-CONFIG_PACKAGE_luci-app-wol=n
 
 # 参数调整
 # 启用 编译缓存工具 ccache
@@ -153,8 +146,6 @@ CONFIG_PACKAGE_blkid=y
 CONFIG_PACKAGE_cfdisk=y
 # cgdisk 是 cfdisk 的 GPT（GUID Partition Table）版本，支持 大容量磁盘（>2TB）。
 CONFIG_PACKAGE_cgdisk=y
-# 运行 CoreMark 基准测试工具。作用：评估 CPU 性能（常用于性能对比测试）。
-CONFIG_PACKAGE_coremark=y
 # 提供 CPU 频率调整工具（如 cpufreq-set）。作用：动态调整 CPU 频率以优化功耗或性能。
 CONFIG_PACKAGE_cpufreq=y
 # 查看内核环形缓冲区日志（系统启动/硬件事件记录）。作用：排查硬件问题或内核错误（如 USB 设备识别失败）。
@@ -214,45 +205,24 @@ CONFIG_PACKAGE_kmod-zram=y
 CONFIG_PACKAGE_zram-swap=y
 
 # 依赖插件及组件
-CONFIG_PACKAGE_fuse-utils=y
-CONFIG_PACKAGE_fuse3-utils=y
-CONFIG_PACKAGE_libfuse1=y
-CONFIG_PACKAGE_libfuse3-3=y
 
-# 动态域名解析
-#CONFIG_PACKAGE_luci-app-ddns=y
-CONFIG_PACKAGE_luci-app-ddns-go=n
-
-# 微力同步
-CONFIG_PACKAGE_verysync=n
-CONFIG_PACKAGE_luci-app-verysync=n
 
 #补全linux系统管理指令
 CONFIG_PACKAGE_sudo=y
 
 # DDNS依赖
-CONFIG_PACKAGE_drill=y
 
-# luci-app-openvpn-server服务器
-#CONFIG_PACKAGE_openvpn-easy-rsa=y
-#CONFIG_PACKAGE_openssl-util=y
-#CONFIG_PACKAGE_openvpn-openssl=y
-#CONFIG_PACKAGE_libcap-ng=y
-#CONFIG_PACKAGE_liblz4-1=y
-#CONFIG_PACKAGE_liblzo2=y
-CONFIG_PACKAGE_luci-app-openvpn-server=y
+
+
 
 # FTP服务器
 CONFIG_PACKAGE_luci-app-vsftpd=y
 
-# 微信通知推送
-CONFIG_PACKAGE_luci-app-wechatpush=y
+
 
 # IPTV组播转换
 CONFIG_PACKAGE_luci-app-msd_lite=y
 
-# IPTV组播代理
-CONFIG_PACKAGE_luci-app-omcproxy=y
 
 # web服务器
 CONFIG_PACKAGE_luci-app-uhttpd=y
@@ -260,8 +230,7 @@ CONFIG_PACKAGE_luci-app-uhttpd=y
 # 网页版终端命令行
 CONFIG_PACKAGE_luci-app-ttyd=y
 
-# 全能推送PushBot
-CONFIG_PACKAGE_luci-app-pushbot=y
+# 
 
 # 关机poweroff
 CONFIG_PACKAGE_luci-app-poweroff=y
@@ -275,33 +244,19 @@ CONFIG_PACKAGE_luci-theme-edge=y
 # 文件浏览器filebrowser-go
 CONFIG_PACKAGE_luci-app-filebrowser-go=y
 
-# 多端网盘挂载alist
-#CONFIG_PACKAGE_luci-app-alist=y
-#CONFIG_PACKAGE_luci-app-openlist=y
-CONFIG_PACKAGE_luci-app-openlist2=y
+
 
 # php8
 CONFIG_PACKAGE_php8=y
 CONFIG_PACKAGE_php8-cgi=y
 CONFIG_PACKAGE_php8-mod-curl=y
 
-# Wi-Fi定时开关
-CONFIG_PACKAGE_luci-app-wifischedule=y
-
-# 阿里云盘webdav
-#CONFIG_PACKAGE_luci-app-aliyundrive-webdav=y
 
 # docker
 CONFIG_PACKAGE_luci-app-dockerman=y
 
-# KMS服务器
-#CONFIG_PACKAGE_luci-app-vlmcsd=y
 
-# ZeroTier内网穿透
-CONFIG_PACKAGE_luci-app-zerotier=y
 
-# 访问时间控制
-#CONFIG_PACKAGE_luci-app-accesscontrol=y
 
 # 通用即插即用UPnP（端口自动转发）
 CONFIG_PACKAGE_luci-app-upnp=y
@@ -315,44 +270,21 @@ CONFIG_PACKAGE_luci-app-ksmbd=m
 # argon主题配置
 #CONFIG_PACKAGE_luci-app-argon-config=y
 
-# 端口转发socat
-#CONFIG_PACKAGE_socat=y
-#CONFIG_PACKAGE_luci-app-socat=y
 
 # 磁盘管理-diskman
 CONFIG_PACKAGE_luci-app-diskman=y
 
-# timecontrol 上网时间控制插件 - 自适应FW3/FW4防火墙，支持IPv4/IPv6。改自Lienol原版luci-app-timecontrol FW3版本
-#CONFIG_PACKAGE_luci-app-timecontrol=y
-
-# timecontrol 上网时间控制插件 - 上网时间控制NFT版2.0.2版==专门针对24.10分支，适配NFT的上网时间控制插件。
-CONFIG_PACKAGE_luci-app-nft-timecontrol=y
-
-# luci-app-taskplan 任务设置2.0版
-CONFIG_PACKAGE_luci-app-taskplan=y
 
 #-----------以上为自行增加的插件及组件-------------#
 
 #-------------------2025.04.12-测试-----------------#
 
-# clouddrive2云盘挂载
-#CONFIG_PACKAGE_luci-app-clouddrive2=y
 
-# istore增强
-CONFIG_PACKAGE_istoreenhance=n
-CONFIG_PACKAGE_luci-app-istoreenhance=n
-
-# 易有云文件管理器
-CONFIG_PACKAGE_linkmount=y
-CONFIG_PACKAGE_linkease=y
-CONFIG_PACKAGE_luci-app-linkease=y
 
 # 快速设置
 CONFIG_PACKAGE_quickstart=y
 CONFIG_PACKAGE_luci-app-quickstart=y
 
-# istore商店
-CONFIG_PACKAGE_luci-app-store=y
 
 # 通用共享
 CONFIG_PACKAGE_samba4-server=y
@@ -360,26 +292,13 @@ CONFIG_PACKAGE_webdav2=y
 CONFIG_PACKAGE_unishare=y
 CONFIG_PACKAGE_luci-app-unishare=y
 
-# kms vlmcsd服务器
-CONFIG_PACKAGE_openssl=y
-CONFIG_PACKAGE_libopenssl=y
-CONFIG_PACKAGE_libcrypto=y
-CONFIG_PACKAGE_vlmcsd=y
-CONFIG_PACKAGE_luci-app-vlmcsd=y
 
-# sunpanel NAS导航面板
-CONFIG_PACKAGE_sunpanel=n
-CONFIG_PACKAGE_luci-app-sunpanel=n
 
-# memos 随手记
-CONFIG_PACKAGE_luci-app-memos=n
 
 # 主题界面luci-theme-kucat
 CONFIG_PACKAGE_luci-theme-kucat=y
 CONFIG_PACKAGE_luci-app-kucat=y
 
-# luci-app-advancedplus 新版进价设置，集成酷猫主题，可以编译保存系统、网络、防火墙、DHCP、家长控制、网络唤醒、端口转发、DDNS-GO、SMARTDNS、BYPASS、OPENCLASH、NGINX、DNSMASQ、DDNS等10多个常用功能的配置文件。
-CONFIG_PACKAGE_luci-app-advancedplus=n
 
 # quickfile 文件管理器
 #CONFIG_PACKAGE_luci-app-quickfile=y
@@ -394,8 +313,7 @@ CONFIG_PACKAGE_ntfs3-mount=n
 CONFIG_PACKAGE_kmod-fs-ntfs3=y
 
 #-------------------2025.07.07-测试-----------------#
-#-------------------2025.11.16-删除插件-------------#
-CONFIG_PACKAGE_luci-app-attendedsysupgrade=n
+#-------------------2025.11.16-删除
 # 应用过滤----2025.10.20---- #
 CONFIG_PACKAGE_luci-app-oaf=y
 CONFIG_PACKAGE_oaf=y
