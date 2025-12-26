@@ -305,7 +305,7 @@ CONFIG_PACKAGE_ntfs-3g=n
 CONFIG_PACKAGE_ntfs3-mount=n
 
 # 内核级驱动，性能高	功能较少（如不支持加密/压缩）	需要高性能读写 NTFS------------2025.07.10------------#
-CONFIG_PACKAGE_kmod-fs-ntfs33=y
+CONFIG_PACKAGE_kmod-fs-ntfs3=y
 
 #-------------------2025.07.07-测试-----------------#
 #-------------------2025.11.16-删除
