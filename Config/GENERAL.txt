@@ -267,7 +267,7 @@ CONFIG_PACKAGE_luci-app-ksmbd=m
 
 
 # 磁盘管理-diskman
-CONFIG_PACKAGE_luci-app-diskman=y
+
 
 
 #-----------以上为自行增加的插件及组件-------------#
