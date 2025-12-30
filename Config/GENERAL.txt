@@ -165,10 +165,10 @@ CONFIG_PACKAGE_fdisk=y
 CONFIG_PACKAGE_gdisk=y
 # 交互式进程监控工具（比 top 更直观）。作用：实时查看系统资源占用（如 CPU、内存）。
 CONFIG_PACKAGE_htop=y
-# 网络带宽测试工具。作用：测量网络吞吐量（如 WAN/LAN 速度测试）。
-CONFIG_PACKAGE_iperf3=y
 # 完整的 ip 命令工具集（比 iproute2 更强大）。作用：管理网络接口、路由表、ARP 等。
 CONFIG_PACKAGE_ip-full=y
+# 网络带宽测试工具。作用：测量网络吞吐量（如 WAN/LAN 速度测试）。
+CONFIG_PACKAGE_iperf3=y
 # iOS 设备通信库（支持 iPhone 文件传输）。作用：通过 USB 管理 iPhone（如备份文件）。
 CONFIG_PACKAGE_libimobiledevice=y
 # 列出块设备信息（如分区结构、挂载点）。作用：快速查看存储设备状态。
@@ -203,6 +203,8 @@ CONFIG_PACKAGE_proto-bonding=y
 CONFIG_PACKAGE_sfdisk=y
 # GPT 分区的脚本化工具（支持大容量磁盘）。作用：自动化 GPT 分区管理（如 NAS 扩容）。
 CONFIG_PACKAGE_sgdisk=y
+# 设备USB模式切换的工具
+CONFIG_PACKAGE_usb-modeswitch=y
 # 功能：USBmuxd 守护进程（iOS 设备通信基础）。作用：支持 iPhone USB 通信（依赖 libimobiledevice）。 
 #CONFIG_PACKAGE_usbmuxd=y
 # USB 设备管理工具（如 lsusb）。作用：查看连接的 USB 设备信息。
