@@ -286,6 +286,14 @@ CONFIG_PACKAGE_luci-app-openlist2=y
 CONFIG_PACKAGE_php8=y
 CONFIG_PACKAGE_php8-cgi=y
 CONFIG_PACKAGE_php8-mod-curl=y
+# PHP8 intl扩展支持（需要ICU库）
+CONFIG_PACKAGE_php8-mod-intl=y
+# php-ICU库依赖
+CONFIG_PACKAGE_libicu=y
+CONFIG_LIBICU_ICU_TRANSITION=y
+CONFIG_LIBICU_ICU_I18N=y
+CONFIG_LIBICU_ICU_IO=y
+CONFIG_LIBICU_ICU_UC=y
 
 # Wi-Fi定时开关
 CONFIG_PACKAGE_luci-app-wifischedule=y
