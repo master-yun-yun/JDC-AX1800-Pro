@@ -203,6 +203,9 @@ UPDATE_PACKAGE "luci-app-quickstart" "kiddin9/kwrt-packages" "main" "pkg"
 
 # istore商店
 #UPDATE_PACKAGE "luci-app-store" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+UPDATE_PACKAGE "luci-lib-xterm" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "taskd" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-lib-taskd" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-store" "kiddin9/kwrt-packages" "main" "pkg"
 
 # 统一文件共享
