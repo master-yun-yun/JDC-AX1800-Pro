@@ -204,25 +204,22 @@ jobs:
         run: |
           cd ./wrt/
 
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-          #--------2025.07.10-------------------------------------------------------------#
-          ./scripts/feeds install python3-netifaces
-          # --------2026.001.03----在Update Feeds步骤中添加iStore-------------------------#
+          # 添加istore官方源
           echo 'src-git istore https://github.com/linkease/istore;main' >> feeds.conf.default
           echo 'src-git nas https://github.com/linkease/nas-packages.git;master' >> feeds.conf.default
           echo 'src-git nas_luci https://github.com/linkease/nas-packages-luci.git;main' >> feeds.conf.default
           
-          ./scripts/feeds update istore nas nas_luci
+          # 更新所有源
+          ./scripts/feeds update -a
+          
+          # 安装istore特定包
           ./scripts/feeds install -d y -p istore luci-app-store
-          ./scripts/feeds install -d y -p nas quickstart
-          ./scripts/feeds install -d y -p nas_luci luci-app-quickstore
-          ./scripts/feeds install -d y -p nas unishare
-          ./scripts/feeds install -d y -p nas_luci luci-app-unishare
-          ./scripts/feeds install -d y -p nas linkease
-          ./scripts/feeds install -d y -p nas_luci luci-app-linkease
-          ./scripts/feeds install -d y -p nas istoreenhance
-          ./scripts/feeds install -d y -p nas_luci luci-app-istoreenhance
+          ./scripts/feeds install -d y -p nas quickstart linkease unishare istoreenhance
+          ./scripts/feeds install -d y -p nas_luci luci-app-quickstart luci-app-linkease luci-app-unishare luci-app-istoreenhance
+          
+          # 安装其他依赖
+          ./scripts/feeds install -a
+          ./scripts/feeds install python3-netifaces
 
 # ================= 以下vlmcsd编译修复补丁 2025.07.28 ================= #
       - name: Apply vlmcsd Patch
