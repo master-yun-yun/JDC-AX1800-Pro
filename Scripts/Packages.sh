@@ -194,13 +194,16 @@ UPDATE_PACKAGE "linkease" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 UPDATE_PACKAGE "luci-app-linkease" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 
 # istore首页及网络向导
-UPDATE_PACKAGE "quickstart" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
-UPDATE_PACKAGE "luci-app-quickstart" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+#UPDATE_PACKAGE "quickstart" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+#UPDATE_PACKAGE "luci-app-quickstart" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 #UPDATE_PACKAGE "quickstart" "master-yun-yun/package-istore" "Immortalwrt" "pkg"
 #UPDATE_PACKAGE "luci-app-quickstart" "master-yun-yun/package-istore" "Immortalwrt" "pkg"
+UPDATE_PACKAGE "quickstart" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-quickstart" "kiddin9/kwrt-packages" "main" "pkg"
 
 # istore商店
-UPDATE_PACKAGE "luci-app-store" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+#UPDATE_PACKAGE "luci-app-store" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
+UPDATE_PACKAGE "luci-app-store" "kiddin9/kwrt-packages" "main" "pkg"
 
 # 统一文件共享
 UPDATE_PACKAGE "webdav2" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
