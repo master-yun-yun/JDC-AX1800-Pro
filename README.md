@@ -3,9 +3,11 @@
 # 固件已切换到6.12内核。
 # OpenWRT-CI
 官方版：
+
 https://github.com/immortalwrt/immortalwrt.git
 
 高通版：
+
 https://github.com/VIKINGYFY/immortalwrt.git
 
 # 固件简要说明：
@@ -17,6 +19,7 @@ https://github.com/VIKINGYFY/immortalwrt.git
 MEDIATEK系列（不编译）、QUALCOMMAX系列（仅编译RE-SS-01-亚瑟-wifi、RE-CS-02-雅典娜-wifi）、ROCKCHIP系列（不编译）、X86系列。
 # U-BOOT
 高通版：
+
 https://github.com/chenxin527/uboot-ipq60xx-emmc-build
 
 https://github.com/chenxin527/uboot-ipq60xx-nand-build
@@ -24,6 +27,7 @@ https://github.com/chenxin527/uboot-ipq60xx-nand-build
 https://github.com/chenxin527/uboot-ipq60xx-nor-build
 
 联发科版：
+
 https://drive.wrt.moe/uboot/mediatek
 
 # 目录简要说明：
