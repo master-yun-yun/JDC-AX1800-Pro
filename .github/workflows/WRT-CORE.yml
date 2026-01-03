@@ -208,6 +208,10 @@ jobs:
           ./scripts/feeds install -a
           #--------2025.07.10-------------------------------------------------------------#
           ./scripts/feeds install python3-netifaces
+          # --------2026.001.03----在Update Feeds步骤中添加iStore-------------------------#
+          echo 'src-git istore https://github.com/linkease/istore;main' >> feeds.conf.default
+          ./scripts/feeds update istore
+          ./scripts/feeds install -d y -p istore luci-app-store
 
 # ================= 以下vlmcsd编译修复补丁 2025.07.28 ================= #
       - name: Apply vlmcsd Patch
