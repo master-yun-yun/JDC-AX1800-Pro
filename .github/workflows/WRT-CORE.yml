@@ -6,40 +6,40 @@ on:
     inputs:
       WRT_CONFIG:
         required: true
-        type: string
+        输入: string
       WRT_THEME:
         required: true
-        type: string
+        输入: string
       WRT_NAME:
         required: true
-        type: string
+        输入: string
       WRT_SSID:
         required: true
-        type: string
+        输入: string
       WRT_WORD:
         required: true
-        type: string
+        输入: string
       WRT_IP:
         required: true
-        type: string
+        输入: string
       WRT_PW:
         required: true
-        type: string
+        输入: string
       WRT_REPO:
         required: true
-        type: string
+        输入: string
       WRT_BRANCH:
         required: true
-        type: string
+        输入: string
       WRT_SOURCE:
         required: true
-        type: string
+        输入: string
       WRT_PACKAGE:
         required: false
-        type: string
+        输入: string
       WRT_TEST:
         required: false
-        type: string
+        输入: string
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -210,8 +210,19 @@ jobs:
           ./scripts/feeds install python3-netifaces
           # --------2026.001.03----在Update Feeds步骤中添加iStore-------------------------#
           echo 'src-git istore https://github.com/linkease/istore;main' >> feeds.conf.default
-          ./scripts/feeds update istore
+          echo 'src-git nas https://github.com/linkease/nas-packages.git;master' >> feeds.conf.default
+          echo 'src-git nas_luci https://github.com/linkease/nas-packages-luci.git;main' >> feeds.conf.default
+          
+          ./scripts/feeds update istore nas nas_luci
           ./scripts/feeds install -d y -p istore luci-app-store
+          ./scripts/feeds install -d y -p nas quickstart
+          ./scripts/feeds install -d y -p nas_luci luci-app-quickstore
+          ./scripts/feeds install -d y -p nas unishare
+          ./scripts/feeds install -d y -p nas_luci luci-app-unishare
+          ./scripts/feeds install -d y -p nas linkease
+          ./scripts/feeds install -d y -p nas_luci luci-app-linkease
+          ./scripts/feeds install -d y -p nas istoreenhance
+          ./scripts/feeds install -d y -p nas_luci luci-app-istoreenhance
 
 # ================= 以下vlmcsd编译修复补丁 2025.07.28 ================= #
       - name: Apply vlmcsd Patch
