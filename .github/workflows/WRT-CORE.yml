@@ -204,20 +204,29 @@ jobs:
         run: |
           cd ./wrt/
 
-          # 添加istore & nas官方源
+          # 1. 添加 istore & nas 官方源
           echo 'src-git istore https://github.com/linkease/istore;main' >> feeds.conf.default
           echo 'src-git nas https://github.com/linkease/nas-packages.git;master' >> feeds.conf.default
           echo 'src-git nas_luci https://github.com/linkease/nas-packages-luci.git;main' >> feeds.conf.default
           
-          # 先更新所有源
+          # 2. 更新源
           ./scripts/feeds update -a
-          ./scripts/feeds install -a
-          ./scripts/feeds install python3-netifaces
           
-          # 然后确保安装istore & nas特定包（-d y 表示强制）
-          ./scripts/feeds install -d y -p istore luci-app-store
-          ./scripts/feeds install -d y -p nas quickstart linkease unishare istoreenhance linkmount webdav2
-          ./scripts/feeds install -d y -p nas_luci luci-app-quickstart luci-app-linkease luci-app-unishare luci-app-istoreenhance
+          # 3. 【关键】强制删除 feeds 中可能存在的冲突包，确保安装 istore 版本的 taskd 和 store
+          rm -rf feeds/packages/net/taskd
+          rm -rf feeds/luci/applications/luci-app-store
+          rm -rf feeds/packages/net/linkease
+          
+          # 4. 安装所有包
+          ./scripts/feeds install -a
+          
+          # 5. 【核心修复】强制指定从 istore/nas 源安装核心组件，避免被 skip
+          ./scripts/feeds install -f -p istore luci-app-store taskd
+          ./scripts/feeds install -f -p nas quickstart linkease unishare istoreenhance linkmount webdav2
+          ./scripts/feeds install -f -p nas_luci luci-app-quickstart luci-app-linkease luci-app-unishare luci-app-istoreenhance
+          
+          # 补充缺失的 Python 依赖
+          ./scripts/feeds install python3-netifaces
 
 # ================= 以下vlmcsd编译修复补丁 2025.07.28 ================= #
       - name: Apply vlmcsd Patch
