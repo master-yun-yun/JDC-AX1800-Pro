@@ -204,22 +204,20 @@ jobs:
         run: |
           cd ./wrt/
 
-          # 添加istore及nas官方源
+          # 添加istore & nas官方源
           echo 'src-git istore https://github.com/linkease/istore;main' >> feeds.conf.default
           echo 'src-git nas https://github.com/linkease/nas-packages.git;master' >> feeds.conf.default
           echo 'src-git nas_luci https://github.com/linkease/nas-packages-luci.git;main' >> feeds.conf.default
           
-          # 更新所有源
+          # 先更新所有源
           ./scripts/feeds update -a
-          
-          # 安装istore及nas特定包
-          ./scripts/feeds install -d y -p istore luci-app-store
-          ./scripts/feeds install -d y -p nas quickstart linkease unishare istoreenhance
-          ./scripts/feeds install -d y -p nas_luci luci-app-quickstart luci-app-linkease luci-app-unishare luci-app-istoreenhance
-          
-          # 安装其他依赖
           ./scripts/feeds install -a
           ./scripts/feeds install python3-netifaces
+          
+          # 然后确保安装istore & nas特定包（-d y 表示强制）
+          ./scripts/feeds install -d y -p istore luci-app-store
+          ./scripts/feeds install -d y -p nas quickstart linkease unishare istoreenhance linkmount webdav2
+          ./scripts/feeds install -d y -p nas_luci luci-app-quickstart luci-app-linkease luci-app-unishare luci-app-istoreenhance
 
 # ================= 以下vlmcsd编译修复补丁 2025.07.28 ================= #
       - name: Apply vlmcsd Patch
