@@ -118,7 +118,7 @@ CONFIG_PACKAGE_kmod-usb-net-qmi-wwan=y
 # 功能：启用 Fibocom QMI WWAN 特定支持。作用：针对 Fibocom 品牌的 4G/5G 调制解调器优化支持。
 CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-fibocom=y
 # 启用 Quectel QMI WWAN 特定支持。作用：针对 Quectel 品牌的 4G/5G 调制解调器优化支持。
-CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-quectel=y
+#CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-quectel=y
 # 支持 RNDIS 协议的网络共享。作用：支持 Windows Mobile 和其他 RNDIS 兼容设备的网络共享。
 CONFIG_PACKAGE_kmod-usb-net-rndis=y
 # 启用 Realtek RTL8150 USB 网卡支持
@@ -439,3 +439,8 @@ CONFIG_PACKAGE_luasrcdiet=y
 # 启用对 YubiKey OTP 功能的支持，从而增强系统的身份验证安全性。
 CONFIG_PACKAGE_libyubikey=y
 # ---------------以上2025.11.23--增加--------------- #
+
+# -------2026.01.16---强制关闭导致循环依赖的插件--------------- #
+CONFIG_PACKAGE_iptasn=n
+CONFIG_PACKAGE_luci-proto-quectel=n
+CONFIG_PACKAGE_quectel-cm=n
