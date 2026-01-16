@@ -226,8 +226,8 @@ UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
 UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
 
 # quectel-CM-5G
-UPDATE_PACKAGE "quectel-CM-5G" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "quectel_cm_5G" "kiddin9/kwrt-packages" "main" "pkg"
+#UPDATE_PACKAGE "quectel-CM-5G" "kiddin9/kwrt-packages" "main" "pkg"
+#UPDATE_PACKAGE "quectel_cm_5G" "kiddin9/kwrt-packages" "main" "pkg"
 
 # --------以下2025.10.20-应用过滤----------- #
 #UPDATE_PACKAGE "open-app-filter" "kiddin9/kwrt-packages" "main" "pkg"
