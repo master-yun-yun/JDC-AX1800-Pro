@@ -252,3 +252,11 @@ if [ -d "luci-app-athena-led" ]; then
     echo "Added execute permissions for athena_led files."
 fi
 #-------------------2025.05.31-测试-----------------#
+
+#---------------2026.01.17----------------------------#
+# 在脚本末尾或 UPDATE_PACKAGE 调用后添加
+# 物理删除导致循环依赖的源码目录，防止 Kconfig 扫描它们
+rm -rf ../feeds/luci/applications/luci-app-iptasn
+rm -rf ../feeds/packages/net/iptasn
+rm -rf ../feeds/luci/protocols/luci-proto-quectel
+rm -rf ../feeds/packages/net/quectel-cm
