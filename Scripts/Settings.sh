@@ -80,3 +80,14 @@ CONFIG_PACKAGE_iptasn=n
 CONFIG_PACKAGE_luci-proto-quectel=n
 CONFIG_PACKAGE_quectel-cm=n
 EOF
+# 在 Settings.sh 结尾，修正 NSS 逻辑并强制补齐商店依赖
+# 1. 确保你需要的第三方 SQM-NSS 被正确选中
+echo "CONFIG_PACKAGE_sqm-scripts-nss=y" >> ./.config
+
+# 2. 强制注入商店及其所有核心依赖
+# 有时手动补齐底层库（libipkg）能解决商店不显示的问题
+sed -i '/CONFIG_PACKAGE_luci-app-store/d' .config
+echo "CONFIG_PACKAGE_luci-app-store=y" >> ./.config
+echo "CONFIG_PACKAGE_luci-lib-taskd=y" >> ./.config
+echo "CONFIG_PACKAGE_luci-lib-ipkg=y" >> ./.config
+echo "CONFIG_PACKAGE_luci-lib-xterm=y" >> ./.config
