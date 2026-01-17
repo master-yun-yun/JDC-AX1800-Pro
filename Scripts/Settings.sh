@@ -71,3 +71,12 @@ if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]]; then
 	#其他调整
 	echo "CONFIG_PACKAGE_kmod-usb-serial-qualcomm=y" >> ./.config
 fi
+# 强制开启 iStore 及其核心依赖，并关闭冲突包
+cat >> .config <<EOF
+CONFIG_PACKAGE_luci-app-store=y
+CONFIG_PACKAGE_luci-lib-taskd=y
+CONFIG_PACKAGE_luci-lib-ipkg=y
+CONFIG_PACKAGE_iptasn=n
+CONFIG_PACKAGE_luci-proto-quectel=n
+CONFIG_PACKAGE_quectel-cm=n
+EOF
