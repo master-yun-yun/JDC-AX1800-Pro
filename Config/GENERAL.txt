@@ -367,6 +367,7 @@ CONFIG_PACKAGE_quickstart=y
 CONFIG_PACKAGE_luci-app-quickstart=y
 
 # istore商店
+CONFIG_PACKAGE_xz-utils=y
 CONFIG_PACKAGE_luci-app-store=y
 
 # 通用共享
