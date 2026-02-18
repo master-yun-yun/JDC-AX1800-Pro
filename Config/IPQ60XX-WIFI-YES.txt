@@ -28,3 +28,4 @@ CONFIG_PACKAGE_luci-lib-iform=y
 CONFIG_PACKAGE_luci-mod-istorenext=y
 CONFIG_PACKAGE_luci-lib-taskd=y
 CONFIG_PACKAGE_taskd=y
+CONFIG_PACKAGE_xz-utils=y
