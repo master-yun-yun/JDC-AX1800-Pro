@@ -49,6 +49,14 @@ fi
 
 #高通平台调整
 DTS_PATH="./target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/"
+‎
+Original file line number	Diff line number	Diff line change
+@@ -45,7 +45,7 @@ if [ -n "$WRT_PACKAGE" ]; then
+fi
+
+#高通平台调整
+#DTS_PATH="./target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/"
+DTS_PATH="./target/linux/qualcommax/dts/"
 if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]]; then
 	#取消nss相关feed
 	echo "CONFIG_FEED_nss_packages=n" >> ./.config
