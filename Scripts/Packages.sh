@@ -59,7 +59,7 @@ UPDATE_PACKAGE() {
 
 # UPDATE_PACKAGE "包名" "项目地址" "项目分支" "pkg/name，可选，pkg为从大杂烩中单独提取包名插件；name为重命名为包名"
 UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-25.12"
-#UPDATE_PACKAGE "luci-theme-argon" "kiddin9/kwrt-packages" "main" "pkg"
+#UPDATE_PACKAGE "luci-theme-argon" "kiddin9/op-packages" "main" "pkg"
 UPDATE_PACKAGE "theme-kucat" "sirpdboy/luci-theme-kucat" "master"
 UPDATE_PACKAGE "luci-app-kucat" "sirpdboy/luci-app-kucat-config" "master"
 
@@ -193,15 +193,15 @@ UPDATE_PACKAGE "luci-app-taskplan" "sirpdboy/luci-app-taskplan" "master"
 # istore首页及网络向导
 #UPDATE_PACKAGE "quickstart" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 #UPDATE_PACKAGE "luci-app-quickstart" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
-#UPDATE_PACKAGE "quickstart" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "luci-app-quickstart" "kiddin9/kwrt-packages" "main" "pkg"
+#UPDATE_PACKAGE "quickstart" "kiddin9/op-packages" "main" "pkg"
+#UPDATE_PACKAGE "luci-app-quickstart" "kiddin9/op-packages" "main" "pkg"
 
 # istore商店
 #UPDATE_PACKAGE "luci-app-store" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
-#UPDATE_PACKAGE "luci-lib-xterm" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "taskd" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "luci-lib-taskd" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "luci-app-store" "kiddin9/kwrt-packages" "main" "pkg"
+#UPDATE_PACKAGE "luci-lib-xterm" "kiddin9/op-packages" "main" "pkg"
+#UPDATE_PACKAGE "taskd" "kiddin9/op-packages" "main" "pkg"
+#UPDATE_PACKAGE "luci-lib-taskd" "kiddin9/op-packages" "main" "pkg"
+#UPDATE_PACKAGE "luci-app-store" "kiddin9/op-packages" "main" "pkg"
 
 # 统一文件共享
 #UPDATE_PACKAGE "webdav2" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
@@ -209,30 +209,30 @@ UPDATE_PACKAGE "luci-app-taskplan" "sirpdboy/luci-app-taskplan" "master"
 #UPDATE_PACKAGE "luci-app-unishare" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 
 # 微力同步
-UPDATE_PACKAGE "verysync" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "luci-app-verysync" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "verysync" "kiddin9/op-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-verysync" "kiddin9/op-packages" "main" "pkg"
 
 # Vlmcsd KMS 服务器
-#UPDATE_PACKAGE "vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "luci-app-vlmcsd" "kiddin9/kwrt-packages" "main" "pkg"
+#UPDATE_PACKAGE "vlmcsd" "kiddin9/op-packages" "main" "pkg"
+#UPDATE_PACKAGE "luci-app-vlmcsd" "kiddin9/op-packages" "main" "pkg"
 UPDATE_PACKAGE "vlmcsd" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 UPDATE_PACKAGE "luci-app-vlmcsd" "shidahuilang/openwrt-package" "Immortalwrt" "pkg"
 
 # SunPanel导航页
-UPDATE_PACKAGE "sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
-UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "sunpanel" "kiddin9/op-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/op-packages" "main" "pkg"
 
 # Memos知识管理
-UPDATE_PACKAGE "luci-app-memos" "kiddin9/kwrt-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-memos" "kiddin9/op-packages" "main" "pkg"
 
 # quectel-CM-5G
-#UPDATE_PACKAGE "quectel-CM-5G" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "quectel_cm_5G" "kiddin9/kwrt-packages" "main" "pkg"
+#UPDATE_PACKAGE "quectel-CM-5G" "kiddin9/op-packages" "main" "pkg"
+#UPDATE_PACKAGE "quectel_cm_5G" "kiddin9/op-packages" "main" "pkg"
 
 # --------以下2025.10.20-应用过滤----------- #
-#UPDATE_PACKAGE "open-app-filter" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "oaf" "kiddin9/kwrt-packages" "main" "pkg"
-#UPDATE_PACKAGE "luci-app-oaf" "kiddin9/kwrt-packages" "main" "pkg"
+#UPDATE_PACKAGE "open-app-filter" "kiddin9/op-packages" "main" "pkg"
+#UPDATE_PACKAGE "oaf" "kiddin9/op-packages" "main" "pkg"
+#UPDATE_PACKAGE "luci-app-oaf" "kiddin9/op-packages" "main" "pkg"
 #UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master"
 #UPDATE_PACKAGE "oaf" "destan19/OpenAppFilter" "master"
 #UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "open-app-filter oaf luci-app-oaf"
