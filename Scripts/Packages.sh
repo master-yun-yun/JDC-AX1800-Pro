@@ -173,7 +173,7 @@ UPDATE_PACKAGE "luci-app-timecontrol" "sirpdboy/luci-app-timecontrol" "main"
 #UPDATE_PACKAGE "luci-app-timecontrol" "gaobin89/luci-app-timecontrol" "main"
 
 # luci-app-taskplan 任务设置2.0版
-UPDATE_PACKAGE "luci-app-taskplan" "sirpdboy/luci-app-taskplan" "master"
+UPDATE_PACKAGE "luci-app-taskplan" "sirpdboy/luci-app-taskplan" "main"
 
 #------------------以上自定义源--------------------#
 
