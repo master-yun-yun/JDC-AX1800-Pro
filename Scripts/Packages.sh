@@ -78,7 +78,7 @@ UPDATE_PACKAGE "openlist2" "sbwml/luci-app-openlist2" "main"
 UPDATE_PACKAGE "ddns-go" "sirpdboy/luci-app-ddns-go" "main"
 UPDATE_PACKAGE "luci-app-diskman" "lisaac/luci-app-diskman" "master"
 UPDATE_PACKAGE "easytier" "EasyTier/luci-app-easytier" "main"
-UPDATE_PACKAGE "gecoosac" "laipeng668/luci-app-gecoosac" "main"
+#UPDATE_PACKAGE "gecoosac" "laipeng668/luci-app-gecoosac" "main"
 UPDATE_PACKAGE "mosdns" "sbwml/luci-app-mosdns" "v5" "" "v2dat"
 #UPDATE_PACKAGE "netspeedtest" "sirpdboy/netspeedtest" "main" "" "homebox speedtest"
 #UPDATE_PACKAGE "partexp" "sirpdboy/luci-app-partexp" "main"
@@ -148,7 +148,7 @@ UPDATE_PACKAGE "luci-theme-edge" "ricemices/luci-theme-edge" "master"
 UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"
 
 # 阿里云盘aliyundrive-webdav----OK
-UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "messense/aliyundrive-webdav" "main"
+#UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "messense/aliyundrive-webdav" "main"
 #UPDATE_PACKAGE "aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main" "pkg"
 #UPDATE_PACKAGE "luci-app-aliyundrive-webdav" "master-yun-yun/aliyundrive-webdav" "main"
 
