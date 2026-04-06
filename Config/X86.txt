@@ -33,3 +33,4 @@ CONFIG_PACKAGE_luci-app-openclaw=y
 CONFIG_PACKAGE_libstdcpp=y
 CONFIG_PACKAGE_libpthread=y
 CONFIG_PACKAGE_libatomic=y
+CONFIG_PACKAGE_libstdcpp6=y
