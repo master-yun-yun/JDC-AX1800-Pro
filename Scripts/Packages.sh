@@ -255,7 +255,7 @@ fi
 
 #-------------------2026.04.06以下小龙虾----------------------------#
 
-UPDATE_PACKAGE "luci-app-openclaw" "10000ge10000/luci-app-openclaw" "main" "name"
+UPDATE_PACKAGE "luci-app-openclaw" "10000ge10000/luci-app-openclaw" "main"
 
 #-------------------2026.04.06以上小龙虾----------------------------#
 
