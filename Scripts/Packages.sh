@@ -256,16 +256,43 @@ fi
 #-------------------2026.04.06以下小龙虾----------------------------#
 
 #------------------添加 openclaw 插件 feed--------------------#
-echo " "
-echo "Adding openclaw feed..."
+add_openclaw_feed() {
+    local current_dir="$PWD"
+    local openwrt_root=""
 
-if ! grep -q "openclaw" feeds.conf.default; then
-    echo "src-git openclaw https://github.com/10000ge10000/luci-app-openclaw.git" >> feeds.conf.default
-fi
+    # 查找包含 scripts/feeds 和 feeds.conf.default 的目录
+    if [ -f "scripts/feeds" ] && [ -f "feeds.conf.default" ]; then
+        openwrt_root="$PWD"
+    elif [ -f "../scripts/feeds" ] && [ -f "../feeds.conf.default" ]; then
+        openwrt_root="$(cd .. && pwd)"
+    elif [ -f "$(dirname "$0")/../scripts/feeds" ] && [ -f "$(dirname "$0")/../feeds.conf.default" ]; then
+        openwrt_root="$(cd "$(dirname "$0")/.." && pwd)"
+    else
+        echo "Error: Cannot find OpenWrt root (missing scripts/feeds or feeds.conf.default)"
+        return 1
+    fi
 
-./scripts/feeds update openclaw
-./scripts/feeds install luci-app-openclaw
-echo "openclaw feed integration done."
+    echo "Changing to OpenWrt root: $openwrt_root"
+    cd "$openwrt_root" || return 1
+
+    # 添加 feed 源（避免重复）
+    if ! grep -q "openclaw" feeds.conf.default; then
+        echo "src-git openclaw https://github.com/10000ge10000/luci-app-openclaw.git" >> feeds.conf.default
+        echo "Feed 'openclaw' added."
+    else
+        echo "Feed 'openclaw' already exists."
+    fi
+
+    # 更新并安装该 feed 的插件
+    ./scripts/feeds update openclaw
+    ./scripts/feeds install luci-app-openclaw
+
+    # 恢复原目录
+    cd "$current_dir"
+    echo "openclaw feed integration done."
+}
+
+add_openclaw_feed
 
 #-------------------2026.04.06以上小龙虾----------------------------#
 
