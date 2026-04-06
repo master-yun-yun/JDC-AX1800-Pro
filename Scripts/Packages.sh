@@ -253,6 +253,22 @@ if [ -d "luci-app-athena-led" ]; then
 fi
 #-------------------2025.05.31-测试-----------------#
 
+#-------------------2026.04.06以下小龙虾----------------------------#
+
+#------------------添加 openclaw 插件 feed--------------------#
+echo " "
+echo "Adding openclaw feed..."
+
+if ! grep -q "openclaw" feeds.conf.default; then
+    echo "src-git openclaw https://github.com/10000ge10000/luci-app-openclaw.git" >> feeds.conf.default
+fi
+
+./scripts/feeds update openclaw
+./scripts/feeds install luci-app-openclaw
+echo "openclaw feed integration done."
+
+#-------------------2026.04.06以上小龙虾----------------------------#
+
 #---------------2026.01.17----------------------------#
 # 在脚本末尾或 UPDATE_PACKAGE 调用后添加
 # 物理删除导致循环依赖的源码目录，防止 Kconfig 扫描它们
