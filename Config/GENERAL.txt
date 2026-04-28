@@ -7,6 +7,9 @@ CONFIG_PACKAGE_luci-app-autoreboot=y
 # 集客无线AC控制器
 #CONFIG_PACKAGE_luci-app-gecoosac=y
 
+# LuCI Web 界面的迷你磁盘管理插件
+CONFIG_PACKAGE_luci-app-mini-diskmanager=y
+
 # 网络测速插件，支持内网网页测速（基于 homebox）、内网 iperf3 吞吐测试、外网 speedtest.net 测速（基于 speedtest-cli），以及特定服务器的端口延迟测试 
 #CONFIG_PACKAGE_luci-app-netspeedtest=y
 
@@ -42,6 +45,10 @@ CONFIG_TARGET_ROOTFS_INITRAMFS=n
 
 # =============内核调整=============== #
 # 网络接口绑定（也称为网卡绑定、链路聚合），它允许将多个物理网络接口组合成一个逻辑接口
+CONFIG_PACKAGE_kmod-ata-ahci=y
+# 启用 ATA/SATA 核心驱动框架
+CONFIG_PACKAGE_kmod-ata-core=y
+# 启用 AHCI（Advanced Host Controller Interface）模式驱动
 CONFIG_PACKAGE_kmod-bonding=y
 # 管理交换机芯片
 CONFIG_PACKAGE_kmod-dsa=y
@@ -85,6 +92,8 @@ CONFIG_PACKAGE_kmod-nft-socket=y
 CONFIG_PACKAGE_kmod-nft-tproxy=y
 # nftables 防火墙可以与 XFRM 框架交互，实现对 IPsec 相关流量的精细化控制
 CONFIG_PACKAGE_kmod-nft-xfrm=y
+# NVMe SSD 的内核驱动支持
+CONFIG_PACKAGE_kmod-nvme=y
 # 音频功能支持（无音频需求可禁用）
 CONFIG_PACKAGE_kmod-sound-core=y
 # 虚拟网络接口（OpenVPN/WireGuard 依赖）
