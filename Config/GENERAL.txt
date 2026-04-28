@@ -123,9 +123,9 @@ CONFIG_PACKAGE_kmod-usb-net-huawei-cdc-ncm=y
 # 启用 iPod/iPhone 网络共享 支持。作用：允许通过 USB 连接 iPhone 实现网络共享。
 CONFIG_PACKAGE_kmod-usb-net-ipheth=y
 # 启用 QMI WWAN 支持。作用：支持通过 QMI 协议连接的 4G/5G 调制解调器。
-CONFIG_PACKAGE_kmod-usb-net-qmi-wwan=y
+#CONFIG_PACKAGE_kmod-usb-net-qmi-wwan=y
 # 功能：启用 Fibocom QMI WWAN 特定支持。作用：针对 Fibocom 品牌的 4G/5G 调制解调器优化支持。
-CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-fibocom=y
+#CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-fibocom=y
 # 启用 Quectel QMI WWAN 特定支持。作用：针对 Quectel 品牌的 4G/5G 调制解调器优化支持。
 #CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-quectel=y
 # 支持 RNDIS 协议的网络共享。作用：支持 Windows Mobile 和其他 RNDIS 兼容设备的网络共享。
