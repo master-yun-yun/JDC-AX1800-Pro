@@ -26,9 +26,7 @@ fi
 
 #修改argon主题字体和颜色
 if [ -d *"luci-theme-argon"* ]; then
-	echo " "
-
-	cd ./luci-theme-argon/
+	echo " " && cd ./luci-theme-argon/
 
 	sed -i "/font-weight:/ { /important/! { /\/\*/! s/:.*/: var(--font-weight);/ } }" $(find ./luci-theme-argon -type f -iname "*.css")
 	sed -i "s/primary '.*'/primary '#31a1a1'/; s/'0.2'/'0.5'/; s/'none'/'bing'/; s/'600'/'normal'/" ./luci-app-argon-config/root/etc/config/argon
@@ -44,6 +42,15 @@ if [ -f "$NSS_DRV" ]; then
 	sed -i 's/START=.*/START=85/g' $NSS_DRV
 
 	cd $PKG_PATH && echo "qca-nss-drv has been fixed!"
+fi
+
+#修改mini-diskmanager菜单位置
+if [ -d *"luci-app-mini-diskmanager"* ]; then
+	echo " " && cd ./luci-app-mini-diskmanager/
+
+	sed -i "s/services/system/g" ./luci-app-mini-diskmanager/root/usr/share/luci/menu.d/luci-app-mini-diskmanager.json
+
+	cd $PKG_PATH && echo "mini-diskmanager has been fixed!"
 fi
 
 #修改qca-nss-pbuf启动顺序
