@@ -64,6 +64,8 @@ CONFIG_PACKAGE_kmod-inet-mptcp-diag=y
 CONFIG_PACKAGE_kmod-mtd-rw=y
 # 网络诊断接口（nftables、ip 工具依赖）
 CONFIG_PACKAGE_kmod-netlink-diag=y
+# IPv6 网络地址转换（NAT6）支持
+CONFIG_PACKAGE_kmod-nf-nat6=y
 # nftables 防火墙将获得处理 ARP 协议的能力，允许管理员配置基于 ARP 数据包的过滤规则
 CONFIG_PACKAGE_kmod-nft-arp=y
 # 桥接接口的 nftables 规则支持
