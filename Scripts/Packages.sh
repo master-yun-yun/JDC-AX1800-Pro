@@ -128,3 +128,49 @@ UPDATE_VERSION "sing-box"
 if [ -f "$GITHUB_WORKSPACE/Scripts/PRIVATE.sh" ]; then
 	source "$GITHUB_WORKSPACE/Scripts/PRIVATE.sh"
 fi
+
+#------------------以下自定义源--------------------#
+# 全能推送PushBot----OK
+UPDATE_PACKAGE "luci-app-pushbot" "zzsj0928/luci-app-pushbot" "master"
+# 关机poweroff----OK
+UPDATE_PACKAGE "luci-app-poweroff" "DongyangHu/luci-app-poweroff" "main"
+# 主题界面edge----OK
+UPDATE_PACKAGE "luci-theme-edge" "ricemices/luci-theme-edge" "master"
+# 分区扩容----OK
+#UPDATE_PACKAGE "luci-app-partexp" "sirpdboy/luci-app-partexp" "main"  #在前
+# luci-app-navidrome音乐服务器----OK
+UPDATE_PACKAGE "luci-app-navidrome" "tty228/luci-app-navidrome" "main"
+# 端口转发luci-app-socat----OK
+UPDATE_PACKAGE "luci-app-socat" "WROIATE/luci-app-socat" "main"
+# luci-app-taskplan 任务设置2.0版
+UPDATE_PACKAGE "luci-app-taskplan" "sirpdboy/luci-app-taskplan" "main"
+# 微力同步
+UPDATE_PACKAGE "verysync" "kiddin9/op-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-verysync" "kiddin9/op-packages" "main" "pkg"
+# SunPanel导航页
+UPDATE_PACKAGE "sunpanel" "kiddin9/op-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-sunpanel" "kiddin9/op-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-lib-taskd" "kiddin9/op-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-lib-xterm" "kiddin9/op-packages" "main" "pkg"
+UPDATE_PACKAGE "taskd" "kiddin9/op-packages" "main" "pkg"
+# Memos知识管理
+UPDATE_PACKAGE "luci-app-memos" "kiddin9/op-packages" "main" "pkg"
+# 原高级设置升级版本---2026.06.01-测试对vpn影响
+UPDATE_PACKAGE "luci-app-advancedplus" "sirpdboy/luci-app-advancedplus" "main"
+# luci-app-athena-led-雅典娜led屏幕显示（第一个源显示效果不好）
+#UPDATE_PACKAGE "luci-app-athena-led" "haipengno1/luci-app-athena-led" "main"
+UPDATE_PACKAGE "luci-app-athena-led" "NONGFAH/luci-app-athena-led" "main"
+# 2026.05.09最新但未启用--luci-app-athena-led-雅典娜led屏幕显示
+#UPDATE_PACKAGE "athena-led" "unraveloop/JDC-AX6600-Athena-LED-Controller" "main"
+# 添加雅典娜LED执行权限
+if [ -d "luci-app-athena-led" ]; then
+    chmod +x luci-app-athena-led/root/etc/init.d/athena_led
+    chmod +x luci-app-athena-led/root/usr/sbin/athena-led
+    echo "Added execute permissions for athena_led files."
+fi
+
+# 应用过滤-----源码作者（只克隆一次，保留完整仓库结构）
+UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "" "open-app-filter oaf luci-app-oaf"
+# istore增强
+UPDATE_PACKAGE "istoreenhance" "kiddin9/op-packages" "main" "pkg"
+UPDATE_PACKAGE "luci-app-istoreenhance" "kiddin9/op-packages" "main" "pkg"
