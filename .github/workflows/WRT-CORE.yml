@@ -102,6 +102,9 @@ jobs:
 
           cd ./wrt/ && echo "WRT_HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
 
+          # 修改软件源为IPK（2026.06.28新增部分）
+          sed -i 's/.apk/.ipk/g' feeds.conf.default
+         
           # GitHub Action 移除国内下载源
           PROJECT_MIRRORS_FILE="./scripts/projectsmirrors.json"
           if [ -f "$PROJECT_MIRRORS_FILE" ]; then
