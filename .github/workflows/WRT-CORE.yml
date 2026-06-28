@@ -232,14 +232,18 @@ jobs:
       - name: Check Package Manager
         if: env.WRT_TEST != 'true'
         run: |
-          cd ./wrt/
-          if find ./bin/packages/ -name "*.apk" -print -quit | grep -q .; then
-            echo "PM_TYPE=apk (切换可能未生效)" >> $GITHUB_ENV
-          elif find ./bin/packages/ -name "*.ipk" -print -quit | grep -q .; then
-            echo "PM_TYPE=opkg (IPK) ✅" >> $GITHUB_ENV
-          else
-            echo "PM_TYPE=unknown" >> $GITHUB_ENV
-          fi
+           cd ./wrt/
+           if [ -d ./bin/packages ]; then
+           if find ./bin/packages/ -name "*.apk" -print -quit | grep -q .; then
+           echo "PM_TYPE=apk (切换可能未生效)" >> $GITHUB_ENV
+           elif find ./bin/packages/ -name "*.ipk" -print -quit | grep -q .; then
+           echo "PM_TYPE=opkg (IPK) ✅" >> $GITHUB_ENV
+       else
+        echo "PM_TYPE=unknown (无包文件)" >> $GITHUB_ENV
+       fi
+       else
+       echo "PM_TYPE=unknown (bin/packages 目录不存在)" >> $GITHUB_ENV
+       fi
 
       - name: Release Firmware
         uses: softprops/action-gh-release@master
