@@ -229,6 +229,18 @@ jobs:
             make clean -j$(nproc)
           fi
 
+      - name: Check Package Manager
+        if: env.WRT_TEST != 'true'
+        run: |
+          cd ./wrt/
+          if find ./bin/packages/ -name "*.apk" -print -quit | grep -q .; then
+            echo "PM_TYPE=apk (切换可能未生效)" >> $GITHUB_ENV
+          elif find ./bin/packages/ -name "*.ipk" -print -quit | grep -q .; then
+            echo "PM_TYPE=opkg (IPK) ✅" >> $GITHUB_ENV
+          else
+            echo "PM_TYPE=unknown" >> $GITHUB_ENV
+          fi
+
       - name: Release Firmware
         uses: softprops/action-gh-release@master
         with:
@@ -256,3 +268,4 @@ jobs:
 
             内核版本：${{env.WRT_KVER}}
             插件列表：${{env.WRT_LIST}}
+            包管理器：${{ env.PM_TYPE }}
