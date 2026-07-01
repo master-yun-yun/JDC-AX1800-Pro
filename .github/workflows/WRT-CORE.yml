@@ -162,6 +162,27 @@ jobs:
         run: |
           cd ./wrt/package/
 
+          # 修复 node-pnpm 因上游文件布局变化导致的 cp 失败
+          FILE="package/feeds/packages/node-pnpm/Makefile"
+          if [ -f "$FILE" ]; then
+            sed -i '/^define Host\/Install/,/^endef/c\
+            define Host/Install\n\
+            \t$(INSTALL_DIR) $(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist\n\
+            \tif [ -f $(BUILD_DIR)/node-pnpm-$(PKG_VERSION)/dist/pnpm.cjs ]; then \\\n\
+            \t\tcp -a $(BUILD_DIR)/node-pnpm-$(PKG_VERSION)/dist/pnpm.cjs $(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/ ;\\\n\
+            \t\tcp -a $(BUILD_DIR)/node-pnpm-$(PKG_VERSION)/dist/worker.js $(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/ 2>/dev/null || true ;\\\n\
+            \telif [ -f $(BUILD_DIR)/node-pnpm-$(PKG_VERSION)/bin/pnpm.cjs ]; then \\\n\
+            \t\tcp -a $(BUILD_DIR)/node-pnpm-$(PKG_VERSION)/bin/pnpm.cjs $(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/pnpm.cjs ;\\\n\
+            \telif [ -f $(BUILD_DIR)/node-pnpm-$(PKG_VERSION)/pnpm.cjs ]; then \\\n\
+            \t\tcp -a $(BUILD_DIR)/node-pnpm-$(PKG_VERSION)/pnpm.cjs $(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/pnpm.cjs ;\\\n\
+            \telse \\\n\
+            \t\techo "ERROR: pnpm build artifacts not found"; \\\n\
+            \t\tls -la $(BUILD_DIR)/node-pnpm-$(PKG_VERSION)/ ;\\\n\
+            \t\texit 1 ;\\\n\
+            \tfi\n\
+            endef' "$FILE"
+          fi
+          
           $GITHUB_WORKSPACE/Scripts/Packages.sh
           $GITHUB_WORKSPACE/Scripts/Handles.sh
 
