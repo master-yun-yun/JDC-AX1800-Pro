@@ -170,35 +170,7 @@ jobs:
           cd ./wrt/
 
           # ===== 修复 node-pnpm 因上游文件布局变化导致的 cp 失败 =====
-          FILE="package/feeds/packages/node-pnpm/Makefile"
-          if [ -f "$FILE" ]; then
-            # 删除旧的 Host/Install 块
-            sed -i '/^define Host\/Install/,/^endef/d' "$FILE"
-
-            TAB=$(printf '\t')
-
-            # 逐行写入健壮的安装逻辑（解决 YAML 内 heredoc 缩进冲突）
-            {
-              echo "define Host/Install"
-              echo "${TAB}\$(INSTALL_DIR) \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist"
-              echo "${TAB}if [ -f \$(BUILD_DIR)/node-pnpm-\$(PKG_VERSION)/dist/pnpm.cjs ]; then \\"
-              echo "${TAB}${TAB}cp -a \$(BUILD_DIR)/node-pnpm-\$(PKG_VERSION)/dist/pnpm.cjs \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/ ;\\"
-              echo "${TAB}${TAB}cp -a \$(BUILD_DIR)/node-pnpm-\$(PKG_VERSION)/dist/worker.js \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/ 2>/dev/null || true ;\\"
-              echo "${TAB}elif [ -f \$(BUILD_DIR)/node-pnpm-\$(PKG_VERSION)/bin/pnpm.cjs ]; then \\"
-              echo "${TAB}${TAB}cp -a \$(BUILD_DIR)/node-pnpm-\$(PKG_VERSION)/bin/pnpm.cjs \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/pnpm.cjs ;\\"
-              echo "${TAB}elif [ -f \$(BUILD_DIR)/node-pnpm-\$(PKG_VERSION)/pnpm.cjs ]; then \\"
-              echo "${TAB}${TAB}cp -a \$(BUILD_DIR)/node-pnpm-\$(PKG_VERSION)/pnpm.cjs \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/pnpm.cjs ;\\"
-              echo "${TAB}else \\"
-              echo "${TAB}${TAB}echo \"ERROR: pnpm build artifacts not found\"; \\"
-              echo "${TAB}${TAB}ls -la \$(BUILD_DIR)/node-pnpm-\$(PKG_VERSION)/ ;\\"
-              echo "${TAB}${TAB}exit 1 ;\\"
-              echo "${TAB}fi"
-              echo "endef"
-            } >> "$FILE"
-
-            echo "node-pnpm Makefile patched with robust install logic."
-          fi
-          # ===== 修复结束 =====
+          $GITHUB_WORKSPACE/Scripts/node-pnpm-patch.sh
 
           if [[ "${WRT_CONFIG,,}" == *"test"* ]]; then
             cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt >> .config
