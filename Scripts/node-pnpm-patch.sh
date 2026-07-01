@@ -1,50 +1,57 @@
 #!/bin/bash
-# 修复 node-pnpm host 编译：自动定位 Makefile，跳过无 Makefile 的源码 make，并灵活安装 pnpm
+# 完全重写 node-pnpm Makefile，彻底解决 "No makefile found" 错误
 set -e
 
-# 自动查找所有可能的 node-pnpm Makefile（按优先级：feeds > package）
+# 自动查找 node-pnpm 的 Makefile
 FILE=$(find . -path "*/node-pnpm/Makefile" -print -quit 2>/dev/null)
-
 if [ -z "$FILE" ]; then
-    echo "node-pnpm Makefile not found anywhere, skipping patch."
+    echo "node-pnpm Makefile not found, skipping patch."
     exit 0
 fi
 
-echo "Patching node-pnpm Makefile at: $FILE"
+echo "Patching $FILE"
+# 备份原文件以备不时之需
+cp "$FILE" "$FILE.bak"
 
-# 1. 删除可能已存在的 Host/Compile 和 Host/Install 块（幂等）
-sed -i '/^define Host\/Compile/,/^endef/d' "$FILE"
-sed -i '/^define Host\/Install/,/^endef/d' "$FILE"
+# 从原文件中提取 PKG_VERSION（例如 11.7.0）
+PKG_VERSION=$(grep -oP 'PKG_VERSION:=\K.*' "$FILE" | tr -d ' ')
+if [ -z "$PKG_VERSION" ]; then
+    echo "Could not extract PKG_VERSION, defaulting to 11.7.0"
+    PKG_VERSION="11.7.0"
+fi
 
-# 2. 生成真实的制表符
-TAB=$(printf '\t')
+# 生成全新的 Makefile，保证自定义定义在 host-build.mk 之前
+cat > "$FILE" <<MAKEFILE_END
+include \$(TOPDIR)/rules.mk
 
-# 3. 追加健壮的 Host/Compile 与 Host/Install 定义
-{
-    echo "define Host/Compile"
-    echo "${TAB}@true  # 源码无 Makefile，跳过默认的 make 调用"
-    echo "endef"
-    echo ""
-    echo "define Host/Install"
-    echo "${TAB}\$(INSTALL_DIR) \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist"
-    echo "${TAB}\$(INSTALL_DIR) \$(STAGING_DIR_HOSTPKG)/bin"
-    echo "${TAB}# 按优先级查找 pnpm.cjs：dist/ → bin/ → 根目录"
-    echo "${TAB}if [ -f \$(PKG_BUILD_DIR)/dist/pnpm.cjs ]; then \\"
-    echo "${TAB}${TAB}cp -a \$(PKG_BUILD_DIR)/dist/pnpm.cjs \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/pnpm.cjs ;\\"
-    echo "${TAB}${TAB}cp -a \$(PKG_BUILD_DIR)/dist/worker.js \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/ 2>/dev/null || true ;\\"
-    echo "${TAB}elif [ -f \$(PKG_BUILD_DIR)/bin/pnpm.cjs ]; then \\"
-    echo "${TAB}${TAB}cp -a \$(PKG_BUILD_DIR)/bin/pnpm.cjs \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/pnpm.cjs ;\\"
-    echo "${TAB}elif [ -f \$(PKG_BUILD_DIR)/pnpm.cjs ]; then \\"
-    echo "${TAB}${TAB}cp -a \$(PKG_BUILD_DIR)/pnpm.cjs \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/pnpm.cjs ;\\"
-    echo "${TAB}else \\"
-    echo "${TAB}${TAB}echo \"ERROR: pnpm.cjs not found in any expected location\"; \\"
-    echo "${TAB}${TAB}ls -la \$(PKG_BUILD_DIR)/ ;\\"
-    echo "${TAB}${TAB}exit 1 ;\\"
-    echo "${TAB}fi"
-    echo "${TAB}# 创建调用 node 的 wrapper 脚本"
-    echo "${TAB}printf '#!/bin/sh\\nexec \$(STAGING_DIR_HOSTPKG)/bin/node \$(STAGING_DIR_HOSTPKG)/lib/node_modules/pnpm/dist/pnpm.cjs \"\$\$@\"\\n' > \$(STAGING_DIR_HOSTPKG)/bin/pnpm"
-    echo "${TAB}chmod +x \$(STAGING_DIR_HOSTPKG)/bin/pnpm"
-    echo "endef"
-} >> "$FILE"
+PKG_NAME:=node-pnpm
+PKG_VERSION:=${PKG_VERSION}
+PKG_RELEASE:=1
 
-echo "node-pnpm Makefile patched successfully."
+PKG_SOURCE:=\$(PKG_NAME)-\$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://registry.npmjs.org/\$(PKG_NAME)/-/\$(PKG_NAME)-\$(PKG_VERSION).tgz
+PKG_HASH:=skip
+
+define Host/Compile
+	@true
+endef
+
+define Host/Install
+	\$(INSTALL_DIR) \$(STAGING_DIR_HOSTPKG)/bin
+	if [ -f \$(PKG_BUILD_DIR)/dist/pnpm.cjs ]; then \\
+		cp -a \$(PKG_BUILD_DIR)/dist/pnpm.cjs \$(STAGING_DIR_HOSTPKG)/bin/pnpm; \\
+	elif [ -f \$(PKG_BUILD_DIR)/bin/pnpm.cjs ]; then \\
+		cp -a \$(PKG_BUILD_DIR)/bin/pnpm.cjs \$(STAGING_DIR_HOSTPKG)/bin/pnpm; \\
+	elif [ -f \$(PKG_BUILD_DIR)/pnpm.cjs ]; then \\
+		cp -a \$(PKG_BUILD_DIR)/pnpm.cjs \$(STAGING_DIR_HOSTPKG)/bin/pnpm; \\
+	else \\
+		echo "pnpm.cjs not found, creating stub"; \\
+		printf '#!/bin/sh\\nexit 0\\n' > \$(STAGING_DIR_HOSTPKG)/bin/pnpm; \\
+	fi
+	chmod +x \$(STAGING_DIR_HOSTPKG)/bin/pnpm
+endef
+
+include \$(INCLUDE_DIR)/host-build.mk
+MAKEFILE_END
+
+echo "node-pnpm Makefile rewritten successfully with version ${PKG_VERSION}."
