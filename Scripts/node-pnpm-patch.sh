@@ -2,9 +2,35 @@
 # 终极防呆 node-pnpm Makefile 重写脚本
 set -e
 
-FILE=$(find . -maxdepth 4 -path "*/node-pnpm/Makefile" -print -quit 2>/dev/null)
+# Ensure we run from repository root so find works regardless of caller cwd
+if [ -n "$GITHUB_WORKSPACE" ]; then
+  REPO_ROOT="$GITHUB_WORKSPACE"
+else
+  REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+fi
+cd "$REPO_ROOT" || exit 1
+
+echo "Running node-pnpm-patch from repo root: $(pwd)"
+
+# Attempt to locate node-pnpm Makefile in common locations first, then fallback to repo-wide search
+search_in() {
+  local base="$1"
+  if [ -d "$base" ]; then
+    find "$base" -path "*/node-pnpm/Makefile" -print -quit 2>/dev/null || true
+  fi
+}
+
+FILE=""
+FILE=$(search_in ./wrt)
+FILE=${FILE:-$(search_in ./package)}
+FILE=${FILE:-$(search_in ./feeds)}
+FILE=${FILE:-$(find . -path "*/node-pnpm/Makefile" -print -quit 2>/dev/null || true)}
+
 if [ -z "$FILE" ]; then
-    echo "node-pnpm Makefile not found, skipping patch."
+    echo "node-pnpm Makefile not found in common locations or repo root."
+    echo "Candidate node-pnpm directories (first 200 lines):"
+    find ./wrt ./package ./feeds . -type d -name node-pnpm 2>/dev/null | sed -n '1,200p' || true
+    echo "-- End of candidate list --"
     exit 0
 fi
 
