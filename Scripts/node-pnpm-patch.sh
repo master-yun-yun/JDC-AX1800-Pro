@@ -1,6 +1,6 @@
 #!/bin/bash
-# 修复 node-pnpm Host/Install 中 pnpm.cjs → pnpm.mjs 的问题
-# 参考：https://github.com/immortalwrt/packages/issues/1939
+# 智能修复 node-pnpm Host/Install 中 pnpm.cjs → pnpm.mjs
+# 仅在需要时执行替换，避免在上游已修复后造成反向错误
 
 set -e
 
@@ -10,8 +10,14 @@ if [ ! -f "$FILE" ]; then
     exit 0
 fi
 
-# 只在 Host/Install 块内替换 pnpm.cjs 为 pnpm.mjs
-# 范围：从 "define Host/Install" 到 "endef"
-sed -i '/^define Host\/Install/,/^endef/ s/pnpm\.cjs/pnpm.mjs/g' "$FILE"
+# 提取 Host/Install 块（从 define Host/Install 到 endef）
+HOST_INSTALL_BLOCK=$(sed -n '/^define Host\/Install/,/^endef/p' "$FILE")
 
-echo "node-pnpm Makefile patched: pnpm.cjs → pnpm.mjs in Host/Install"
+# 检查是否包含 pnpm.cjs（且未被注释）
+if echo "$HOST_INSTALL_BLOCK" | grep -q 'pnpm\.cjs'; then
+    echo "Found pnpm.cjs in Host/Install, applying patch..."
+    sed -i '/^define Host\/Install/,/^endef/ s/pnpm\.cjs/pnpm.mjs/g' "$FILE"
+    echo "Patched: pnpm.cjs → pnpm.mjs"
+else
+    echo "No pnpm.cjs found in Host/Install, nothing to patch (likely already fixed upstream)."
+fi
