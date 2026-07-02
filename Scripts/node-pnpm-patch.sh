@@ -26,10 +26,20 @@ FILE=${FILE:-$(search_in ./package)}
 FILE=${FILE:-$(search_in ./feeds)}
 FILE=${FILE:-$(find . -path "*/node-pnpm/Makefile" -print -quit 2>/dev/null || true)}
 
+# If still not found, try content-based search (look for PKG_NAME or node-pnpm mentions in Makefiles)
+if [ -z "$FILE" ]; then
+  echo "Path search failed — attempting content-based search for Makefiles mentioning node-pnpm..."
+  # Search under common dirs first to limit scope
+  FILE=$(grep -RIl --exclude-dir=.git -e '^PKG_NAME[: =]*node-pnpm' -e 'node-pnpm' ./wrt ./package ./feeds 2>/dev/null | grep -E '/Makefile$' | head -1 || true)
+  FILE=${FILE:-$(grep -RIl --exclude-dir=.git -e '^PKG_NAME[: =]*node-pnpm' -e 'node-pnpm' . 2>/dev/null | grep -E '/Makefile$' | head -1 || true)}
+fi
+
 if [ -z "$FILE" ]; then
     echo "node-pnpm Makefile not found in common locations or repo root."
-    echo "Candidate node-pnpm directories (first 200 lines):"
-    find ./wrt ./package ./feeds . -type d -name node-pnpm 2>/dev/null | sed -n '1,200p' || true
+    echo "Searching for node-pnpm directories and Makefiles to help debugging..."
+    find ./wrt ./package ./feeds . -type d -name '*node-pnpm*' -print -ls 2>/dev/null | sed -n '1,200p' || true
+    echo "--- Now searching for any Makefile mentioning node-pnpm (first 200 lines) ---"
+    grep -RIl --exclude-dir=.git -e '^PKG_NAME[: =]*node-pnpm' -e 'node-pnpm' ./wrt ./package ./feeds . 2>/dev/null | sed -n '1,200p' || true
     echo "-- End of candidate list --"
     exit 0
 fi
@@ -85,7 +95,7 @@ printf '%s\n' "${TAB}${TAB}cp -a \$(PKG_BUILD_DIR)/package/dist/* \$(STAGING_DIR
 printf '%s\n' "${TAB}${TAB}PNPM_SOURCE=\"package/dist\" ;\\" >> "$FILE"
 printf '%s\n' "${TAB}else \\" >> "$FILE"
 printf '%s\n' "${TAB}${TAB}echo \"ERROR: pnpm.cjs not found in any expected location.\" ;\\" >> "$FILE"
-printf '%s\n' "${TAB}${TAB}echo \"Listing PKG_BUILD_DIR (\$(PKG_BUILD_DIR)):\" ;\\" >> "$FILE"
+printf '%s\n' "${TAB}${TAB}echo \"Listing PKG_BUILD_DIR (\$(PKG_BUILD_DIR)):" ;\\" >> "$FILE"
 printf '%s\n' "${TAB}${TAB}ls -la \$(PKG_BUILD_DIR)/ || true ;\\" >> "$FILE"
 printf '%s\n' "${TAB}${TAB}echo \"\" ;\\" >> "$FILE"
 printf '%s\n' "${TAB}${TAB}echo \"Searching for pnpm.cjs in build directory:\" ;\\" >> "$FILE"
