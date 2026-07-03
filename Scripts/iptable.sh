@@ -15,6 +15,11 @@ sed -i '/^CONFIG_PACKAGE_kmod-nf-ipt=/d' .config || true
 sed -i '/^CONFIG_PACKAGE_kmod-nft-compat=/d' .config || true
 printf '\n# Ensure nft selected: disable iptables, enable nft compat\nCONFIG_PACKAGE_kmod-iptables=n\nCONFIG_PACKAGE_kmod-nf-ipt=y\nCONFIG_PACKAGE_kmod-nft-compat=y\n' >> .config
 
+# 防止 mihomo alpha/meta 的递归依赖导致 defconfig 失败（短期回退）
+sed -i '/^CONFIG_PACKAGE_mihomo-alpha=/d' .config || true
+sed -i '/^CONFIG_PACKAGE_mihomo-meta=/d' .config || true
+printf '\n# Prevent recursive dependency: prefer mihomo-meta\nCONFIG_PACKAGE_mihomo-alpha=n\nCONFIG_PACKAGE_mihomo-meta=y\n' >> .config
+
 # Patch package Makefiles in ./package and ./feeds to add CONFLICTS to nft compatibility packages
 # This prevents opkg from installing both kmod-iptables and nft-compat packages that ship the same files
 
