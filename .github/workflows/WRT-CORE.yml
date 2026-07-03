@@ -179,12 +179,10 @@ jobs:
           fi
 
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-          # Ensure nft is selected: disable kmod-iptables and enable nft compatibility modules
-          # Remove existing entries to avoid duplicates, then append desired selections
-          sed -i '/^CONFIG_PACKAGE_kmod-iptables=/d' .config || true
-          sed -i '/^CONFIG_PACKAGE_kmod-nf-ipt=/d' .config || true
-          sed -i '/^CONFIG_PACKAGE_kmod-nft-compat=/d' .config || true
-          printf '\n# Ensure nft selected: disable iptables, enable nft compat\nCONFIG_PACKAGE_kmod-iptables=n\nCONFIG_PACKAGE_kmod-nf-ipt=y\nCONFIG_PACKAGE_kmod-nft-compat=y\n' >> .config
+          
+          # ==== 修复文件冲突
+          $GITHUB_WORKSPACE/Scripts/iptable.sh
+          
           make defconfig -j$(nproc) && make clean -j$(nproc)
 
       - name: Download Packages
