@@ -183,7 +183,7 @@ jobs:
           # ==== 修复文件冲突
           $GITHUB_WORKSPACE/Scripts/iptable.sh
           
-          make defconfig -j$(nproc) && make clean -j$(nproc)
+          #make defconfig -j$(nproc) && make clean -j$(nproc)
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'
