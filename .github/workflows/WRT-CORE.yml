@@ -180,8 +180,14 @@ jobs:
 
           $GITHUB_WORKSPACE/Scripts/Settings.sh
           
-          # ==== 修复文件冲突
+          # ==== 修复文件冲突（集中脚本）
           $GITHUB_WORKSPACE/Scripts/iptable.sh
+      
+          # 清理旧的 target 构建产物，确保新的 Makefile/CONFLICTS 生效
+          echo "Cleaning old build artifacts to avoid using stale packages/artifacts..."
+          rm -rf ./build_dir/target-* ./staging_dir/target-* ./bin/packages/* ./bin/targets/* ./tmp/* || true
+          # 可选：如需强制重新下载包，取消下面一行的注释（会清空 dl/，需自行权衡）
+          # rm -rf ./dl/*
           
           #make defconfig -j$(nproc) && make clean -j$(nproc)
 
