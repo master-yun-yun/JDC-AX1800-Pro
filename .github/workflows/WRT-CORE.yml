@@ -180,6 +180,10 @@ jobs:
 
           $GITHUB_WORKSPACE/Scripts/Settings.sh
           
+          # ==== Ensure netfilter packaging conflict is fixed for Linux 6.18 ====
+          $GITHUB_WORKSPACE/Scripts/fix-netfilter.sh || true
+          make package/kernel/linux/clean || true
+          
           # ==== 修复文件冲突（集中脚本）
           #$GITHUB_WORKSPACE/Scripts/iptable.sh
       
