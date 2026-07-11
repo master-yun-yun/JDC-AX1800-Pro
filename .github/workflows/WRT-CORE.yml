@@ -223,6 +223,29 @@ jobs:
           du -h --max-depth=1
           echo "======================="
 
+      - name: Check Package Manager
+        if: env.WRT_TEST != 'true'
+        run: |
+          cd ./wrt/
+          if [ -d ./bin/packages ]; then
+            if find ./bin/packages/ -name "*.apk" -print -quit | grep -q .; then
+              echo "PM_TYPE=apk (切换可能未生效)" >> $GITHUB_ENV
+            elif find ./bin/packages/ -name "*.ipk" -print -quit | grep -q .; then
+              echo "PM_TYPE=opkg (IPK) ✅" >> $GITHUB_ENV
+            else
+              echo "PM_TYPE=unknown (bin/packages 存在但无包文件)" >> $GITHUB_ENV
+            fi
+          else
+            # 如果编译产物已被清理，通过 .config 推断
+            if grep -qE '^CONFIG_PACKAGE_apk(-mbedtls)?=y' .config 2>/dev/null; then
+              echo "PM_TYPE=apk (通过 .config 推断)" >> $GITHUB_ENV
+            elif grep -q '^CONFIG_PACKAGE_opkg=y' .config 2>/dev/null; then
+              echo "PM_TYPE=opkg (IPK) ✅ (通过 .config 推断)" >> $GITHUB_ENV
+            else
+              echo "PM_TYPE=unknown (bin/packages 不存在且 .config 无明确配置)" >> $GITHUB_ENV
+            fi
+          fi
+      
       - name: Package Firmware
         run: |
           cd ./wrt/ && mkdir ./upload/
@@ -245,22 +268,6 @@ jobs:
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
 
             make clean -j$(nproc)
-          fi
-
-      - name: Check Package Manager
-        if: env.WRT_TEST != 'true'
-        run: |
-          cd ./wrt/
-          if [ -d ./bin/packages ]; then
-            if find ./bin/packages/ -name "*.apk" -print -quit | grep -q .; then
-              echo "PM_TYPE=apk (切换可能未生效)" >> $GITHUB_ENV
-            elif find ./bin/packages/ -name "*.ipk" -print -quit | grep -q .; then
-              echo "PM_TYPE=opkg (IPK) ✅" >> $GITHUB_ENV
-            else
-              echo "PM_TYPE=unknown (无包文件)" >> $GITHUB_ENV
-            fi
-          else
-            echo "PM_TYPE=unknown (bin/packages 目录不存在)" >> $GITHUB_ENV
           fi
 
       - name: Release Firmware
