@@ -182,11 +182,7 @@ jobs:
           $GITHUB_WORKSPACE/Scripts/Settings.sh
           
           # ==== Ensure netfilter packaging conflict is fixed for Linux 6.18 ====
-          #$GITHUB_WORKSPACE/Scripts/fix-netfilter.sh || true
-          $GITHUB_WORKSPACE/Scripts/fix-netfilter.sh || echo "[WARN] fix-netfilter.sh failed, continuing..."
-          # ==== 显式清理内核包构建缓存，确保 Makefile 修改生效 ====
-          make package/kernel/linux/clean || true
-          
+          $GITHUB_WORKSPACE/Scripts/fix-netfilter.sh || echo "[WARN] fix-netfilter.sh failed, continuing..."        
           
           # ==== 修复文件冲突（集中脚本）
           #$GITHUB_WORKSPACE/Scripts/iptable.sh
