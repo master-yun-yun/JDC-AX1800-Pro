@@ -1,4 +1,4 @@
-# APK转换到IPK
+# OpenWrt计划弃用opkg（ipk），全面采用apk。这是一个默认使用opkg（ipk）包管理器的固件。
 
 # OpenWRT-CI
 
@@ -34,11 +34,11 @@ https://drive.wrt.moe/uboot/mediatek
 
 # 固件简要说明
 
-固件每天早上5点自动编译。
+固件不定时编译。
 
 固件信息里的时间为编译开始的时间，方便核对上游源码提交时间。
 
-MEDIATEK系列、QUALCOMMAX系列、ROCKCHIP系列、X86系列。
+MEDIATEK系列（默认不编译）、QUALCOMMAX系列、ROCKCHIP系列（默认不编译）、X86系列。
 
 # 目录简要说明
 
